@@ -1,10 +1,10 @@
  - Input System
-    - Mouse buttons
-    - Scroll wheel
+    [x] Mouse buttons
+    [x] Scroll wheel
+    [x] Mouse Movement
     - Keyboard input
     - Text input
     - Input Events
-    
     
  - Terminal Renderer
     - Multi-color
