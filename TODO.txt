@@ -2,9 +2,9 @@
     [x] Mouse buttons
     [x] Scroll wheel
     [x] Mouse Movement
-    - Keyboard input
-    - Text input
-    - Input Events
+    [x] Keyboard input
+    [x] Text input
+    [x] Input Events
     
  - Terminal Renderer
     - Multi-color

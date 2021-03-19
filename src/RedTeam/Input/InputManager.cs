@@ -13,12 +13,35 @@ namespace RedTeam.Input
         public event EventHandler<MouseScrollEventArgs> MouseHorizontalScroll;
         public event EventHandler<MouseButtonEventArgs> MouseUp;
         public event EventHandler<MouseButtonEventArgs> MouseDown;
+        public event EventHandler<KeyEventArgs> KeyDown;
+        public event EventHandler<KeyEventArgs> KeyUp;
+        public event EventHandler<KeyCharEventArgs> KeyChar;
+        
         
         
         protected override void OnLoad()
         {
             base.OnLoad();
             _lastMouseEvent = new MouseEventArgs(Mouse.GetState());
+            
+            Game.Window.KeyDown += ForwardKeyDown;
+            Game.Window.KeyUp += ForwardKeyUp;
+            Game.Window.TextInput += ForwardText;
+        }
+
+        private void ForwardText(object? sender, TextInputEventArgs e)
+        {
+            KeyChar?.Invoke(this, new KeyCharEventArgs(e.Key, e.Character));
+        }
+
+        private void ForwardKeyUp(object? sender, InputKeyEventArgs e)
+        {
+            KeyUp?.Invoke(this, new KeyEventArgs(e.Key));
+        }
+
+        private void ForwardKeyDown(object? sender, InputKeyEventArgs e)
+        {
+            KeyDown?.Invoke(this, new KeyEventArgs(e.Key));
         }
 
         private void ProcessButton(MouseState mouseState, MouseButton button, ButtonState prev, ButtonState curr)
