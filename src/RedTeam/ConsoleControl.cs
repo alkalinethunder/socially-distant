@@ -46,6 +46,11 @@ namespace RedTeam
             _italicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Italic");
         }
 
+        public void ScrollToBottom()
+        {
+            _scrollback = 0;
+        }
+        
         private string[] BreakWords(string text)
         {
             var words = new List<string>();
@@ -387,6 +392,8 @@ namespace RedTeam
         {
             var result = base.OnKeyChar(e);
 
+            ScrollToBottom();
+            
             if (e.Key == Keys.Enter)
             {
                 var nl = Environment.NewLine;
