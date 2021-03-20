@@ -10,7 +10,7 @@ namespace RedTeam.Gui
     public sealed class GuiSystem : SceneComponent
     {
         private RootElement _rootElement;
-        private bool _debugShowBounds = true;
+        private bool _debugShowBounds;
         private SpriteFont _debugFont;
         private Element _focused;
         private Element _hovered;

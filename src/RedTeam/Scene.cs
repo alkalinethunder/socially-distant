@@ -47,6 +47,8 @@ namespace RedTeam
 
         public void Update(GameTime gameTime)
         {
+            OnUpdate(gameTime);
+            
             foreach (var component in _components.ToArray())
             {
                 component.Update(gameTime);
@@ -61,6 +63,8 @@ namespace RedTeam
             }
         }
         
+        
+        protected virtual void OnUpdate(GameTime gameTime) {}
         protected virtual void OnLoad() {}
         protected virtual void OnUnload() {}
     }

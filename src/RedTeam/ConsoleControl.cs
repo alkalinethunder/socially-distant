@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using RedTeam.Gui;
 using RedTeam.Gui.Elements;
 using RedTeam.Input;
 
 namespace RedTeam
 {
-    public sealed class ConsoleControl : Element
+    public sealed class ConsoleControl : Element, IConsole
     {
         private bool _textIsDirty = true;
         
@@ -18,7 +20,7 @@ namespace RedTeam
         private SpriteFont _italicFont;
         private SpriteFont _boldItalicFont;
 
-        private string _text = "user@shiftos:~# ";
+        private string _text = "";
         private string _input = string.Empty;
         private int _inputPos = 0;
 
@@ -94,6 +96,36 @@ namespace RedTeam
             }
             
             return lines.ToArray();
+        }
+
+        public void MoveLeft(int amount)
+        {
+            if (_inputPos - amount < 0)
+                _inputPos = 0;
+            else
+                _inputPos -= amount;
+            _textIsDirty = true;
+        }
+
+        public void MoveRight(int amount)
+        {
+            if (_inputPos + amount > _input.Length)
+                _inputPos = _input.Length;
+            else
+                _inputPos += amount;
+            _textIsDirty = true;
+        }
+
+        public void MoveToHome()
+        {
+            _inputPos = 0;
+            _textIsDirty = true;
+        }
+
+        public void MoveToEnd()
+        {
+            _inputPos = _input.Length;
+            _textIsDirty = true;
         }
         
         private void CreateTextElements()
@@ -301,6 +333,14 @@ namespace RedTeam
         {
             var result = base.OnKeyChar(e);
 
+            if (e.Key == Keys.Enter)
+            {
+                var nl = Environment.NewLine;
+                _input += nl;
+                MoveToEnd();
+                result = true;
+            }
+            
             if (e.Character == '\b')
             {
                 if (_inputPos > 0)
@@ -332,6 +372,99 @@ namespace RedTeam
             public Color Foreground;
             public bool Underline;
             public Vector2 Position;
+        }
+
+        public void Write(object value)
+        {
+            var text = string.Empty;
+            if (value == null)
+                text = "null";
+            else
+                text = value.ToString();
+            _text += text;
+            _textIsDirty = true;
+        }
+
+        public void WriteLine(object value)
+        {
+            Write(value);
+            WriteLine();
+        }
+
+        public void Write(string format, params object[] values)
+        {
+            var text = string.Format(format, values);
+            _text += text;
+            _textIsDirty = true;
+        }
+
+        public void WriteLine(string format, params object[] values)
+        {
+            Write(format, values);
+            WriteLine();
+        }
+
+        public void WriteLine()
+        {
+            _text += Environment.NewLine;
+            _textIsDirty = true;
+        }
+
+        public void Clear()
+        {
+            _text = string.Empty;
+            _textIsDirty = true;
+        }
+
+        public bool GetLine(out string text)
+        {
+            // shorthand for newline character
+            var nl = Environment.NewLine;
+            
+            // check if a full line of text has been entered.
+            if (_input.Contains(nl))
+            {
+                // Get the first line of text in the input.
+                // This also removes that line from the input.
+                var index = _input.IndexOf(nl);
+                text = _input.Substring(0, index);
+                _input = _input.Substring(text.Length + nl.Length);
+
+                // Write the extracted line to output.
+                WriteLine(text);
+                
+                // Move the cursor to the left by the removed amount of characters.
+                MoveLeft(text.Length + nl.Length);
+                
+                return true;
+            }
+
+            text = string.Empty;
+            return false;
+        }
+
+        public bool GetCharacter(out char character)
+        {
+            // do we have any input?
+            if (!string.IsNullOrWhiteSpace(_input))
+            {
+                // get the first character.
+                character = _input[0];
+                
+                // remove it from input.
+                _input = _input.Substring(1);
+                
+                // echo it
+                Write(character);
+                
+                // Move the cursor to the left by 1.
+                MoveLeft(1);
+
+                return true;
+            }
+
+            character = '\0';
+            return false;
         }
     }
 }
