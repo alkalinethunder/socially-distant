@@ -2,6 +2,8 @@
 {
     public interface IConsole
     {
+        IAutoCompleteSource AutoCompleteSource { get; set; }
+        
         void Write(object value);
         void WriteLine(object value);
         void Write(string format, params object[] values);

@@ -8,6 +8,8 @@ namespace RedTeam
     {
         private Scene _scene;
 
+        public Scene Scene => _scene;
+        
         public RedTeamGame Game => _scene.Game;
         
         public void Load(Scene scene)

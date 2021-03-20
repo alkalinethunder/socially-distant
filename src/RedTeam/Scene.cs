@@ -12,12 +12,21 @@ namespace RedTeam
         private List<SceneComponent> _components = new List<SceneComponent>();
 
         public RedTeamGame Game => _game;
+
+        public void AddComponent(SceneComponent component)
+        {
+            if (component == null)
+                throw new ArgumentNullException(nameof(component));
+            if (component.Scene != null)
+                throw new InvalidOperationException("Scene component already belongs to a Scene.");
+            _components.Add(component);
+            component.Load(this);
+        }
         
         public T AddComponent<T>() where T : SceneComponent, new()
         {
             var component = new T();
-            _components.Add(component);
-            component.Load(this);
+            AddComponent(component);
             return component;
         }
 
