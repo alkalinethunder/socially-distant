@@ -10,6 +10,11 @@ namespace RedTeam
 {
     public class RedTeamGame : Game
     {
+        private static RedTeamGame _instance;
+
+        public static RedTeamGame Instance
+            => _instance;
+        
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _white;
@@ -30,6 +35,7 @@ namespace RedTeam
         
         public RedTeamGame()
         {
+            _instance = this;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;

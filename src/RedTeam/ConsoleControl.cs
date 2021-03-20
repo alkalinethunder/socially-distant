@@ -1,9 +1,286 @@
-﻿using RedTeam.Gui.Elements;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using RedTeam.Gui;
+using RedTeam.Gui.Elements;
 
 namespace RedTeam
 {
     public sealed class ConsoleControl : Element
     {
+        private bool _textIsDirty = true;
         
+        private SpriteFont _regularFont;
+        private SpriteFont _boldFont;
+        private SpriteFont _italicFont;
+        private SpriteFont _boldItalicFont;
+
+        private string _text = "user@shiftos:~# ";
+        private string _input = string.Empty;
+        private int _inputPos = 0;
+
+        private Color _foreground = Color.LightGray;
+        private Color _background = new Color(22, 22, 22);
+        private Color _cursorColor = Color.White;
+        private Color _cursorFG = Color.Black;
+        private Color _highlight = Color.White;
+        private Color _highlightFG = Color.Black;
+
+        private const char CURSOR_SIGNAL = (char) 0xFF;
+
+        private List<TextElement> _elements = new List<TextElement>();
+
+        public ConsoleControl()
+        {
+            _regularFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Regular");
+            _boldFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Bold");
+            _boldItalicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/BoldItalic");
+            _italicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Italic");
+        }
+
+        private string[] BreakWords(string text)
+        {
+            var words = new List<string>();
+
+            var word = string.Empty;
+            foreach (var ch in text)
+            {
+                word += ch;
+                if (char.IsWhiteSpace(ch))
+                {
+                    words.Add(word);
+                    word = string.Empty;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(word))
+                words.Add(word);
+            
+            return words.ToArray();
+        }
+
+        private string[] LetterWrap(SpriteFont font, string text, float width)
+        {
+            var lines = new List<string>();
+
+            var line = string.Empty;
+            var w = 0f;
+            for (int i = 0; i <= text.Length; i++)
+            {
+                if (i < text.Length)
+                {
+                    var ch = text[i];
+                    var m = font.MeasureString(ch.ToString()).X;
+                    if (w + m >= width)
+                    {
+                        lines.Add(line);
+                        line = "";
+                        w = 0;
+                    }
+
+                    line += ch;
+                    w += m;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        lines.Add(line);
+                    }
+                }
+            }
+            
+            return lines.ToArray();
+        }
+        
+        private void CreateTextElements()
+        {
+            // This is incredibly fucked
+            // Step 1 is clear the old crap
+            _elements.Clear();
+            _textIsDirty = false;
+            
+            // step 2 is to break the terminal into words.ords
+            var outWords = BreakWords(_text + _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ");
+            
+            // step 3 is create elements for these words
+            foreach (var word in outWords)
+            {
+                var elem = new TextElement();
+                elem.Text = word;
+                elem.Background = _background;
+                elem.Foreground = _foreground;
+                elem.Font = _regularFont;
+                elem.Underline = false;
+                _elements.Add(elem);
+            }
+            
+            // step 4 is to handle color, attribute and font codes.
+            for (int i = 0; i < _elements.Count; i++)
+            {
+                var elem = _elements[i];
+
+                // handle the cursor
+                if (elem.Text.Contains(CURSOR_SIGNAL))
+                {
+                    var cursor = elem.Text.IndexOf(CURSOR_SIGNAL);
+
+                    var cursorChar = cursor + 1;
+                    var afterCursor = cursorChar + 1;
+
+                    var text = elem.Text;
+
+                    // this element gets everything before the cursor
+                    elem.Text = text.Substring(0, cursor);
+
+                    // this adds the cursor itself as a text element.
+                    i++;
+                    var cElem = new TextElement();
+                    cElem.Font = elem.Font;
+                    cElem.Background = _cursorColor;
+                    cElem.Foreground = _cursorFG;
+                    cElem.Underline = elem.Underline;
+                    cElem.Text = text[cursorChar].ToString();
+                    _elements.Insert(i, cElem);
+
+                    // and this is everything after the cursor.
+                    i++;
+                    var aElem = new TextElement();
+                    aElem.Background = elem.Background;
+                    aElem.Foreground = elem.Foreground;
+                    aElem.Font = elem.Font;
+                    aElem.Underline = elem.Underline;
+                    aElem.Text = text.Substring(afterCursor);
+                    _elements.Insert(i, aElem);
+                }
+            }
+            
+            // step 5 is purging empty elements.
+            for (int i = 0; i < _elements.Count; i++)
+            {
+                var elem = _elements[i];
+                if (string.IsNullOrEmpty(elem.Text))
+                {
+                    _elements.RemoveAt(i);
+                    i--;
+                }
+            }
+            
+            // step 6 is to position the elements.
+            var rect = BoundingBox;
+            var firstLine = true;
+            var pos = rect.Location.ToVector2();
+            for (int i = 0; i < _elements.Count; i++)
+            {
+                var elem = _elements[i];
+                
+                // Measure the element.
+                var measure = elem.Font.MeasureString(elem.Text);
+
+                // wrap to new line if the measurement states we can't fit
+                if (!firstLine && pos.X + measure.X >= rect.Right)
+                {
+                    pos.X = rect.Left;
+                    pos.Y += elem.Font.LineSpacing;
+                }
+
+                elem.Position = pos;
+                
+                // is the element larger than a lie?
+                if (measure.X >= rect.Width)
+                {
+                    // letter-wrap the text
+                    var lines = LetterWrap(elem.Font, elem.Text, rect.Width);
+                    
+                    // this element gets the first line
+                    elem.Text = lines.First();
+                    
+                    // this is some seriously fucked shit
+                    foreach (var line in lines.Skip(1))
+                    {
+                        // what the fuck?
+                        i++;
+                        
+                        // oh my fucking god.
+                        var wtf = new TextElement();
+                        wtf.Font = elem.Font;
+                        wtf.Text = line;
+                        wtf.Foreground = elem.Foreground;
+                        wtf.Background = elem.Background;
+                        wtf.Underline = elem.Underline;
+                        wtf.Position = elem.Position;
+                        
+                        // I wanna die
+                        wtf.Position.Y += wtf.Font.LineSpacing;
+                        
+                        // fuck this
+                        pos = wtf.Position;
+                        
+                        // my god I'm screwed
+                        _elements.Insert(i, wtf);
+                        elem = wtf;
+                        
+                        // SWEET MOTHER OF FUCK
+                        measure = elem.Font.MeasureString(elem.Text);
+                    }
+                }
+
+                if (elem.Text.EndsWith('\n'))
+                {
+                    pos.X = rect.Left;
+                    pos.Y += elem.Font.LineSpacing;
+                }
+                else
+                {
+                    pos.X += measure.X;
+                }
+                
+                firstLine = false;
+            }
+        }
+        
+        protected override void OnUpdate(GameTime gameTime)
+        {
+            base.OnUpdate(gameTime);
+
+            if (_textIsDirty)
+            {
+                CreateTextElements();
+            }
+        }
+
+        protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
+        {
+            renderer.FillRectangle(BoundingBox, _background);
+
+            foreach (var elem in _elements)
+            {
+                var measure = elem.Font.MeasureString(elem.Text);
+                var rect = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X, (int) measure.Y);
+
+                renderer.FillRectangle(rect, elem.Background);
+
+                renderer.DrawString(elem.Font, elem.Text, elem.Position, elem.Foreground);
+
+                if (elem.Underline)
+                {
+                    rect.Height = 2;
+                    rect.Y += (int) measure.Y - rect.Height;
+                    renderer.FillRectangle(rect, elem.Foreground);
+                }
+            }
+        }
+
+        private class TextElement
+        {
+            public SpriteFont Font;
+            public string Text;
+            public Color Background;
+            public Color Foreground;
+            public bool Underline;
+            public Vector2 Position;
+        }
     }
 }
