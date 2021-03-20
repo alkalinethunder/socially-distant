@@ -1,0 +1,272 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace RedTeam.Gui.Elements
+{
+    public abstract class Element
+    {
+        public class ElementCollection : ICollection<Element>
+        {
+            private Element _owner;
+            private List<Element> _children = new List<Element>();
+
+            public ElementCollection(Element owner)
+            {
+                _owner = owner;
+            }
+            
+            public IEnumerator<Element> GetEnumerator()
+            {
+                return _children.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public IEnumerable<Element> Collapse()
+            {
+                foreach (var child in _children)
+                {
+                    yield return child;
+                    foreach (var subchild in child.Children.Collapse())
+                    {
+                        yield return subchild;
+                    }
+                }
+            }
+            
+            public void Add(Element item)
+            {
+                if (item == null)
+                    throw new ArgumentNullException(nameof(item));
+
+                if (item.Parent != null)
+                    throw new InvalidOperationException("GUI element already has a parent.");
+
+                item.Parent = _owner;
+                _children.Add(item);
+            }
+
+            public void Clear()
+            {
+                while (_children.Any())
+                    Remove(_children.First());
+            }
+
+            public bool Contains(Element item)
+            {
+                return item != null && item.Parent == _owner;
+            }
+
+            public void CopyTo(Element[] array, int arrayIndex)
+            {
+                _children.CopyTo(array, arrayIndex);
+            }
+
+            public bool Remove(Element item)
+            {
+                if (item == null)
+                    return false;
+
+                if (item.Parent != _owner)
+                    return false;
+
+                item.Parent = null;
+                return _children.Remove(item);
+            }
+
+            public int Count => _children.Count;
+            public bool IsReadOnly => _owner.SupportsChildren;
+        }
+
+        private int _minWidth;
+        private int _minHeight;
+        private int _maxWidth;
+        private int _maxHeight;
+        private int _fixedWidth;
+        private int _fixedHeight;
+        private string _name;
+        private LayoutManager _layout;
+        private Element _parent;
+        private ElementCollection _children;
+        private HorizontalAlignment _hAlign;
+        private VerticalAlignment _vAlign;
+        private Rectangle _bounds;
+        
+        public Rectangle BoundingBox
+            => _bounds;
+
+        private string DefaultName
+            => $"{this.GetType().Name}_{GetHashCode()}";
+        
+        public string Name
+        {
+            get => _name;
+            set => _name = value ?? DefaultName;
+        }
+        
+        public HorizontalAlignment HorizontalAlignment
+        {
+            get => _hAlign;
+            set => _hAlign = value;
+        }
+
+        public VerticalAlignment VerticalAlignment
+        {
+            get => _vAlign;
+            set => _vAlign = value;
+        }
+        
+        
+        
+        public float Opacity { get; set; } = 1;
+        public bool Enabled { get; set; } = true;
+        
+        public Element Parent
+        {
+            get => _parent;
+            set => _parent = value;
+        }
+
+        protected virtual bool SupportsChildren => false;
+
+        public ElementCollection Children => _children;
+
+        public Element()
+        {
+            _children = new ElementCollection(this);
+            _layout = new LayoutManager(this);
+            _name = DefaultName;
+        }
+
+        protected virtual Vector2 MeasureOverride()
+        {
+            var size = Vector2.Zero;
+
+            foreach (var child in Children)
+            {
+                var childSize = child._layout.GetContentSize();
+                size.X = MathF.Max(size.X, childSize.X);
+                size.Y = MathF.Max(size.Y, childSize.Y);
+            }
+            
+            return size;
+        }
+        
+        protected LayoutManager GetLayoutManager()
+        {
+            return _layout;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            OnUpdate(gameTime);
+            foreach (var child in Children)
+            {
+                child.Update(gameTime);
+            }
+        }
+
+        public void Paint(GameTime gameTime, GuiRenderer renderer)
+        {
+            OnPaint(gameTime, renderer);
+        }
+        
+        protected virtual void OnPaint(GameTime gameTime, GuiRenderer renderer) {}
+        protected virtual void OnUpdate(GameTime gameTime) {}
+        protected virtual void OnPaint(GuiRenderer renderer) {}
+
+        public class LayoutManager
+        {
+            private Element _owner;
+
+            public Vector2 GetContentSize()
+            {
+                var measure = _owner.MeasureOverride();
+
+                if (_owner._fixedWidth > 0)
+                    measure.X = _owner._fixedWidth;
+
+                if (_owner._fixedHeight > 0)
+                    measure.Y = _owner._fixedHeight;
+                
+                if (_owner._minWidth > 0)
+                    measure.X = MathF.Max(_owner._minWidth, measure.X);
+
+                if (_owner._minHeight > 0)
+                    measure.Y = MathF.Max(_owner._minHeight, measure.Y);
+
+                if (_owner._maxWidth > 0)
+                    measure.X = MathF.Min(_owner._maxWidth, measure.X);
+
+                if (_owner._maxHeight > 0)
+                    measure.Y = MathF.Min(_owner._maxHeight, measure.Y);
+
+
+
+
+                return measure;
+            }
+            
+            public LayoutManager(Element element)
+            {
+                _owner = element;
+            }
+
+            public void SetBounds(Rectangle rectangle)
+            {
+                var contentSize = this.GetContentSize();
+
+                var bounds = Rectangle.Empty;
+
+                switch (_owner.HorizontalAlignment)
+                {
+                    case HorizontalAlignment.Center:
+                        bounds.Width = (int) contentSize.X;
+                        bounds.X = rectangle.Right - ((rectangle.Width - bounds.Width) / 2);
+                        break;
+                    case HorizontalAlignment.Left:
+                        bounds.Width = (int) contentSize.X;
+                        bounds.X = rectangle.Left;
+                        break;
+                    case HorizontalAlignment.Right:
+                        bounds.Width = (int) contentSize.X;
+                        bounds.X = rectangle.Right - bounds.Width;
+                        break;
+                    case HorizontalAlignment.Stretch:
+                        bounds.Width = rectangle.Width;
+                        bounds.X = rectangle.Left;
+                        break;
+                }
+                
+                switch (_owner.VerticalAlignment)
+                {
+                    case VerticalAlignment.Center:
+                        bounds.Height = (int) contentSize.Y;
+                        bounds.Y = rectangle.Bottom - ((rectangle.Height - bounds.Height) / 2);
+                        break;
+                    case Gui.VerticalAlignment.Top:
+                        bounds.Height = (int) contentSize.Y;
+                        bounds.Y = rectangle.Top;
+                        break;
+                    case VerticalAlignment.Bottom:
+                        bounds.Height = (int) contentSize.Y;
+                        bounds.Y = rectangle.Bottom - bounds.Height;
+                        break;
+                    case VerticalAlignment.Stretch:
+                        bounds.Height = rectangle.Height;
+                        bounds.Y = rectangle.Top;
+                        break;
+                }
+
+                _owner._bounds = bounds;
+            }
+        }
+    }
+}

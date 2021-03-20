@@ -13,11 +13,21 @@ namespace RedTeam
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _white;
-
+        private Scene _activeScene;
+        
         private List<GlobalComponent> _components = new List<GlobalComponent>();
         
         public Texture2D White => _white;
 
+        public SpriteBatch SpriteBatch => _spriteBatch;
+
+        public int ScreenWidth
+            => GraphicsDevice.PresentationParameters.BackBufferWidth;
+        
+        public int ScreenHeight
+            => GraphicsDevice.PresentationParameters.BackBufferHeight;
+        
+        
         public RedTeamGame()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -36,6 +46,24 @@ namespace RedTeam
             return instance;
         }
 
+        public void LoadScene(Scene scene)
+        {
+            if (scene == null)
+                throw new ArgumentNullException(nameof(scene));
+
+            if (_activeScene != null)
+                _activeScene.Unload();
+
+            _activeScene = scene;
+            scene.Load(this);
+        }
+        
+        public void LoadScene<T>() where T : Scene, new()
+        {
+            var scene = new T();
+            LoadScene(scene);
+        }
+        
         protected override void Initialize()
         {
             RegisterComponent<InputManager>();
@@ -50,7 +78,7 @@ namespace RedTeam
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+            LoadScene<ConsoleScene>();
         }
 
         protected override void UnloadContent()
@@ -61,6 +89,12 @@ namespace RedTeam
             {
                 _components.First().Unload();
                 _components.RemoveAt(0);
+            }
+
+            if (_activeScene != null)
+            {
+                _activeScene.Unload();
+                _activeScene = null;
             }
             
             base.UnloadContent();
@@ -74,11 +108,15 @@ namespace RedTeam
             {
                 component.Update(gameTime);
             }
+
+            _activeScene?.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
+            _activeScene?.Draw(gameTime);
             
             base.Draw(gameTime);
         }
