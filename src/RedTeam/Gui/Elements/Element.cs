@@ -145,6 +145,14 @@ namespace RedTeam.Gui.Elements
             _name = DefaultName;
         }
 
+        protected virtual void ArrangeOverride(Rectangle contentRectangle)
+        {
+            foreach (var child in Children)
+            {
+                child.GetLayoutManager().SetBounds(contentRectangle);
+            }
+        }
+        
         protected virtual Vector2 MeasureOverride()
         {
             var size = Vector2.Zero;
@@ -266,6 +274,8 @@ namespace RedTeam.Gui.Elements
                 }
 
                 _owner._bounds = bounds;
+
+                _owner.ArrangeOverride(bounds);
             }
         }
     }

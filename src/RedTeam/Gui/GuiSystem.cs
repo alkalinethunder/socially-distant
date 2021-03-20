@@ -19,6 +19,11 @@ namespace RedTeam.Gui
             _debugFont = Game.Content.Load<SpriteFont>("Fonts/DebugSmall");
         }
 
+        public void AddToViewport(Element element)
+        {
+            _rootElement.Children.Add(element);
+        }
+        
         protected override void OnUpdate(GameTime gameTime)
         {
             base.OnUpdate(gameTime);
