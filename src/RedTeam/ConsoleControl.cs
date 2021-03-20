@@ -24,9 +24,12 @@ namespace RedTeam
         private string _input = string.Empty;
         private int _inputPos = 0;
 
+        private int _scrollbarWidth = 3;
         private float _scrollbackMax;
         private float _height;
         private float _scrollback;
+        private Color _scrollFG = Color.Cyan;
+        private Color _scrollBG = Color.Gray;
         private Color _foreground = Color.LightGray;
         private Color _background = new Color(22, 22, 22);
         private Color _cursorColor = Color.White;
@@ -239,6 +242,7 @@ namespace RedTeam
             
             // step 6 is to position the elements.
             var rect = BoundingBox;
+            rect.Width -= _scrollbarWidth;
             var firstLine = true;
             var pos = rect.Location.ToVector2();
             for (int i = 0; i < _elements.Count; i++)
@@ -390,6 +394,25 @@ namespace RedTeam
                     rect.Y += (int) measure.Y - rect.Height;
                     renderer.FillRectangle(rect, elem.Foreground);
                 }
+            }
+            
+            // paint the scroollbar.
+            if (_scrollbarWidth > 0 && _height > BoundingBox.Height)
+            {
+                var sRect = BoundingBox;
+                sRect.X = sRect.Right - _scrollbarWidth;
+                sRect.Width = _scrollbarWidth;
+
+                renderer.FillRectangle(sRect, _scrollBG);
+
+                var height = BoundingBox.Height / _height;
+
+                var pos = _height - BoundingBox.Height;
+                pos -= _scrollback;
+
+                sRect.Y = BoundingBox.Top + (int) ((pos / _height) * BoundingBox.Height);
+                sRect.Height = (int) (BoundingBox.Height * height);
+                renderer.FillRectangle(sRect, _scrollFG);
             }
         }
 
