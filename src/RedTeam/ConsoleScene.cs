@@ -15,11 +15,26 @@ namespace RedTeam
 
         public IEnumerable<string> GetCompletions()
         {
-            yield return "foo";
-            yield return "bar";
-            yield return "test";
-            yield return "completion";
-            yield return "whew";
+            yield return "the";
+            yield return "of";
+            yield return "and";
+            yield return "to";
+            yield return "a";
+            yield return "in";
+            yield return "is";
+            yield return "i";
+            yield return "that";
+            yield return "it";
+            yield return "for";
+            yield return "you";
+            yield return "was";
+            yield return "with";
+            yield return "on";
+            yield return "as";
+            yield return "have";
+            yield return "but";
+            yield return "be";
+            yield return "they";
         }
         
         protected override void OnLoad()

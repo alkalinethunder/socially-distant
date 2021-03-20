@@ -40,7 +40,11 @@ namespace RedTeam
         private Color _cursorFG = Color.Black;
         private Color _highlight = Color.White;
         private Color _highlightFG = Color.Black;
-
+        private Vector2 _completionY;
+        private bool _paintCompletions;
+        private float _completionsWidth;
+        private int _completionPageStart;
+        
         private const char CURSOR_SIGNAL = (char) 0xFF;
 
         private List<TextElement> _elements = new List<TextElement>();
@@ -110,7 +114,7 @@ namespace RedTeam
                 {
                     foreach (var completion in AutoCompleteSource.GetCompletions())
                     {
-                        if (completion.ToLower().StartsWith(word.ToLower()))
+                        if (completion.ToLower().StartsWith(word.ToLower()) && completion.Length > word.Length)
                             yield return completion;
                     }
                 }
@@ -296,6 +300,7 @@ namespace RedTeam
                         cElem.Foreground = elem.Foreground;
                     }
 
+                    cElem.IsCursor = true;
                     cElem.Underline = elem.Underline;
                     cElem.Text = text[cursorChar].ToString();
                     _elements.Insert(i, cElem);
@@ -437,6 +442,16 @@ namespace RedTeam
         {
             _relevantCompletions = GetRelevantCompletions().ToArray();
             _activeCompletion = 0;
+            _completionY = _elements.First(x => x.IsCursor).Position;
+            _completionY.Y += _regularFont.LineSpacing;
+            _paintCompletions = _relevantCompletions.Any();
+            _completionPageStart = 0;
+            
+            if (_paintCompletions)
+            {
+                _completionsWidth = _relevantCompletions.Select(x => _regularFont.MeasureString(x + " ").X)
+                    .OrderByDescending(x => x).First();
+            }
         }
         
         protected override void OnUpdate(GameTime gameTime)
@@ -487,6 +502,65 @@ namespace RedTeam
                     rect.Y += (int) measure.Y - rect.Height;
                     renderer.FillRectangle(rect, elem.Foreground);
                 }
+            }
+            
+            // Draw the completions menu
+            if (_paintCompletions && IsFocused)
+            {
+                var cHeight = _completionsPerPage * _regularFont.LineSpacing;
+                var cPos = _completionY;
+
+                // Scrolling
+                if (_height > BoundingBox.Height)
+                {
+                    cPos.Y += (int) _scrollback;
+                }
+
+                // Make sure the menu doesn't go beyond the width of the terminal
+                if (cPos.X + _completionsWidth > BoundingBox.Right)
+                {
+                    var back = BoundingBox.Right - (cPos.X + _completionsWidth);
+                    cPos.X -= back;
+                }
+                
+                // if the page height's going to go below the terminal bounds then we're going to render above the cursor.
+                if (cPos.Y + cHeight > BoundingBox.Bottom)
+                {
+                    // cursor
+                    cPos.Y -= _regularFont.LineSpacing;
+                    // menu
+                    cPos.Y -= cHeight;
+                }
+
+                // paint the background
+                var bgRect = new Rectangle((int) cPos.X, (int) cPos.Y, (int) _completionsWidth, (int) cHeight);
+                renderer.FillRectangle(bgRect, _background);
+                
+                // paint each line
+                var c = 0;
+                bgRect.Height = _regularFont.LineSpacing;
+                for (int i = _completionPageStart; i < _relevantCompletions.Length; i++)
+                {
+                    c++;
+                    if (c >= _completionsPerPage)
+                        break;
+                    
+                    // render the background if we're the active element
+                    var color = _foreground;
+                    if (i == _activeCompletion)
+                    {
+                        renderer.FillRectangle(bgRect, _highlight);
+                        color = _highlightFG;
+                    }
+                    
+                    // draw the text
+                    renderer.DrawString(_regularFont, _relevantCompletions[i], bgRect.Location.ToVector2(), color);
+
+                    bgRect.Y += _regularFont.LineSpacing;
+                }
+                
+
+
             }
             
             // paint the scroollbar.
@@ -543,11 +617,25 @@ namespace RedTeam
                     break;
                 case Keys.Up:
                     if (_activeCompletion > 0)
+                    {
                         _activeCompletion--;
+                        if (_completionPageStart > _activeCompletion)
+                        {
+                            _completionPageStart--;
+                        }
+                    }
+
                     break;
                 case Keys.Down:
-                    if (_activeCompletion < _relevantCompletions.Length)
+                    if (_activeCompletion < _relevantCompletions.Length - 1)
+                    {
                         _activeCompletion++;
+                        if (_completionPageStart + _completionsPerPage < _activeCompletion)
+                        {
+                            _completionPageStart++;
+                        }
+                    }
+
                     break;
                 case Keys.PageUp:
                     ScrollUp(BoundingBox.Height);
@@ -618,6 +706,7 @@ namespace RedTeam
             public Color Foreground;
             public bool Underline;
             public Vector2 Position;
+            public bool IsCursor;
         }
 
         public void Write(object value)
