@@ -541,6 +541,14 @@ namespace RedTeam
                 case Keys.End:
                     MoveToEnd();
                     break;
+                case Keys.Up:
+                    if (_activeCompletion > 0)
+                        _activeCompletion--;
+                    break;
+                case Keys.Down:
+                    if (_activeCompletion < _relevantCompletions.Length)
+                        _activeCompletion++;
+                    break;
                 case Keys.PageUp:
                     ScrollUp(BoundingBox.Height);
                     break;
