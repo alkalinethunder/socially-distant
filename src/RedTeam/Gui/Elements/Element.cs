@@ -300,6 +300,7 @@ namespace RedTeam.Gui.Elements
         public event EventHandler<FocusChangedEventArgs> Blurred;
         public event EventHandler<FocusChangedEventArgs> Focused;
         public event EventHandler<KeyCharEventArgs> KeyChar;
+        public event EventHandler<MouseScrollEventArgs> MouseScroll;
         
         
         protected virtual bool OnBlurred(FocusChangedEventArgs e)
@@ -334,6 +335,17 @@ namespace RedTeam.Gui.Elements
 
             return false;
         }
+
+        protected virtual bool OnMouseScroll(MouseScrollEventArgs e)
+        {
+            if (MouseScroll != null)
+            {
+                MouseScroll(this, e);
+                return true;
+            }
+
+            return false;
+        }
         
         internal bool FireBlurred(FocusChangedEventArgs e)
         {
@@ -348,6 +360,11 @@ namespace RedTeam.Gui.Elements
         internal bool FireKeyChar(KeyCharEventArgs e)
         {
             return OnKeyChar(e);
+        }
+
+        internal bool FireMouseScroll(MouseScrollEventArgs e)
+        {
+            return OnMouseScroll(e);
         }
     }
 }

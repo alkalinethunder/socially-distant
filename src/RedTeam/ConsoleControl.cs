@@ -328,6 +328,20 @@ namespace RedTeam
             }
         }
 
+        protected override bool OnMouseScroll(MouseScrollEventArgs e)
+        {
+            var result = base.OnMouseScroll(e);
+
+            var sb = _scrollback + (e.WheelDelta / 8);
+            if (sb > _scrollbackMax)
+                sb = _scrollbackMax;
+            else if (sb < 0)
+                sb = 0;
+            _scrollback = sb;
+            
+            return result;
+        }
+
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
         {
             renderer.FillRectangle(BoundingBox, _background);
@@ -339,12 +353,12 @@ namespace RedTeam
 
                 if (_height > BoundingBox.Height)
                 {
-                    rect.Y -= (int) _scrollback;
+                    rect.Y += (int) _scrollback;
                 }
                 
                 renderer.FillRectangle(rect, elem.Background);
 
-                renderer.DrawString(elem.Font, elem.Text, elem.Position, elem.Foreground);
+                renderer.DrawString(elem.Font, elem.Text, rect.Location.ToVector2(), elem.Foreground);
 
                 if (elem.Underline)
                 {
