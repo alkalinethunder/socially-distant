@@ -24,6 +24,9 @@ namespace RedTeam
         private string _input = string.Empty;
         private int _inputPos = 0;
 
+        private float _scrollbackMax;
+        private float _height;
+        private float _scrollback;
         private Color _foreground = Color.LightGray;
         private Color _background = new Color(22, 22, 22);
         private Color _cursorColor = Color.White;
@@ -281,6 +284,38 @@ namespace RedTeam
                 
                 firstLine = false;
             }
+            
+            // final step is figuring out how tall the text is.
+            var lineY = -1f;
+            var height = 0;
+            foreach (var elem in _elements)
+            {
+                var y = elem.Position.Y;
+                if (MathF.Abs(lineY - y) >= 0.00001f)
+                {
+                    lineY = y;
+                    height += elem.Font.LineSpacing;
+                }
+            }
+
+            _height = height;
+            
+            // Oh and let's figure out what the max scrollback is.
+            if (_height > BoundingBox.Height)
+            {
+                _scrollbackMax = _height - BoundingBox.Height;
+            }
+            else
+            {
+                _scrollbackMax = 0;
+            }
+            
+            // finally, if the text is taller than the bounds then we need to make sure we account for that.
+            // this is literally how the auto-scroll code plays in.
+            foreach (var elem in _elements)
+            {
+                elem.Position.Y -= _scrollbackMax;
+            }
         }
         
         protected override void OnUpdate(GameTime gameTime)
@@ -302,6 +337,11 @@ namespace RedTeam
                 var measure = elem.Font.MeasureString(elem.Text);
                 var rect = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X, (int) measure.Y);
 
+                if (_height > BoundingBox.Height)
+                {
+                    rect.Y -= (int) _scrollback;
+                }
+                
                 renderer.FillRectangle(rect, elem.Background);
 
                 renderer.DrawString(elem.Font, elem.Text, elem.Position, elem.Foreground);
