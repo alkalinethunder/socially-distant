@@ -32,6 +32,18 @@ namespace RedTeam.Gui
             _input.MouseUp += HandleMouseUp;
             _input.KeyChar += HandleKeyChar;
             _input.MouseScroll += HandleMouseScroll;
+            _input.KeyDown += HandleKeyDown;
+            _input.KeyUp += HandleKeyUp;
+        }
+
+        private void HandleKeyUp(object? sender, KeyEventArgs e)
+        {
+            Bubble(_focused, x => x.FireKeyUp(e));
+        }
+
+        private void HandleKeyDown(object? sender, KeyEventArgs e)
+        {
+            Bubble(_focused, x => x.FireKeyDown(e));
         }
 
         private void HandleMouseScroll(object? sender, MouseScrollEventArgs e)
