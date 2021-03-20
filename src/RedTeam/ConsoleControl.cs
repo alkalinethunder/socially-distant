@@ -135,6 +135,25 @@ namespace RedTeam
             _inputPos = _input.Length;
             _textIsDirty = true;
         }
+
+        public void ScrollUp(float amount)
+        {
+            if (_scrollback + amount > _scrollbackMax)
+            {
+                _scrollback = _scrollbackMax;
+            }
+            else
+            {
+                _scrollback += amount;
+            }
+        }
+
+        public void ScrollDown(float amount)
+        {
+            _scrollback -= amount;
+            if (_scrollback < 0)
+                _scrollback = 0;
+        }
         
         private void CreateTextElements()
         {
@@ -386,6 +405,45 @@ namespace RedTeam
             base.OnFocused(e);
             _textIsDirty = true;
             return true;
+        }
+
+        protected override bool OnKeyDown(KeyEventArgs e)
+        {
+            var result = false;
+
+            switch (e.Key)
+            {
+                case Keys.Left:
+                    MoveLeft(1);
+                    break;
+                case Keys.Right:
+                    MoveRight(1);
+                    break;
+                case Keys.Home:
+                    MoveToHome();
+                    break;
+                case Keys.End:
+                    MoveToEnd();
+                    break;
+                case Keys.PageUp:
+                    ScrollUp(BoundingBox.Height);
+                    break;
+                case Keys.PageDown:
+                    ScrollDown(BoundingBox.Height);
+                    break;
+                case Keys.Delete:
+                    if (_inputPos < _input.Length)
+                    {
+                        _input = _input.Remove(_inputPos, 1);
+                        _textIsDirty = true;
+                    }
+                    break;
+                default:
+                    result = base.OnKeyDown(e);
+                    break;
+            }
+            
+            return result;
         }
 
         protected override bool OnKeyChar(KeyCharEventArgs e)
