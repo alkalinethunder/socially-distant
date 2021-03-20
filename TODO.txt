@@ -1,29 +1,21 @@
- - Input System
-    [x] Mouse buttons
-    [x] Scroll wheel
-    [x] Mouse Movement
-    [x] Keyboard input
-    [x] Text input
-    [x] Input Events
-    
  - Terminal Renderer
     - Multi-color
     - Font styles
     - Text attributes
     - Control codes
-    - Word wrapping
-    - Text cursor rendering
-    - Scrollback
+    [x] Word wrapping
+    [x] Text cursor rendering
+    [x] Scrollback
     
  - Terminal Stream System
-    - Input stream
-    - Output Stream
+    [x] Input stream
+    [x] Output Stream
     
  - Command Shell
-    - Write a prompt
+    [x] Write a prompt
     - Support built-in commands
     - Have a help screen
     - Tab completion
     - Intellisense menu
     - External commands
-    - Accept user input
+    [x] Accept user input
