@@ -30,8 +30,26 @@ namespace RedTeam.Gui
             _input.MouseMove += HandleMouseMove;
             _input.MouseDown += HandleMouseDown;
             _input.MouseUp += HandleMouseUp;
+            _input.KeyChar += HandleKeyChar;
         }
 
+        private void HandleKeyChar(object? sender, KeyCharEventArgs e)
+        {
+            Bubble(_focused, x => x.FireKeyChar(e));
+        }
+
+        private void Bubble(Element element, Func<Element, bool> predicate)
+        {
+            var e = element;
+            while (e != null)
+            {
+                if (predicate(e))
+                    break;
+                e = e.Parent;
+            }
+        }
+
+        
         public void SetFocus(Element element)
         {
             if (_focused != element)

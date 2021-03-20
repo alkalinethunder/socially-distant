@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Gui;
 using RedTeam.Gui.Elements;
+using RedTeam.Input;
 
 namespace RedTeam
 {
@@ -294,6 +295,33 @@ namespace RedTeam
             base.OnFocused(e);
             _textIsDirty = true;
             return true;
+        }
+
+        protected override bool OnKeyChar(KeyCharEventArgs e)
+        {
+            var result = base.OnKeyChar(e);
+
+            if (e.Character == '\b')
+            {
+                if (_inputPos > 0)
+                {
+                    _inputPos--;
+                    _input = _input.Remove(_inputPos, 1);
+                    _textIsDirty = true;
+                }
+
+                return true;
+            }
+            
+            if (_regularFont.Characters.Contains(e.Character))
+            {
+                _input = _input.Insert(_inputPos, e.Character.ToString());
+                _inputPos += 1;
+                _textIsDirty = true;
+                result = true;
+            }
+
+            return result;
         }
 
         private class TextElement

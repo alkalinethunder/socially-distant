@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using RedTeam.Input;
 
 namespace RedTeam.Gui.Elements
 {
@@ -298,7 +299,9 @@ namespace RedTeam.Gui.Elements
 
         public event EventHandler<FocusChangedEventArgs> Blurred;
         public event EventHandler<FocusChangedEventArgs> Focused;
-
+        public event EventHandler<KeyCharEventArgs> KeyChar;
+        
+        
         protected virtual bool OnBlurred(FocusChangedEventArgs e)
         {
             if (Blurred != null)
@@ -321,6 +324,17 @@ namespace RedTeam.Gui.Elements
             return false;
         }
 
+        protected virtual bool OnKeyChar(KeyCharEventArgs e)
+        {
+            if (KeyChar != null)
+            {
+                KeyChar(this, e);
+                return true;
+            }
+
+            return false;
+        }
+        
         internal bool FireBlurred(FocusChangedEventArgs e)
         {
             return OnBlurred(e);
@@ -329,6 +343,11 @@ namespace RedTeam.Gui.Elements
         internal bool FireFocused(FocusChangedEventArgs e)
         {
             return OnFocused(e);
+        }
+
+        internal bool FireKeyChar(KeyCharEventArgs e)
+        {
+            return OnKeyChar(e);
         }
     }
 }
