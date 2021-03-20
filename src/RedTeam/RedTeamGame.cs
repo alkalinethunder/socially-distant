@@ -41,6 +41,11 @@ namespace RedTeam
             IsMouseVisible = true;
         }
 
+        public T GetComponent<T>() where T : GlobalComponent, new()
+        {
+            return _components.OfType<T>().FirstOrDefault() ?? RegisterComponent<T>();
+        }
+        
         public T RegisterComponent<T>() where T : GlobalComponent, new()
         {
             if (_components.Any(x => x is T))

@@ -50,6 +50,7 @@ namespace RedTeam.Gui.Elements
                     throw new InvalidOperationException("GUI element already has a parent.");
 
                 item.Parent = _owner;
+                item._guiSystem = _owner.GuiSystem;
                 _children.Add(item);
             }
 
@@ -78,6 +79,7 @@ namespace RedTeam.Gui.Elements
                     return false;
 
                 item.Parent = null;
+                item._guiSystem = null;
                 return _children.Remove(item);
             }
 
@@ -85,6 +87,7 @@ namespace RedTeam.Gui.Elements
             public bool IsReadOnly => _owner.SupportsChildren;
         }
 
+        private GuiSystem _guiSystem;
         private int _minWidth;
         private int _minHeight;
         private int _maxWidth;
@@ -98,6 +101,9 @@ namespace RedTeam.Gui.Elements
         private HorizontalAlignment _hAlign;
         private VerticalAlignment _vAlign;
         private Rectangle _bounds;
+
+        public GuiSystem GuiSystem
+            => _guiSystem;
         
         public Rectangle BoundingBox
             => _bounds;
@@ -138,6 +144,9 @@ namespace RedTeam.Gui.Elements
 
         public ElementCollection Children => _children;
 
+        public bool IsFocused => GuiSystem.FocusedElement == this;
+        public bool HasAnyFocus => IsFocused || _children.Any(x => x.HasAnyFocus);
+        
         public Element()
         {
             _children = new ElementCollection(this);
@@ -145,6 +154,14 @@ namespace RedTeam.Gui.Elements
             _name = DefaultName;
         }
 
+        protected internal void SetGuiSystem(GuiSystem gui)
+        {
+            if (_guiSystem != null)
+                throw new InvalidOperationException("You can only set the GuiSystem of the Root Element.");
+
+            _guiSystem = gui;
+        }
+        
         protected virtual void ArrangeOverride(Rectangle contentRectangle)
         {
             foreach (var child in Children)
@@ -277,6 +294,41 @@ namespace RedTeam.Gui.Elements
 
                 _owner.ArrangeOverride(bounds);
             }
+        }
+
+        public event EventHandler<FocusChangedEventArgs> Blurred;
+        public event EventHandler<FocusChangedEventArgs> Focused;
+
+        protected virtual bool OnBlurred(FocusChangedEventArgs e)
+        {
+            if (Blurred != null)
+            {
+                Blurred(this, e);
+                return true;
+            }
+
+            return false;
+        }
+        
+        protected virtual bool OnFocused(FocusChangedEventArgs e)
+        {
+            if (Focused != null)
+            {
+                Focused(this, e);
+                return true;
+            }
+
+            return false;
+        }
+
+        internal bool FireBlurred(FocusChangedEventArgs e)
+        {
+            return OnBlurred(e);
+        }
+
+        internal bool FireFocused(FocusChangedEventArgs e)
+        {
+            return OnFocused(e);
         }
     }
 }

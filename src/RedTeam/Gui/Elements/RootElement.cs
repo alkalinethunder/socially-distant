@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RedTeam.Gui.Elements
 {
@@ -8,6 +9,11 @@ namespace RedTeam.Gui.Elements
 
         public LayoutManager LayoutManager
             => GetLayoutManager();
+
+        internal RootElement(GuiSystem gui)
+        {
+            SetGuiSystem(gui ?? throw new ArgumentNullException(nameof(gui)));
+        }
         
         public IEnumerable<Element> CollapseElements()
         {

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Gui.Elements;
+using RedTeam.Input;
 
 namespace RedTeam.Gui
 {
@@ -10,13 +12,70 @@ namespace RedTeam.Gui
         private RootElement _rootElement;
         private bool _debugShowBounds = true;
         private SpriteFont _debugFont;
+        private Element _focused;
+        private Element _hovered;
+        private Element _down;
+        private InputManager _input;
 
+        public Element FocusedElement => _focused;
+        
         protected override void OnLoad()
         {
             base.OnLoad();
-            _rootElement = new RootElement();
+            _input = Game.GetComponent<InputManager>();
+            _rootElement = new RootElement(this);
 
             _debugFont = Game.Content.Load<SpriteFont>("Fonts/DebugSmall");
+            
+            _input.MouseMove += HandleMouseMove;
+            _input.MouseDown += HandleMouseDown;
+            _input.MouseUp += HandleMouseUp;
+        }
+
+        public void SetFocus(Element element)
+        {
+            if (_focused != element)
+            {
+                var evt = new FocusChangedEventArgs(_focused, element);
+
+                if (_focused != null)
+                {
+                    _focused.FireBlurred(evt);
+                }
+
+                if (element != null)
+                {
+                    if (element.FireFocused(evt))
+                    {
+                        _focused = element;
+                    }
+                }
+            }
+        }
+        
+        private void HandleMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            var hovered = FindElement(e.XPosition, e.YPosition);
+
+            if (_down == hovered)
+            {
+                SetFocus(hovered);
+                _down = null;
+            }
+        }
+
+        private void HandleMouseDown(object? sender, MouseButtonEventArgs e)
+        {
+            var hovered = FindElement(e.XPosition, e.YPosition);
+
+            _down = hovered;
+        }
+
+        private void HandleMouseMove(object? sender, MouseMoveEventArgs e)
+        {
+            var hovered = FindElement(e.XPosition, e.YPosition);
+
+            _hovered = hovered;
         }
 
         public void AddToViewport(Element element)
@@ -115,6 +174,30 @@ namespace RedTeam.Gui
                     batch.End();
                 }
             }
+        }
+
+        private Element FindElement(int x, int y)
+        {
+            return FindElement(_rootElement, x, y);
+        }
+
+        private Element FindElement(Element elem, int x, int y)
+        {
+            foreach (var child in elem.Children.ToArray().Reverse())
+            {
+                var f = FindElement(child, x, y);
+                if (f != null)
+                    return f;
+            }
+
+            var b = elem.BoundingBox;
+
+            if (x >= b.Left && x <= b.Right && y >= b.Top && y <= b.Bottom)
+            {
+                return elem;
+            }
+            
+            return null;
         }
     }
 }

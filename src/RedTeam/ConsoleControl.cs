@@ -139,8 +139,17 @@ namespace RedTeam
                     i++;
                     var cElem = new TextElement();
                     cElem.Font = elem.Font;
-                    cElem.Background = _cursorColor;
-                    cElem.Foreground = _cursorFG;
+                    if (HasAnyFocus)
+                    {
+                        cElem.Background = _cursorColor;
+                        cElem.Foreground = _cursorFG;
+                    }
+                    else
+                    {
+                        cElem.Background = elem.Background;
+                        cElem.Foreground = elem.Foreground;
+                    }
+
                     cElem.Underline = elem.Underline;
                     cElem.Text = text[cursorChar].ToString();
                     _elements.Insert(i, cElem);
@@ -271,6 +280,20 @@ namespace RedTeam
                     renderer.FillRectangle(rect, elem.Foreground);
                 }
             }
+        }
+
+        protected override bool OnBlurred(FocusChangedEventArgs e)
+        {
+            base.OnBlurred(e);
+            _textIsDirty = true;
+            return true;
+        }
+
+        protected override bool OnFocused(FocusChangedEventArgs e)
+        {
+            base.OnFocused(e);
+            _textIsDirty = true;
+            return true;
         }
 
         private class TextElement
