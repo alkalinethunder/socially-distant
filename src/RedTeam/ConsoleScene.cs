@@ -1,9 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using RedTeam.Gui;
+using System.Collections.Generic;
 
 namespace RedTeam
 {
-    public class ConsoleScene : Scene
+    public class ConsoleScene : Scene, IAutoCompleteSource
     {
         private GuiSystem _guiSystem;
         private ConsoleControl _console;
@@ -12,11 +13,22 @@ namespace RedTeam
         private string _hostname = "redteam-os";
         private string _work = "~";
 
+        public IEnumerable<string> GetCompletions()
+        {
+            yield return "foo";
+            yield return "bar";
+            yield return "test";
+            yield return "completion";
+            yield return "whew";
+        }
+        
         protected override void OnLoad()
         {
             _guiSystem = AddComponent<GuiSystem>();
             _console = new ConsoleControl();
             _guiSystem.AddToViewport(_console);
+
+            _console.AutoCompleteSource = this;
             
             WritePrompt();
         }

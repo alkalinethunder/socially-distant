@@ -24,6 +24,10 @@ namespace RedTeam
         private string _input = string.Empty;
         private int _inputPos = 0;
 
+        private string[] _relevantCompletions = Array.Empty<string>();
+        private int _activeCompletion = 0;
+
+        private int _completionsPerPage = 10;
         private int _scrollbarWidth = 3;
         private float _scrollbackMax;
         private float _height;
@@ -41,6 +45,8 @@ namespace RedTeam
 
         private List<TextElement> _elements = new List<TextElement>();
 
+        public IAutoCompleteSource AutoCompleteSource { get; set; }
+        
         public ConsoleControl()
         {
             _regularFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Regular");
@@ -49,6 +55,68 @@ namespace RedTeam
             _italicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Italic");
         }
 
+        private (int Start, int End, string Text) GetWordAtInputPos()
+        {
+            var end = 0;
+            var start = 0;
+            var word = string.Empty;
+
+            if (_input.Length > 0)
+            {
+                for (var i = _inputPos; i >= 0; i--)
+                {
+                    if (i < _input.Length)
+                    {
+                        var ch = _input[i];
+                        if (char.IsWhiteSpace(ch))
+                            break;
+                        start = i;
+                    }
+                }
+
+                for (var i = _inputPos; i <= _input.Length; i++)
+                {
+                    if (i == _input.Length)
+                    {
+                        end = i;
+                        break;
+                    }
+                    else
+                    {
+                        var ch = _input[i];
+                        if (char.IsWhiteSpace(ch))
+                            break;
+                        end = i;
+                    }
+                }
+            }
+            else
+            {
+                start = 0;
+                end = 0;
+            }
+
+            word = _input.Substring(start, end - start);
+            
+            return (start, end, word);
+        }
+
+        private IEnumerable<string> GetRelevantCompletions()
+        {
+            if (AutoCompleteSource != null)
+            {
+                var (start, end, word) = GetWordAtInputPos();
+                if (start != end)
+                {
+                    foreach (var completion in AutoCompleteSource.GetCompletions())
+                    {
+                        if (completion.ToLower().StartsWith(word.ToLower()))
+                            yield return completion;
+                    }
+                }
+            }
+        }
+        
         public void ScrollToBottom()
         {
             _scrollback = 0;
@@ -156,6 +224,21 @@ namespace RedTeam
             _scrollback -= amount;
             if (_scrollback < 0)
                 _scrollback = 0;
+        }
+
+        private void ApplyCompletion()
+        {
+            if (_relevantCompletions.Any())
+            {
+                var completion = _relevantCompletions[_activeCompletion];
+                var (start, end, word) = GetWordAtInputPos();
+
+                _input = _input.Remove(start, word.Length);
+                _input = _input.Insert(start, completion);
+                _inputPos = start;
+                MoveRight(completion.Length + 1);
+                _textIsDirty = true;
+            }
         }
         
         private void CreateTextElements()
@@ -344,6 +427,16 @@ namespace RedTeam
             {
                 elem.Position.Y -= _scrollbackMax;
             }
+            
+            // God there will never be a final step to this behemoth of an algorithm.
+            // Update auto-completions.
+            UpdateCompletions();
+        }
+
+        private void UpdateCompletions()
+        {
+            _relevantCompletions = GetRelevantCompletions().ToArray();
+            _activeCompletion = 0;
         }
         
         protected override void OnUpdate(GameTime gameTime)
@@ -460,6 +553,9 @@ namespace RedTeam
                         _input = _input.Remove(_inputPos, 1);
                         _textIsDirty = true;
                     }
+                    break;
+                case Keys.Tab:
+                    ApplyCompletion();
                     break;
                 default:
                     result = base.OnKeyDown(e);
