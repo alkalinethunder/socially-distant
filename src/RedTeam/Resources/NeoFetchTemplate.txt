@@ -1,0 +1,20 @@
+﻿            .-/+oossssoo+/-.               {user}
+        `:+ssssssssssssssssss+:`           {line}
+      -+ssssssssssssssssssyyssss+-         OS: Redteam OS {version}
+    .ossssssssssssssssssdMMMNysssso.       Host: {host}
+   /ssssssssssshdmmNNmmyNMMMMhssssss/      Kernel: {kernelname} {kernelversion}
+  +ssssssssshmydMMMMMMMNddddyssssssss+     Uptime: {uptime}
+ /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/    Packages: {pkgs}
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.   DE: {de}
++sssshhhyNMMNyssssssssssssyNMMMysssssss+   WM: {wm}
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso   Shell: {shell}
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso   Terminal: {term}
++sssshhhyNMMNyssssssssssssyNMMMysssssss+   CPU: {cpu}
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.   GPU: {gpu}
+ /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/    Memory: {memUsed}MiB / {memTotal}MiB
+  +sssssssssdmydMMMMMMMMddddyssssssss+     
+   /ssssssssssshdmNNNNmyNMMMMhssssss/      $0   $1   $2   $3   $4   $5   $6   $7   $0
+    .ossssssssssssssssssdMMMNysssso.       $8   $9   $a   $b   $c   $d   $e   $f   $0
+      -+sssssssssssssssssyyyssss+-
+        `:+ssssssssssssssssss+:`
+            .-/+oossssoo+/-.
