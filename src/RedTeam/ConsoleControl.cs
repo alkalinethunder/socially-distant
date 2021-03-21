@@ -451,7 +451,31 @@ namespace RedTeam
         {
             _relevantCompletions = GetRelevantCompletions().ToArray();
             _activeCompletion = 0;
-            _completionY = _elements.First(x => x.IsCursor).Position;
+            
+            // find the cursor.
+            var cursor = _elements.First(x => x.IsCursor);
+            
+            // is it the first element on the line?
+            if (cursor.Position.X <= BoundingBox.Left)
+            {
+                // use this location as the auto-complete start position
+                _completionY = cursor.Position;
+            }
+            else
+            {
+                // use the element before it.
+                var index = _elements.IndexOf(cursor);
+                if (index > 0)
+                {
+                    var elem = _elements[index - 1];
+                    _completionY = elem.Position;
+                }
+                else
+                {
+                    _completionY = cursor.Position;
+                }
+            }
+            
             _completionY.Y += _regularFont.LineSpacing;
             _paintCompletions = _relevantCompletions.Any();
             _completionPageStart = 0;
