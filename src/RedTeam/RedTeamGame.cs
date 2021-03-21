@@ -37,6 +37,7 @@ namespace RedTeam
         {
             _instance = this;
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
