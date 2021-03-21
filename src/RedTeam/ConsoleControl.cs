@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,12 +14,19 @@ namespace RedTeam
 {
     public sealed class ConsoleControl : Element, IConsole
     {
+        public static readonly char BackgroundColorCode = '$';
+        public static readonly char ForegroundColorCode = '#';
+        public static readonly char AttributeCode = '&';
+        
         private bool _textIsDirty = true;
         
         private SpriteFont _regularFont;
         private SpriteFont _boldFont;
         private SpriteFont _italicFont;
         private SpriteFont _boldItalicFont;
+
+        private ColorPalette _fallbackPalette = new ColorPalette();
+        private ColorPalette _activePalette = null;
 
         private string _text = "";
         private string _input = string.Empty;
@@ -50,13 +58,36 @@ namespace RedTeam
         private List<TextElement> _elements = new List<TextElement>();
 
         public IAutoCompleteSource AutoCompleteSource { get; set; }
-        
+
+        public ColorPalette ColorPalette
+        {
+            get => _activePalette ?? _fallbackPalette;
+            set
+            {
+                _activePalette = value;
+                _textIsDirty = true;
+            }
+        }
+
         public ConsoleControl()
         {
             _regularFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Regular");
             _boldFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Bold");
             _boldItalicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/BoldItalic");
             _italicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Italic");
+        }
+
+        private Color GetColor(ConsoleColor color)
+        {
+            switch (color)
+            {
+                case ConsoleColor.Black:
+                    return _background;
+                case ConsoleColor.Gray:
+                    return _foreground;
+                default:
+                    return ColorPalette.GetColor(color);
+            }
         }
 
         private (int Start, int End, string Text) GetWordAtInputPos()
@@ -190,6 +221,43 @@ namespace RedTeam
             _textIsDirty = true;
         }
 
+        private bool ParseColorCode(char code, out ConsoleColor color)
+        {
+            var result = true;
+            var c = ConsoleColor.Black;
+
+            int num = code switch
+            {
+                '0' => 0,
+                '1' => 1,
+                '2' => 2,
+                '3' => 3,
+                '4' => 4,
+                '5' => 5,
+                '6' => 6,
+                '7' => 7,
+                '8' => 8,
+                '9' => 9,
+                'a' => 10,
+                'A' => 10,
+                'b' => 11,
+                'B' => 11,
+                'c' => 12,
+                'C' => 12,
+                'd' => 13,
+                'D' => 13,
+                'e' => 14,
+                'E' => 14,
+                'f' => 15,
+                'F' => 15,
+                _ => 0
+            };
+
+            result = num > 0 || (num == 0 && code == '0');
+            color = (ConsoleColor) num;
+            return result;
+        }
+
         public void MoveRight(int amount)
         {
             if (_inputPos + amount > _input.Length)
@@ -251,23 +319,77 @@ namespace RedTeam
             // Step 1 is clear the old crap
             _elements.Clear();
             _textIsDirty = false;
+
+            var bg = ConsoleColor.Black;
+            var fg = ConsoleColor.Gray;
             
             // step 2 is to break the terminal into words.ords
             var outWords = BreakWords(_text + _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ");
             
             // step 3 is create elements for these words
-            foreach (var word in outWords)
+            for (var i = 0; i < outWords.Length; i++)
             {
+                var word = outWords[i];
+
                 var elem = new TextElement();
-                elem.Text = word;
-                elem.Background = _background;
-                elem.Foreground = _foreground;
+                elem.Background = GetColor(bg);
+                elem.Foreground = GetColor(fg);
                 elem.Font = _regularFont;
                 elem.Underline = false;
+
+                if (word.Contains(BackgroundColorCode))
+                {
+                    var colorCode = word.IndexOf(BackgroundColorCode);
+                    var colorCharIndex = colorCode + 1;
+                    if (colorCharIndex < word.Length)
+                    {
+                        var colorChar = word[colorCharIndex];
+                        if (ParseColorCode(colorChar, out ConsoleColor color))
+                        {
+                            var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
+                            var postWord = word.Substring(colorCharIndex + 1) ?? "";
+                            word = preWord;
+                            Array.Resize(ref outWords, outWords.Length + 1);
+                            for (int j = outWords.Length - 1; j > i; j--)
+                            {
+                                outWords[j] = outWords[j - 1];
+                            }
+                            outWords[i + 1] = postWord;
+                            outWords[i] = word;
+                            bg = color;
+                        }
+                    }
+                }
+                
+                if (word.Contains(ForegroundColorCode))
+                {
+                    var colorCode = word.IndexOf(ForegroundColorCode);
+                    var colorCharIndex = colorCode + 1;
+                    if (colorCharIndex < word.Length)
+                    {
+                        var colorChar = word[colorCharIndex];
+                        if (ParseColorCode(colorChar, out ConsoleColor color))
+                        {
+                            var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
+                            var postWord = word.Substring(colorCharIndex + 1) ?? "";
+                            word = preWord;
+                            Array.Resize(ref outWords, outWords.Length + 1);
+                            for (int j = outWords.Length - 1; j > i; j--)
+                            {
+                                outWords[j] = outWords[j - 1];
+                            }
+                            outWords[i + 1] = postWord;
+                            outWords[i] = word;
+                            fg = color;
+                        }
+                    }
+                }
+                
+                elem.Text = word;
                 _elements.Add(elem);
             }
             
-            // step 4 is to handle color, attribute and font codes.
+            // step 4 is to handle the cursor.
             for (int i = 0; i < _elements.Count; i++)
             {
                 var elem = _elements[i];
@@ -845,6 +967,41 @@ namespace RedTeam
 
             character = '\0';
             return false;
+        }
+    }
+
+    public class ColorPalette
+    {
+        private Dictionary<ConsoleColor, Color> _map = new Dictionary<ConsoleColor, Color>();
+
+        public ColorPalette()
+        {
+            _map.Add(ConsoleColor.Black, Color.Black);
+            _map.Add(ConsoleColor.White, Color.White);
+            _map.Add(ConsoleColor.Red, Color.Red);
+            _map.Add(ConsoleColor.Green, Color.Green);
+            _map.Add(ConsoleColor.Blue, Color.Blue);
+            _map.Add(ConsoleColor.Gray, Color.Gray);
+            _map.Add(ConsoleColor.DarkGray, Color.DarkGray);
+            _map.Add(ConsoleColor.Cyan, Color.Cyan);
+            _map.Add(ConsoleColor.Magenta, Color.Magenta);
+            _map.Add(ConsoleColor.Yellow, Color.Yellow);
+            _map.Add(ConsoleColor.DarkYellow, Color.Orange);
+            _map.Add(ConsoleColor.DarkRed, Color.DarkRed);
+            _map.Add(ConsoleColor.DarkGreen, Color.DarkGreen);
+            _map.Add(ConsoleColor.DarkBlue, Color.DarkBlue);
+            _map.Add(ConsoleColor.DarkCyan, Color.DarkCyan);
+            _map.Add(ConsoleColor.DarkMagenta, Color.DarkMagenta);
+        }
+        
+        public Color GetColor(ConsoleColor consoleColor)
+        {
+            return _map[consoleColor];
+        }
+
+        public void SetColor(ConsoleColor consoleColor, Color color)
+        {
+            _map[consoleColor] = new Color(color.R, color.G, color.B);
         }
     }
 }
