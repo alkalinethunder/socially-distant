@@ -88,6 +88,9 @@ namespace RedTeam
         
         private void WritePrompt()
         {
+            // this will force the console to reset all colors and attributes to their defaults.
+            _console.Write("&0");
+
             var work = _work;
             if (work.StartsWith(_home))
                 work = PathUtils.Home + work.Substring(_home.Length);
