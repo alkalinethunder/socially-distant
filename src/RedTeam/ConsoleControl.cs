@@ -345,6 +345,8 @@ namespace RedTeam
                 'b' => ConsoleAttribute.FontBold,
                 'B' => ConsoleAttribute.FontNoBold,
                 'I' => ConsoleAttribute.FontNoItalic,
+                '2' => ConsoleAttribute.Blink,
+                'U' => ConsoleAttribute.NoUnderline,
                 _ => ConsoleAttribute.Unknown
             };
 
@@ -368,6 +370,7 @@ namespace RedTeam
             var bold = false;
             var italic = false;
             var underline = false;
+            var blink = false;
             
             // step 2 is to break the terminal into words.ords
             var outWords = BreakWords(_text + _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ");
@@ -382,7 +385,8 @@ namespace RedTeam
                 elem.Foreground = GetColor(fg);
                 elem.Font = GetFont(bold, italic);
                 elem.Underline = underline;
-
+                elem.Blinking = blink;
+                
                 if (word.Contains(BackgroundColorCode))
                 {
                     var colorCode = word.IndexOf(BackgroundColorCode);
@@ -459,6 +463,7 @@ namespace RedTeam
                                     italic = false;
                                     fg = ConsoleColor.Gray;
                                     bg = ConsoleColor.Black;
+                                    blink = false;
                                     break;
                                 case ConsoleAttribute.ResetFont:
                                     bold = false;
@@ -478,6 +483,12 @@ namespace RedTeam
                                     break;
                                 case ConsoleAttribute.Underline:
                                     underline = true;
+                                    break;
+                                case ConsoleAttribute.Blink:
+                                    blink = true;
+                                    break;
+                                case ConsoleAttribute.NoUnderline:
+                                    underline = false;
                                     break;
                             }
                         }
@@ -773,6 +784,11 @@ namespace RedTeam
                         fg = s;
                     }
                 }
+
+                if (elem.Blinking && !_blinkShow)
+                {
+                    fg = Color.Transparent;
+                }
                 
                 renderer.FillRectangle(rect, bg);
 
@@ -990,6 +1006,7 @@ namespace RedTeam
             public bool Underline;
             public Vector2 Position;
             public bool IsCursor;
+            public bool Blinking;
         }
 
         public void Write(object value)
@@ -1141,6 +1158,8 @@ namespace RedTeam
         FontNoBold,
         FontItalic,
         FontNoItalic,
-        Underline
+        Underline,
+        NoUnderline,
+        Blink
     }
 }
