@@ -5,14 +5,18 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Transactions;
 using Microsoft.Xna.Framework;
+using RedTeam.IO;
 
 namespace RedTeam
 {
     public class Shell : SceneComponent, IAutoCompleteSource
     {
+        private List<string> _completions = new List<string>();
         private IConsole _console;
         private List<Builtin> _builtins = new List<Builtin>();
-
+        private FileSystem _fs;
+        private string _work = "/";
+        
         public void RegisterBuiltin(string name, string desc, Action<IConsole, string, string[]> action)
         {
             var builtin = _builtins.FirstOrDefault(x => x.Name == name);
@@ -33,9 +37,41 @@ namespace RedTeam
             }
         }
 
+        private void UpdateCompletions()
+        {
+            _completions.Clear();
+            
+            // built-ins
+            foreach (var builtin in _builtins)
+                _completions.Add(builtin.Name);
+            
+            // files in the working directory.
+            foreach (var dir in _fs.GetDirectories(_work))
+            {
+                var name = PathUtils.GetFileName(dir);
+
+                _completions.Add($".{PathUtils.Separator}{name.Replace(" ", "\\ ")}");
+                _completions.Add(name.Replace(" ", "\\ "));
+
+                _completions.Add($"\"{name}\"");
+                _completions.Add($"\".{PathUtils.Separator}{name}\"");
+            }
+            
+            foreach (var dir in _fs.GetFiles(_work))
+            {
+                var name = PathUtils.GetFileName(dir);
+
+                _completions.Add($".{PathUtils.Separator}{name.Replace(" ", "\\ ")}");
+                _completions.Add(name.Replace(" ", "\\ "));
+
+                _completions.Add($"\"{name}\"");
+                _completions.Add($"\".{PathUtils.Separator}{name}\"");
+            }
+        }
+        
         private void WritePrompt()
         {
-            _console.Write("# ");
+            _console.Write("{0}# ", _work);
         }
         
         public void RegisterBuiltin(string name, string desc, Action action)
@@ -45,16 +81,14 @@ namespace RedTeam
         
         public IEnumerable<string> GetCompletions()
         {
-            foreach (var builtin in _builtins)
-            {
-                yield return builtin.Name;
-            }
+            return _completions;
         }
 
-        public Shell(IConsole console)
+        public Shell(IConsole console, FileSystem fs)
         {
             _console = console;
             _console.AutoCompleteSource = this;
+            _fs = fs;
         }
 
         protected override void OnLoad()
@@ -63,10 +97,77 @@ namespace RedTeam
 
             RegisterBuiltin("clear", "Clear the screen", _console.Clear);
             RegisterBuiltin("echo", "Write text to the screen", Echo);
+            RegisterBuiltin("ls", "List the current working directory.", Ls);
+            RegisterBuiltin("cd", "Change directory", ChangeWorkingDirectory);
+            RegisterBuiltin("cat", "Show a file's contents", Cat);
+
+            UpdateCompletions();
             
             WritePrompt();
         }
 
+        private void Cat(IConsole console, string name, string[] args)
+        {
+            if (args.Length < 1)
+                throw new SyntaxErrorException($"{name}: usage: {name} <path>");
+
+            var path = ResolvePath(args.First());
+
+            try
+            {
+                var text = _fs.ReadAllText(path);
+                console.WriteLine(text);
+            }
+            catch (Exception ex)
+            {
+                console.WriteLine("{0}: {1}: {2}", name, path, ex.Message);
+            }
+        }
+
+        private string ResolvePath(string path)
+        {
+            if (!path.StartsWith(PathUtils.Separator))
+            {
+                path = PathUtils.Combine(_work, path);
+            }
+
+            var resolved = PathUtils.Resolve(path);
+            return resolved;
+        }
+        
+        private void ChangeWorkingDirectory(IConsole console, string name, string[] args)
+        {
+            if (args.Length < 1)
+                throw new SyntaxErrorException($"{name}: usage: {name} <path>");
+
+            var path = args.First();
+
+            var resolved = ResolvePath(path);
+
+            if (_fs.DirectoryExists(resolved))
+            {
+                _work = resolved;
+                UpdateCompletions();
+            }
+            else
+            {
+                throw new SyntaxErrorException($"{name}: {path}: Directory not found.");
+            }
+        }
+        
+        private void Ls(IConsole console, string name, string[] args)
+        {
+            foreach (var dir in _fs.GetDirectories(_work))
+            {
+                console.WriteLine(dir);
+            }
+
+            foreach (var file in _fs.GetFiles(_work))
+            {
+                console.WriteLine(file);
+            }
+        }
+        
         protected override void OnUpdate(GameTime gameTime)
         {
             base.OnUpdate(gameTime);

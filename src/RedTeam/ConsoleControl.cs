@@ -336,6 +336,15 @@ namespace RedTeam
             for (int i = 0; i < _elements.Count; i++)
             {
                 var elem = _elements[i];
+
+                for (int j = 0; j < elem.Text.Length; j++)
+                {
+                    if (char.IsWhiteSpace(elem.Text[j]))
+                        continue;
+
+                    if (!elem.Font.Characters.Contains(elem.Text[j]))
+                        elem.Text = elem.Text.Replace(elem.Text[j], '?');
+                }
                 
                 // Measure the element.
                 var measure = elem.Font.MeasureString(elem.Text);
@@ -716,16 +725,27 @@ namespace RedTeam
                 text = "null";
             else
                 text = value.ToString();
+            Write(text);
+        }
+
+        public void Write(string text)
+        {
             _text += text;
             _textIsDirty = true;
         }
-
+        
         public void WriteLine(object value)
         {
             Write(value);
             WriteLine();
         }
 
+        public void WriteLine(string text)
+        {
+            Write(text);
+            WriteLine();
+        }
+        
         public void Write(string format, params object[] values)
         {
             var text = string.Format(format, values);

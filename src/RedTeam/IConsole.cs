@@ -5,7 +5,9 @@
         IAutoCompleteSource AutoCompleteSource { get; set; }
         
         void Write(object value);
+        void Write(string valuue);
         void WriteLine(object value);
+        void WriteLine(string value);
         void Write(string format, params object[] values);
         void WriteLine(string format, params object[] values);
         void WriteLine();

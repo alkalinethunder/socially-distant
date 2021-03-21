@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using RedTeam.Gui;
 using System.Collections.Generic;
+using RedTeam.IO;
 
 namespace RedTeam
 {
@@ -15,7 +16,7 @@ namespace RedTeam
             _guiSystem = AddComponent<GuiSystem>();
             _console = new ConsoleControl();
             _guiSystem.AddToViewport(_console);
-            _shell = new Shell(_console);
+            _shell = new Shell(_console, FileSystem.FromHostOS());
             AddComponent(_shell);
         }
     }
