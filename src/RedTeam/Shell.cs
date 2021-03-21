@@ -43,6 +43,11 @@ namespace RedTeam
             }
         }
 
+        public void RegisterBuiltin(string name, string desc, Action<IConsole> action)
+        {
+            RegisterBuiltin(name, desc, (console, name, args) => action(console));
+        }
+
         private void UpdateCompletions()
         {
             _completions.Clear();
@@ -132,10 +137,55 @@ namespace RedTeam
             _fs = fs;
         }
 
+        private void PrintBuiltins(IConsole console)
+        {
+            console.WriteLine("Commands:");
+            console.WriteLine();
+
+            foreach (var cmd in _builtins)
+            {
+                if (string.IsNullOrWhiteSpace(cmd.Description))
+                    console.WriteLine(" - {0}", cmd.Name);
+                else
+                    console.WriteLine(" - {0}: {1}", cmd.Name, cmd.Description);
+            }
+
+            console.WriteLine();
+        }
+        
+        private void PrintExternals(IConsole console)
+        {
+            console.WriteLine("Programs:");
+            console.WriteLine();
+
+            foreach (var cmd in _commands)
+            {
+                if (string.IsNullOrWhiteSpace(cmd.Description))
+                    console.WriteLine(" - {0}", cmd.Name);
+                else
+                    console.WriteLine(" - {0}: {1}", cmd.Name, cmd.Description);
+            }
+
+            console.WriteLine();
+        }
+
+        public void PrintHelp(IConsole console)
+        {
+            console.WriteLine("COMMAND HELP");
+            console.WriteLine("============");
+            console.WriteLine();
+            PrintBuiltins(console);
+            console.WriteLine();
+            PrintExternals(console);
+        }
+        
         protected override void OnLoad()
         {
             base.OnLoad();
 
+            RegisterBuiltin("commands", "Show a list of built-in commands", PrintBuiltins);
+            RegisterBuiltin("programs", "Show a list of installed programs.", PrintExternals);
+            RegisterBuiltin("help", "Show the full help text.", PrintHelp);
             RegisterBuiltin("clear", "Clear the screen", (console, name, args) => console.Clear());
             RegisterBuiltin("echo", "Write text to the screen", Echo);
             RegisterBuiltin("cd", "Change directory", ChangeWorkingDirectory);
