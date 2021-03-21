@@ -3,7 +3,7 @@ using System.IO;
 
 namespace RedTeam.IO
 {
-    public class WindowsPseudoNode : Node
+    public class WindowsMasterNode : Node
     {
         public override bool CanDelete => false;
         public override bool CanRead => false;

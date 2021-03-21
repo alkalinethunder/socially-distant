@@ -212,11 +212,11 @@ namespace RedTeam.IO
 
             if (RedTeamPlatform.IsPlatform(Platform.Windows))
             {
-                node = new WindowsPseudoNode();
+                node = new WindowsMasterNode();
             }
             else
             {
-                throw new InvalidOperationException("Cannot access the filesystem of this platform.");
+                node = new UnixMasterNode();
             }
             
             return new FileSystem(node);
