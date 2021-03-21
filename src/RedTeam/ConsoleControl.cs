@@ -312,6 +312,36 @@ namespace RedTeam
                 _textIsDirty = true;
             }
         }
+
+        private SpriteFont GetFont(bool bold, bool italic)
+        {
+            if (bold && italic)
+                return _boldItalicFont;
+            else if (bold)
+                return _boldFont;
+            else if (italic)
+                return _italicFont;
+            else
+                return _regularFont;
+        }
+
+        private bool ParseAttribute(char code, out ConsoleAttribute attribute)
+        {
+            var attr = code switch
+            {
+                '0' => ConsoleAttribute.Reset,
+                '1' => ConsoleAttribute.ResetFont,
+                'u' => ConsoleAttribute.Underline,
+                'i' => ConsoleAttribute.FontItalic,
+                'b' => ConsoleAttribute.FontBold,
+                'B' => ConsoleAttribute.FontNoBold,
+                'I' => ConsoleAttribute.FontNoItalic,
+                _ => ConsoleAttribute.Unknown
+            };
+
+            attribute = attr;
+            return attr != ConsoleAttribute.Unknown;
+        }
         
         private void CreateTextElements()
         {
@@ -322,6 +352,9 @@ namespace RedTeam
 
             var bg = ConsoleColor.Black;
             var fg = ConsoleColor.Gray;
+            var bold = false;
+            var italic = false;
+            var underline = false;
             
             // step 2 is to break the terminal into words.ords
             var outWords = BreakWords(_text + _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ");
@@ -334,8 +367,8 @@ namespace RedTeam
                 var elem = new TextElement();
                 elem.Background = GetColor(bg);
                 elem.Foreground = GetColor(fg);
-                elem.Font = _regularFont;
-                elem.Underline = false;
+                elem.Font = GetFont(bold, italic);
+                elem.Underline = underline;
 
                 if (word.Contains(BackgroundColorCode))
                 {
@@ -381,6 +414,59 @@ namespace RedTeam
                             outWords[i + 1] = postWord;
                             outWords[i] = word;
                             fg = color;
+                        }
+                    }
+                }
+                
+                if (word.Contains(AttributeCode))
+                {
+                    var colorCode = word.IndexOf(AttributeCode);
+                    var colorCharIndex = colorCode + 1;
+                    if (colorCharIndex < word.Length)
+                    {
+                        var colorChar = word[colorCharIndex];
+                        if (ParseAttribute(colorChar, out ConsoleAttribute attr))
+                        {
+                            var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
+                            var postWord = word.Substring(colorCharIndex + 1) ?? "";
+                            word = preWord;
+                            Array.Resize(ref outWords, outWords.Length + 1);
+                            for (int j = outWords.Length - 1; j > i; j--)
+                            {
+                                outWords[j] = outWords[j - 1];
+                            }
+                            outWords[i + 1] = postWord;
+                            outWords[i] = word;
+
+                            switch (attr)
+                            {
+                                case ConsoleAttribute.Reset:
+                                    underline = false;
+                                    bold = false;
+                                    italic = false;
+                                    fg = ConsoleColor.Gray;
+                                    bg = ConsoleColor.Black;
+                                    break;
+                                case ConsoleAttribute.ResetFont:
+                                    bold = false;
+                                    italic = false;
+                                    break;
+                                case ConsoleAttribute.FontBold:
+                                    bold = true;
+                                    break;
+                                case ConsoleAttribute.FontItalic:
+                                    italic = true;
+                                    break;
+                                case ConsoleAttribute.FontNoBold:
+                                    bold = false;
+                                    break;
+                                case ConsoleAttribute.FontNoItalic:
+                                    italic = false;
+                                    break;
+                                case ConsoleAttribute.Underline:
+                                    underline = true;
+                                    break;
+                            }
                         }
                     }
                 }
@@ -1003,5 +1089,17 @@ namespace RedTeam
         {
             _map[consoleColor] = new Color(color.R, color.G, color.B);
         }
+    }
+
+    public enum ConsoleAttribute
+    {
+        Unknown,
+        Reset,
+        ResetFont,
+        FontBold,
+        FontNoBold,
+        FontItalic,
+        FontNoItalic,
+        Underline
     }
 }
