@@ -18,6 +18,15 @@ namespace RedTeam
         public static readonly char ForegroundColorCode = '#';
         public static readonly char AttributeCode = '&';
         
+        private const double _cursorBlinkTime = 0.75;
+        private const double _blinkTime = 1;
+
+        private double _blink;
+        private double _cursorBlink;
+        private bool _blinkShow = true;
+        private bool _cursorShow = true;
+
+        
         private bool _textIsDirty = true;
         
         private SpriteFont _regularFont;
@@ -349,7 +358,11 @@ namespace RedTeam
             // Step 1 is clear the old crap
             _elements.Clear();
             _textIsDirty = false;
-
+            _blinkShow = true;
+            _blink = 0;
+            _cursorBlink = 0;
+            _cursorShow = true;
+            
             var bg = ConsoleColor.Black;
             var fg = ConsoleColor.Gray;
             var bold = false;
@@ -699,6 +712,21 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
+            _cursorBlink += gameTime.ElapsedGameTime.TotalSeconds;
+            _blink += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (_cursorBlink >= _cursorBlinkTime)
+            {
+                _cursorBlink = 0;
+                _cursorShow = !_cursorShow;
+            }
+
+            if (_blink >= _blinkTime)
+            {
+                _blink = 0;
+                _blinkShow = !_blinkShow;
+            }
+
             if (_textIsDirty)
             {
                 CreateTextElements();
@@ -728,20 +756,33 @@ namespace RedTeam
                 var measure = elem.Font.MeasureString(elem.Text);
                 var rect = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X, (int) measure.Y);
 
+                var bg = elem.Background;
+                var fg = elem.Foreground;
+                
                 if (_height > BoundingBox.Height)
                 {
                     rect.Y += (int) _scrollback;
                 }
-                
-                renderer.FillRectangle(rect, elem.Background);
 
-                renderer.DrawString(elem.Font, elem.Text, rect.Location.ToVector2(), elem.Foreground);
+                if (elem.IsCursor)
+                {
+                    if (!_cursorShow)
+                    {
+                        var s = bg;
+                        bg = fg;
+                        fg = s;
+                    }
+                }
+                
+                renderer.FillRectangle(rect, bg);
+
+                renderer.DrawString(elem.Font, elem.Text, rect.Location.ToVector2(), fg);
 
                 if (elem.Underline)
                 {
                     rect.Height = 2;
                     rect.Y += (int) measure.Y - rect.Height;
-                    renderer.FillRectangle(rect, elem.Foreground);
+                    renderer.FillRectangle(rect, fg);
                 }
             }
             
