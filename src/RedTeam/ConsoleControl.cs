@@ -540,7 +540,7 @@ namespace RedTeam
             // Draw the completions menu
             if (_paintCompletions && IsFocused)
             {
-                var cHeight = _completionsPerPage * _regularFont.LineSpacing;
+                var cHeight = Math.Min(_relevantCompletions.Length, _completionsPerPage) * _regularFont.LineSpacing;
                 var cPos = _completionY;
 
                 // Scrolling
@@ -574,9 +574,10 @@ namespace RedTeam
                 bgRect.Height = _regularFont.LineSpacing;
                 for (int i = _completionPageStart; i < _relevantCompletions.Length; i++)
                 {
-                    c++;
-                    if (c >= _completionsPerPage)
+                    if (c > _completionsPerPage)
                         break;
+
+                    c++;
                     
                     // render the background if we're the active element
                     var color = _foreground;
