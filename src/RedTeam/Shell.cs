@@ -13,6 +13,7 @@ namespace RedTeam
 {
     public class Shell : SceneComponent, IAutoCompleteSource
     {
+        private string _home;
         private List<string> _completions = new List<string>();
         private IConsole _console;
         private List<CommandInfo> _commands = new List<CommandInfo>();
@@ -22,6 +23,7 @@ namespace RedTeam
         private bool _executing;
         private Queue<Instruction> _instructions = new Queue<Instruction>();
         private Command _activeExternal;
+        private IRedTeamContext _userContext;
         
         public void RegisterBuiltin(string name, string desc, Action<IConsole, string, string[]> action)
         {
@@ -86,7 +88,10 @@ namespace RedTeam
         
         private void WritePrompt()
         {
-            _console.Write("{0}# ", _work);
+            var work = _work;
+            if (work.StartsWith(_home))
+                work = PathUtils.Home + work.Substring(_home.Length);
+            _console.Write("{0}@{1}:{2}# ", _userContext.UserName, _userContext.HostName, work);
         }
         
         public void RegisterBuiltin(string name, string desc, Action action)
@@ -130,11 +135,13 @@ namespace RedTeam
             }
         }
 
-        public Shell(IConsole console, FileSystem fs)
+        public Shell(IConsole console, FileSystem fs, IRedTeamContext ctx)
         {
             _console = console;
             _console.AutoCompleteSource = this;
             _fs = fs;
+            _userContext = ctx ?? throw new ArgumentNullException(nameof(ctx));
+            _home = _userContext.HomeDirectory;
         }
 
         private void PrintBuiltins(IConsole console)
@@ -183,6 +190,16 @@ namespace RedTeam
         {
             base.OnLoad();
 
+            if (_fs.DirectoryExists(_home))
+            {
+                _work = _home;
+            }
+            else
+            {
+                _console.WriteLine(
+                    "sh: warning: user home directory was not found on disk, falling back to root directory /");
+            }
+            
             RegisterBuiltin("commands", "Show a list of built-in commands", PrintBuiltins);
             RegisterBuiltin("programs", "Show a list of installed programs.", PrintExternals);
             RegisterBuiltin("help", "Show the full help text.", PrintHelp);
@@ -212,6 +229,11 @@ namespace RedTeam
         
         private string ResolvePath(string path)
         {
+            if (path.StartsWith(PathUtils.Home))
+            {
+                path = PathUtils.Combine(_home, path.Substring(PathUtils.Home.Length));
+            }
+            
             if (!path.StartsWith(PathUtils.Separator))
             {
                 path = PathUtils.Combine(_work, path);
