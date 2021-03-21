@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 
 namespace RedTeam.IO
@@ -15,6 +16,10 @@ namespace RedTeam.IO
             _directory = hostPath;
         }
 
+        public override void Delete(bool recursive)
+        {
+            Directory.Delete(_directory, recursive);
+        }
 
         public override bool CanDelete => true;
         public override bool CanRead => false;

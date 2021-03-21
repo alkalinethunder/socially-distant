@@ -31,5 +31,10 @@ namespace RedTeam.IO
         {
             return File.Open(_file, append ? FileMode.Append : FileMode.Open);
         }
+
+        public override void Delete(bool recursive)
+        {
+            File.Delete(_file);
+        }
     }
 }
