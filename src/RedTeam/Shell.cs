@@ -292,7 +292,7 @@ namespace RedTeam
                         else
                         {
                             _activeExternal = cmd;
-                            _activeExternal.Run(ins.Args, _work, _fs, ins.Console);
+                            _activeExternal.Run(ins.Args, _work, _fs, ins.Console, _userContext);
                             return;
                         }
                     }
