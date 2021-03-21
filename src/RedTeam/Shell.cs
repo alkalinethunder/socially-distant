@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Transactions;
 using Microsoft.Xna.Framework;
+using RedTeam.Commands;
 using RedTeam.IO;
 
 namespace RedTeam
@@ -14,11 +15,13 @@ namespace RedTeam
     {
         private List<string> _completions = new List<string>();
         private IConsole _console;
+        private List<CommandInfo> _commands = new List<CommandInfo>();
         private List<Builtin> _builtins = new List<Builtin>();
         private FileSystem _fs;
         private string _work = "/";
         private bool _executing;
         private Queue<Instruction> _instructions = new Queue<Instruction>();
+        private Command _activeExternal;
         
         public void RegisterBuiltin(string name, string desc, Action<IConsole, string, string[]> action)
         {
@@ -47,6 +50,10 @@ namespace RedTeam
             // built-ins
             foreach (var builtin in _builtins)
                 _completions.Add(builtin.Name);
+            
+            // external programs
+            foreach (var cmd in _commands)
+                _completions.Add(cmd.Name);
             
             // files in the working directory.
             foreach (var dir in _fs.GetDirectories(_work))
@@ -131,33 +138,28 @@ namespace RedTeam
 
             RegisterBuiltin("clear", "Clear the screen", (console, name, args) => console.Clear());
             RegisterBuiltin("echo", "Write text to the screen", Echo);
-            RegisterBuiltin("ls", "List the current working directory.", Ls);
             RegisterBuiltin("cd", "Change directory", ChangeWorkingDirectory);
-            RegisterBuiltin("cat", "Show a file's contents", Cat);
 
+            foreach (var type in RedTeamPlatform.GetAllTypes<Command>())
+            {
+                var cmd = (Command) Activator.CreateInstance(type, null);
+
+                if (_commands.Any(x => x.Name == cmd.Name))
+                    throw new InvalidOperationException($"Command {cmd.Name} already taken by another command.");
+
+                var info = new CommandInfo();
+                info.Name = cmd.Name;
+                info.Description = cmd.Description;
+                info.Type = type;
+
+                _commands.Add(info);
+            }
+            
             UpdateCompletions();
             
             WritePrompt();
         }
-
-        private void Cat(IConsole console, string name, string[] args)
-        {
-            if (args.Length < 1)
-                throw new SyntaxErrorException($"{name}: usage: {name} <path>");
-
-            var path = ResolvePath(args.First());
-
-            try
-            {
-                var text = _fs.ReadAllText(path);
-                console.WriteLine(text);
-            }
-            catch (Exception ex)
-            {
-                console.WriteLine("{0}: {1}: {2}", name, path, ex.Message);
-            }
-        }
-
+        
         private string ResolvePath(string path)
         {
             if (!path.StartsWith(PathUtils.Separator))
@@ -189,32 +191,38 @@ namespace RedTeam
             }
         }
         
-        private void Ls(IConsole console, string name, string[] args)
-        {
-            foreach (var dir in _fs.GetDirectories(_work))
-            {
-                console.WriteLine(dir);
-            }
-
-            foreach (var file in _fs.GetFiles(_work))
-            {
-                console.WriteLine(file);
-            }
-        }
-        
         protected override void OnUpdate(GameTime gameTime)
         {
             base.OnUpdate(gameTime);
 
             if (_executing)
             {
+                if (_activeExternal != null)
+                {
+                    _activeExternal.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
+                    if (_activeExternal.IsCompleted)
+                        _activeExternal = null;
+                    else
+                        return;
+                }
+                
                 while (_instructions.Any())
                 {
                     var ins = _instructions.Dequeue();
 
                     if (!ProcessBuiltin(ins.Console, ins.Name, ins.Args))
                     {
-                        ins.Console.WriteLine("{0}: {1}: Command not found.", "sh", ins.Name);
+                        var cmd = FindCommand(ins.Name);
+                        if (cmd == null)
+                        {
+                            ins.Console.WriteLine("{0}: {1}: Command not found.", "sh", ins.Name);
+                        }
+                        else
+                        {
+                            _activeExternal = cmd;
+                            _activeExternal.Run(ins.Args, _work, _fs, ins.Console);
+                            return;
+                        }
                     }
 
                     if (ins.Console is IDisposable disposable)
@@ -341,6 +349,17 @@ namespace RedTeam
             return false;
         }
 
+        private Command FindCommand(string name)
+        {
+            var info = _commands.FirstOrDefault(x => x.Name == name);
+            if (info != null)
+            {
+                return (Command) Activator.CreateInstance(info.Type, null);
+            }
+
+            return null;
+        }
+
         private IEnumerable<Instruction> ProcessTokens(string[] words)
         {
             var ins = null as Instruction;
@@ -424,6 +443,14 @@ namespace RedTeam
             public Action<IConsole, string, string[]> Action;
         }
 
+        private class CommandInfo
+        {
+            public string Name;
+            public string Description;
+
+            public Type Type;
+        }
+        
         private class Instruction
         {
             public string Name;

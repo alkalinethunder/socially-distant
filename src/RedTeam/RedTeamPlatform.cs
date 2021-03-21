@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using BindingFlags = System.Reflection.BindingFlags;
 
 namespace RedTeam
 {
@@ -26,6 +28,21 @@ namespace RedTeam
         public static bool IsPlatform(Platform platform)
         {
             return GetCurrentPlatform() == platform;
+        }
+        
+        public static IEnumerable<Type> GetAllTypes<T>()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (var type in asm.GetTypes())
+                {
+                    if (!typeof(T).IsAssignableFrom(type))
+                        continue;
+
+                    if (type.GetConstructor(Type.EmptyTypes) != null)
+                        yield return type;
+                }
+            }
         }
     }
 
