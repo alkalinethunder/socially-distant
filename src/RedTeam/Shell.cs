@@ -334,6 +334,7 @@ namespace RedTeam
                     else
                     {
                         _console.WriteLine("sh: {0}: Command not found.", name);
+                        WritePrompt();
                     }
                 }
                 else

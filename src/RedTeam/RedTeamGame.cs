@@ -83,6 +83,9 @@ namespace RedTeam
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             
+            // borderless window.
+            Window.IsBorderless = true;
+            
             _graphics.ApplyChanges();
 
             _white = new Texture2D(GraphicsDevice, 1, 1);
