@@ -27,6 +27,11 @@ namespace RedTeam.IO
             throw new NotSupportedException();
         }
 
+        public virtual Stream CreateFile(string name)
+        {
+            throw new NotSupportedException();
+        }
+        
         public IEnumerable<Node> Collapse()
         {
             yield return this;

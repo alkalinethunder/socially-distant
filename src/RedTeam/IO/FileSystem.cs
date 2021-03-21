@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace RedTeam.IO
@@ -56,29 +57,53 @@ namespace RedTeam.IO
 
             return arr;
         }
-
-        public IEnumerable<string> GetDirectoryTree()
-        {
-            foreach (var node in _root.Collapse())
-            {
-                var parts = new List<string>();
-
-                var p = node;
-                while (p != null)
-                {
-                    parts.Insert(0, p.Name);
-                    p = p.Parent;
-                }
-                
-                yield return PathUtils.Combine(parts.ToArray());
-            }
-        }
         
         public string ReadAllText(string path)
         {
             var arr = ReadAllBytes(path);
 
             return Encoding.UTF8.GetString(arr);
+        }
+
+        private Stream OpenFile(string path)
+        {
+            var node = Resolve(path);
+
+            if (node != null)
+            {
+                if (node.CanWrite)
+                {
+                    return node.Open();
+                }
+                else throw new InvalidOperationException("Is a directory.");
+            }
+            else
+            {
+                var resolved = PathUtils.Resolve(path);
+                var fname = PathUtils.GetFileName(resolved);
+                var dirpath = PathUtils.GetDirectoryName(resolved);
+
+                var dirNode = Resolve(dirpath);
+
+                if (dirNode == null)
+                    throw new InvalidOperationException("File or directory not found.");
+
+                if (!dirNode.CanCreate)
+                    throw new InvalidOperationException("Read only file system.");
+
+                return dirNode.CreateFile(fname);
+            }
+        }
+        
+        public void WriteAllBytes(string path, byte[] bytes)
+        {
+            using var s = OpenFile(path);
+            s.Write(bytes, 0, bytes.Length);
+        }
+
+        public void WriteAllText(string path, string text)
+        {
+            WriteAllBytes(path, Encoding.UTF8.GetBytes(text));
         }
         
         public bool FileExists(string path)
@@ -87,6 +112,13 @@ namespace RedTeam.IO
             return node != null && node.CanRead;
         }
 
+        public IConsole CreateFileConsole(IConsole input, string path)
+        {
+            var s = OpenFile(path);
+
+            return new FileConsole(input, s);
+        }
+        
         public bool DirectoryExists(string path)
         {
             var node = Resolve(path);

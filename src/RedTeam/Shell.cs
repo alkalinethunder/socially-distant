@@ -17,6 +17,8 @@ namespace RedTeam
         private List<Builtin> _builtins = new List<Builtin>();
         private FileSystem _fs;
         private string _work = "/";
+        private bool _executing;
+        private Queue<Instruction> _instructions = new Queue<Instruction>();
         
         public void RegisterBuiltin(string name, string desc, Action<IConsole, string, string[]> action)
         {
@@ -127,7 +129,7 @@ namespace RedTeam
         {
             base.OnLoad();
 
-            RegisterBuiltin("clear", "Clear the screen", _console.Clear);
+            RegisterBuiltin("clear", "Clear the screen", (console, name, args) => console.Clear());
             RegisterBuiltin("echo", "Write text to the screen", Echo);
             RegisterBuiltin("ls", "List the current working directory.", Ls);
             RegisterBuiltin("cd", "Change directory", ChangeWorkingDirectory);
@@ -204,15 +206,38 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
-            if (_console.GetLine(out string line))
+            if (_executing)
             {
-                if (!string.IsNullOrWhiteSpace(line))
+                while (_instructions.Any())
                 {
-                    ProcessCommand(line);
+                    var ins = _instructions.Dequeue();
+
+                    if (!ProcessBuiltin(ins.Console, ins.Name, ins.Args))
+                    {
+                        ins.Console.WriteLine("{0}: {1}: Command not found.", "sh", ins.Name);
+                    }
+
+                    if (ins.Console is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
                 }
-                else
+                
+                WritePrompt();
+                _executing = false;
+            }
+            else
+            {
+                if (_console.GetLine(out string line))
                 {
-                    WritePrompt();
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        ProcessCommand(line);
+                    }
+                    else
+                    {
+                        WritePrompt();
+                    }
                 }
             }
         }
@@ -301,19 +326,70 @@ namespace RedTeam
             return words.ToArray();
         }
 
-        private bool ProcessBuiltin(string name, string[] args)
+        private bool ProcessBuiltin(IConsole console, string name, string[] args)
         {
             var builtin = _builtins.FirstOrDefault(x => x.Name == name);
             if (builtin != null)
             {
                 if (builtin.Action != null)
                 {
-                    builtin.Action(_console, name, args);
+                    builtin.Action(console, name, args);
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private IEnumerable<Instruction> ProcessTokens(string[] words)
+        {
+            var ins = null as Instruction;
+            var con = _console;
+            
+            for (var i = 0; i < words.Length; i++)
+            {
+                var word = words[i];
+                if (ins == null)
+                {
+                    ins = new Instruction();
+                    ins.Console = con;
+                }
+
+                if (word == ">")
+                {
+                    ins.CheckName();
+
+                    var filePath = string.Join(" ", words.Skip(i + 1).ToArray());
+
+                    if (string.IsNullOrEmpty(filePath))
+                        throw new SyntaxErrorException("expected file path after " + word);
+
+                    var resolved = ResolvePath(filePath);
+
+                    try
+                    {
+                        var file = _fs.CreateFileConsole(ins.Console, resolved);
+                        ins.Console = file;
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        throw new SyntaxErrorException($"{ex.Message}");
+                    }
+
+                    yield return ins;
+                    ins = null;
+                    
+                    break;
+                }
+
+                if (string.IsNullOrWhiteSpace(ins.Name))
+                    ins.Name = word;
+                else
+                    ins.AddArgument(word);
+            }
+
+            if (ins != null)
+                yield return ins;
         }
         
         private void ProcessCommand(string commandLine)
@@ -324,18 +400,10 @@ namespace RedTeam
 
                 if (words.Any())
                 {
-                    var name = words.First();
-                    var args = words.Skip(1).ToArray();
+                    foreach (var ins in ProcessTokens(words))
+                        _instructions.Enqueue(ins);
 
-                    if (ProcessBuiltin(name, args))
-                    {
-                        WritePrompt();
-                    }
-                    else
-                    {
-                        _console.WriteLine("sh: {0}: Command not found.", name);
-                        WritePrompt();
-                    }
+                    _executing = true;
                 }
                 else
                 {
@@ -354,6 +422,27 @@ namespace RedTeam
             public string Name;
             public string Description;
             public Action<IConsole, string, string[]> Action;
+        }
+
+        private class Instruction
+        {
+            public string Name;
+            public string[] Args = Array.Empty<string>();
+            public IConsole Console;
+
+            public void AddArgument(string arg)
+            {
+                Array.Resize(ref Args, Args.Length + 1);
+                Args[^1] = arg;
+            }
+            
+            public void CheckName()
+            {
+                if (string.IsNullOrWhiteSpace(Name))
+                {
+                    throw new SyntaxErrorException("command expected");
+                }
+            }
         }
     }
 }

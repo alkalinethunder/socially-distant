@@ -22,7 +22,12 @@ namespace RedTeam.IO
         public override bool CanList => true;
         public override bool CanCreate => true;
         public override Node Parent => _parent;
-        
+
+        public override Stream CreateFile(string name)
+        {
+            return File.Create(Path.Combine(_directory, name));
+        }
+
         public override IEnumerable<Node> Children
         {
             get

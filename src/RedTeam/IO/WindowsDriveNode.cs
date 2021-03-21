@@ -38,6 +38,12 @@ namespace RedTeam.IO
                 }
             }
         }
+
+        public override Stream CreateFile(string name)
+        {
+            return File.Create(Path.Combine(_drive.RootDirectory.FullName, name));
+        }
+
         public override string Name => _drive.Name.ToLower().Replace(":\\", "");
     }
 }
