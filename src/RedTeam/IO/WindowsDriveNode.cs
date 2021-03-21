@@ -22,6 +22,11 @@ namespace RedTeam.IO
         public override bool CanCreate => true;
         public override Node Parent => _node;
 
+        public override void CreateDirectory(string name)
+        {
+            Directory.CreateDirectory(Path.Combine(_drive.RootDirectory.FullName, name));
+        }
+
         public override IEnumerable<Node> Children
         {
             get

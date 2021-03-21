@@ -28,6 +28,11 @@ namespace RedTeam.IO
             return File.Create(Path.Combine(_directory, name));
         }
 
+        public override void CreateDirectory(string name)
+        {
+            Directory.CreateDirectory(Path.Combine(_directory, name));
+        }
+
         public override IEnumerable<Node> Children
         {
             get

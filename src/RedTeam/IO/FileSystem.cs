@@ -41,6 +41,30 @@ namespace RedTeam.IO
             return node;
         }
 
+        public void CreateDirectory(string path)
+        {
+            var node = Resolve(path);
+            if (node != null)
+                throw new InvalidOperationException("File or directory exists.");
+
+            var resolved = PathUtils.Resolve(path);
+            var fname = PathUtils.GetFileName(resolved);
+            var dname = PathUtils.GetDirectoryName(resolved);
+
+            var dirnode = Resolve(dname);
+
+            if (dirnode == null)
+                throw new InvalidOperationException("Could not find a part of the path " + resolved + ".");
+
+            if (dirnode.CanWrite)
+                throw new InvalidOperationException("File exists.");
+
+            if (!dirnode.CanCreate)
+                throw new InvalidOperationException("Read-only filesystem.");
+
+            dirnode.CreateDirectory(fname);
+        }
+
         public byte[] ReadAllBytes(string path)
         {
             var node = Resolve(path);

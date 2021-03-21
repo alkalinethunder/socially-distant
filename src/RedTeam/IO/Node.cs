@@ -22,6 +22,11 @@ namespace RedTeam.IO
         
         public abstract string Name { get; }
 
+        public virtual void CreateDirectory(string name)
+        {
+            throw new NotSupportedException();
+        }
+        
         public virtual Stream Open(bool append)
         {
             throw new NotSupportedException();
