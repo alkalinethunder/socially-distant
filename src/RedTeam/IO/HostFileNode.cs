@@ -27,9 +27,9 @@ namespace RedTeam.IO
 
         public override long Length => new FileInfo(_file).Length;
 
-        public override Stream Open()
+        public override Stream Open(bool append)
         {
-            return File.Open(_file, FileMode.Open);
+            return File.Open(_file, append ? FileMode.Append : FileMode.Open);
         }
     }
 }

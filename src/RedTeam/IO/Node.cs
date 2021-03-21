@@ -22,7 +22,7 @@ namespace RedTeam.IO
         
         public abstract string Name { get; }
 
-        public virtual Stream Open()
+        public virtual Stream Open(bool append)
         {
             throw new NotSupportedException();
         }

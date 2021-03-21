@@ -50,7 +50,7 @@ namespace RedTeam.IO
             if (!node.CanRead)
                 throw new InvalidOperationException("Is a directory.");
 
-            using var s = node.Open();
+            using var s = node.Open(false);
 
             var arr = new byte[s.Length];
             s.Read(arr, 0, arr.Length);
@@ -65,7 +65,7 @@ namespace RedTeam.IO
             return Encoding.UTF8.GetString(arr);
         }
 
-        private Stream OpenFile(string path)
+        private Stream OpenFile(string path, bool append = false)
         {
             var node = Resolve(path);
 
@@ -73,7 +73,7 @@ namespace RedTeam.IO
             {
                 if (node.CanWrite)
                 {
-                    return node.Open();
+                    return node.Open(append);
                 }
                 else throw new InvalidOperationException("Is a directory.");
             }
@@ -112,9 +112,9 @@ namespace RedTeam.IO
             return node != null && node.CanRead;
         }
 
-        public IConsole CreateFileConsole(IConsole input, string path)
+        public IConsole CreateFileConsole(IConsole input, string path, bool append)
         {
-            var s = OpenFile(path);
+            var s = OpenFile(path, append);
 
             return new FileConsole(input, s);
         }

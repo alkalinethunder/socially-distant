@@ -355,7 +355,7 @@ namespace RedTeam
                     ins.Console = con;
                 }
 
-                if (word == ">")
+                if (word == ">" || word == ">>")
                 {
                     ins.CheckName();
 
@@ -368,7 +368,7 @@ namespace RedTeam
 
                     try
                     {
-                        var file = _fs.CreateFileConsole(ins.Console, resolved);
+                        var file = _fs.CreateFileConsole(ins.Console, resolved, word == ">>");
                         ins.Console = file;
                     }
                     catch (InvalidOperationException ex)
