@@ -78,7 +78,13 @@ namespace RedTeam
         protected override void Initialize()
         {
             RegisterComponent<InputManager>();
+
+            // use native screen resolution
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             
+            _graphics.ApplyChanges();
+
             _white = new Texture2D(GraphicsDevice, 1, 1);
             _white.SetData<uint>(new[] {0xFFFFFFFF});
 
