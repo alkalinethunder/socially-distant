@@ -112,7 +112,7 @@ namespace RedTeam
                 var (start, end, word) = GetWordAtInputPos();
                 if (start != end)
                 {
-                    foreach (var completion in AutoCompleteSource.GetCompletions())
+                    foreach (var completion in AutoCompleteSource.GetCompletions(word))
                     {
                         if (completion.ToLower().StartsWith(word.ToLower()) && completion.Length > word.Length)
                             yield return completion;

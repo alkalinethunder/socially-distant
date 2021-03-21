@@ -4,6 +4,11 @@ namespace RedTeam
 {
     public interface IAutoCompleteSource
     {
-        IEnumerable<string> GetCompletions();
+        bool IsWhiteSpace(char ch)
+        {
+            return char.IsWhiteSpace(ch);
+        }
+        
+        IEnumerable<string> GetCompletions(string word);
     }
 }

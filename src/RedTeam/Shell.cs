@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Transactions;
@@ -79,9 +80,40 @@ namespace RedTeam
             RegisterBuiltin(name, desc, (console, cmd, args) => action());
         }
         
-        public IEnumerable<string> GetCompletions()
+        public IEnumerable<string> GetCompletions(string word)
         {
-            return _completions;
+            foreach (var predefined in _completions)
+                yield return predefined;
+
+            var path = ResolvePath(word);
+            var dir = path;
+            if (!word.EndsWith(PathUtils.Separator))
+                dir = PathUtils.GetDirectoryName(dir);
+
+            if (_fs.DirectoryExists(dir))
+            {
+                foreach (var name in _fs.GetDirectories(dir))
+                {
+                    var escaped = name.Replace(" ", "\\ ");
+
+                    if (name.ToLower().StartsWith(word.ToLower()) || escaped.ToLower().StartsWith(word.ToLower()))
+                    {
+                        yield return escaped + PathUtils.Separator;
+                        yield return $"\"{name}{PathUtils.Separator}\"";
+                    }
+                }
+                
+                foreach (var name in _fs.GetFiles(dir))
+                {
+                    var escaped = name.Replace(" ", "\\ ");
+
+                    if (name.ToLower().StartsWith(word.ToLower()) || escaped.ToLower().StartsWith(word.ToLower()))
+                    {
+                        yield return escaped;
+                        yield return $"\"{name}\"";
+                    }
+                }
+            }
         }
 
         public Shell(IConsole console, FileSystem fs)

@@ -16,7 +16,13 @@ namespace RedTeam.IO
         {
             return Split(path).LastOrDefault();
         }
-        
+
+        public static string GetDirectoryName(string path)
+        {
+            var parts = Split(path);
+            return Combine(parts.Take(parts.Length - 1).ToArray());
+        }
+
         public static string Combine(params string[] parts)
         {
             var path = Separator;
