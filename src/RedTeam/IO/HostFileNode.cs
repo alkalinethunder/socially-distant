@@ -24,7 +24,7 @@ namespace RedTeam.IO
         public override Node Parent => _parent;
         public override IEnumerable<Node> Children => Array.Empty<Node>();
         public override string Name => Path.GetFileName(_file);
-
+        public override bool CanDelete => true;
         public override long Length => new FileInfo(_file).Length;
 
         public override Stream Open(bool append)

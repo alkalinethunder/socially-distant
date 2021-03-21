@@ -65,6 +65,18 @@ namespace RedTeam.IO
             dirnode.CreateDirectory(fname);
         }
 
+        public void Delete(string path, bool recursive = false)
+        {
+            var node = Resolve(path);
+            if (node == null)
+                throw new InvalidOperationException("File or directory not found.");
+
+            if (!node.CanDelete)
+                throw new InvalidOperationException("Permission denied.");
+
+            node.Delete(recursive);
+        }
+
         public byte[] ReadAllBytes(string path)
         {
             var node = Resolve(path);

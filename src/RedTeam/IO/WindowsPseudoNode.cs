@@ -5,6 +5,7 @@ namespace RedTeam.IO
 {
     public class WindowsPseudoNode : Node
     {
+        public override bool CanDelete => false;
         public override bool CanRead => false;
         public override bool CanWrite => false;
         public override bool CanExecute => false;

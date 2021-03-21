@@ -12,7 +12,8 @@ namespace RedTeam.IO
         {
             _parent = parent;
         }
-        
+
+        public override bool CanDelete => false;
         public override bool CanRead => true;
         public override bool CanWrite => true;
         public override bool CanExecute => false;

@@ -8,6 +8,7 @@ namespace RedTeam.IO
 {
     public abstract class Node
     {
+        public abstract bool CanDelete { get; }
         public abstract bool CanRead { get; }
         public abstract bool CanWrite { get; }
         public abstract bool CanExecute { get; }
@@ -32,6 +33,11 @@ namespace RedTeam.IO
             throw new NotSupportedException();
         }
 
+        public virtual void Delete(bool recursive)
+        {
+            throw new NotSupportedException();
+        }
+        
         public virtual Stream CreateFile(string name)
         {
             throw new NotSupportedException();
