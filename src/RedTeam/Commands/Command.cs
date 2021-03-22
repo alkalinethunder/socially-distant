@@ -64,6 +64,11 @@ namespace RedTeam.Commands
             if (!_completed)
             {
                 _completed = true;
+                
+                // Reset the console formatting state
+                _console.Write("&0");
+
+                // dispose of the console if that's necessary.
                 if (_console is IDisposable disposable)
                 {
                     disposable.Dispose();

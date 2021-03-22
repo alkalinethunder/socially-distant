@@ -276,9 +276,10 @@ namespace RedTeam
                 {
                     _activeExternal.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
                     if (_activeExternal.IsCompleted)
+                    {
                         _activeExternal = null;
-                    else
-                        return;
+                    }
+                    else  return;
                 }
                 
                 while (_instructions.Any())
@@ -417,6 +418,10 @@ namespace RedTeam
                 if (builtin.Action != null)
                 {
                     builtin.Action(console, name, args);
+                    
+                    // reset console formatting
+                    console.Write("&0");
+                    
                     return true;
                 }
             }
