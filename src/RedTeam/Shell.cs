@@ -437,53 +437,66 @@ namespace RedTeam
 
         private IEnumerable<Instruction> ProcessTokens(string[] words)
         {
+            var pipe = new Pipe(_console, _console);
+
             var ins = null as Instruction;
-            var con = _console;
             
             for (var i = 0; i < words.Length; i++)
             {
                 var word = words[i];
-                if (ins == null)
-                {
-                    ins = new Instruction();
-                    ins.Console = con;
-                }
 
                 if (word == ">" || word == ">>")
                 {
-                    ins.CheckName();
-
-                    var filePath = string.Join(" ", words.Skip(i + 1).ToArray());
-
-                    if (string.IsNullOrEmpty(filePath))
-                        throw new SyntaxErrorException("expected file path after " + word);
-
-                    var resolved = ResolvePath(filePath);
+                    var file = string.Join(" ", words.Skip(i + 1));
+                    file = ResolvePath(file);
 
                     try
                     {
-                        var file = _fs.CreateFileConsole(ins.Console, resolved, word == ">>");
-                        ins.Console = file;
+                        var fileConsole = _fs.CreateFileConsole(pipe, file, word == ">>");
+                        pipe.Output = fileConsole;
                     }
-                    catch (InvalidOperationException ex)
+                    catch (Exception ex)
                     {
-                        throw new SyntaxErrorException($"{ex.Message}");
+                        throw new SyntaxErrorException($"couldn't open {file}: {ex.Message}");
                     }
-
-                    yield return ins;
-                    ins = null;
                     
                     break;
                 }
+                
+                if (word == "|")
+                {
+                    if (ins == null)
+                        throw new SyntaxErrorException("expected command before " + word);
+                    
+                    ins.CheckName();
 
-                if (string.IsNullOrWhiteSpace(ins.Name))
+                    var output = pipe.Output;
+                    var buffer = new BufferConsole();
+                    pipe.Output = buffer;
+
+                    ins.Console = pipe;
+                    yield return ins;
+
+                    pipe = new Pipe(buffer, _console);
+                    ins = null;
+                    continue;
+                }
+
+                if (ins == null)
+                {
+                    ins = new Instruction();
                     ins.Name = word;
-                else
-                    ins.AddArgument(word);
+                    continue;
+                }
+
+                ins.AddArgument(word);
             }
 
             if (ins != null)
+            {
+                ins.Console = pipe;
                 yield return ins;
+            }
         }
         
         private void ProcessCommand(string commandLine)
