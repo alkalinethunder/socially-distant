@@ -386,15 +386,14 @@ namespace RedTeam
                 elem.Font = GetFont(bold, italic);
                 elem.Underline = underline;
                 elem.Blinking = blink;
-                
-                if (word.Contains(BackgroundColorCode))
+
+                if (FindFirstCharacterCode(word, out int colorCode, out ConsoleCode firstCode))
                 {
-                    var colorCode = word.IndexOf(BackgroundColorCode);
                     var colorCharIndex = colorCode + 1;
                     if (colorCharIndex < word.Length)
                     {
                         var colorChar = word[colorCharIndex];
-                        if (ParseColorCode(colorChar, out ConsoleColor color))
+                        if (firstCode != ConsoleCode.Attr && ParseColorCode(colorChar, out ConsoleColor color))
                         {
                             var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
                             var postWord = word.Substring(colorCharIndex + 1) ?? "";
@@ -404,21 +403,16 @@ namespace RedTeam
                             {
                                 outWords[j] = outWords[j - 1];
                             }
+
                             outWords[i + 1] = postWord;
                             outWords[i] = word;
-                            bg = color;
+
+                            if (firstCode == ConsoleCode.Bg)
+                                bg = color;
+                            else
+                                fg = color;
                         }
-                    }
-                }
-                
-                if (word.Contains(ForegroundColorCode))
-                {
-                    var colorCode = word.IndexOf(ForegroundColorCode);
-                    var colorCharIndex = colorCode + 1;
-                    if (colorCharIndex < word.Length)
-                    {
-                        var colorChar = word[colorCharIndex];
-                        if (ParseColorCode(colorChar, out ConsoleColor color))
+                        else if (ParseAttribute(colorChar, out ConsoleAttribute attr))
                         {
                             var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
                             var postWord = word.Substring(colorCharIndex + 1) ?? "";
@@ -428,30 +422,7 @@ namespace RedTeam
                             {
                                 outWords[j] = outWords[j - 1];
                             }
-                            outWords[i + 1] = postWord;
-                            outWords[i] = word;
-                            fg = color;
-                        }
-                    }
-                }
-                
-                if (word.Contains(AttributeCode))
-                {
-                    var colorCode = word.IndexOf(AttributeCode);
-                    var colorCharIndex = colorCode + 1;
-                    if (colorCharIndex < word.Length)
-                    {
-                        var colorChar = word[colorCharIndex];
-                        if (ParseAttribute(colorChar, out ConsoleAttribute attr))
-                        {
-                            var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
-                            var postWord = word.Substring(colorCharIndex + 1) ?? "";
-                            word = preWord;
-                            Array.Resize(ref outWords, outWords.Length + 1);
-                            for (int j = outWords.Length - 1; j > i; j--)
-                            {
-                                outWords[j] = outWords[j - 1];
-                            }
+
                             outWords[i + 1] = postWord;
                             outWords[i] = word;
 
@@ -494,7 +465,7 @@ namespace RedTeam
                         }
                     }
                 }
-                
+
                 elem.Text = word;
                 _elements.Add(elem);
             }
@@ -679,6 +650,45 @@ namespace RedTeam
             UpdateCompletions();
         }
 
+        private bool FindFirstCharacterCode(string word, out int firstIndex, out ConsoleCode firstCode)
+        {
+            var result = false;
+            var index = 0;
+            var code = ConsoleCode.Attr;
+            
+            for (var i = 0; i < word.Length; i++)
+            {
+                var ch = word[i];
+                if (ch == BackgroundColorCode)
+                {
+                    index = i;
+                    code = ConsoleCode.Bg;
+                    result = true;
+                    break;
+                }
+
+                if (ch == ForegroundColorCode)
+                {
+                    index = i;
+                    code = ConsoleCode.Fg;
+                    result = true;
+                    break;
+                }
+
+                if (ch == AttributeCode)
+                {
+                    index = i;
+                    code = ConsoleCode.Attr;
+                    result = true;
+                    break;
+                }
+            }
+
+            firstIndex = index;
+            firstCode = code;
+            return result;
+        }
+        
         private void UpdateCompletions()
         {
             _relevantCompletions = GetRelevantCompletions().ToArray();
@@ -1149,6 +1159,13 @@ namespace RedTeam
         }
     }
 
+    public enum ConsoleCode
+    {
+        Bg,
+        Fg,
+        Attr
+    }
+    
     public enum ConsoleAttribute
     {
         Unknown,
