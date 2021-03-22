@@ -6,6 +6,10 @@ namespace RedTeam
 {
     public class HostContext : IRedTeamContext
     {
+        public string Shell => "redsh 0.1";
+        public string Terminal => "redterm";
+        public string WindowManager => "redwm";
+        public string DesktopEnvironment => "Redteam GUI";
         public string UserName => Environment.UserName;
         public string HostName => System.Net.Dns.GetHostName();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,9 @@ namespace RedTeam.Commands
         public override string Name => "neofetch";
         protected override void Main(string[] args)
         {
+            var gameUptime = RedTeamGame.Instance.UpTime;
+
+            var uptime = $"{(int) gameUptime.TotalHours} hours, {gameUptime.Minutes} minutes, {gameUptime.Seconds} seconds";
             var template = GetTemplate();
             var xnaAsm = typeof(Microsoft.Xna.Framework.Game).Assembly;
             var user = $"{Context.UserName}@{Context.HostName}";
@@ -24,7 +28,18 @@ namespace RedTeam.Commands
             var memUsed = (GC.GetTotalMemory(false) / 1024 / 1024).ToString();
             var memTotal = RedTeamPlatform.GetTotalSystemMemory().ToString();
             var cpu = RedTeamPlatform.GetProcessorName();
+            var term = Context.Terminal;
+            var shell = Context.Shell;
+            var wm = Context.WindowManager;
+            var de = Context.DesktopEnvironment;
+            var pkgs = "0 (upgrades) | 0 (rpkg) | 0 (modldr)";
 
+            Substitute(ref template, nameof(pkgs), pkgs);
+            Substitute(ref template, nameof(uptime), uptime);
+            Substitute(ref template, nameof(term), term);
+            Substitute(ref template, nameof(shell), shell);
+            Substitute(ref template, nameof(wm), wm);
+            Substitute(ref template, nameof(de), de);
             Substitute(ref template, nameof(cpu), cpu);
             Substitute(ref template, nameof(user), user);
             Substitute(ref template, nameof(line), line);

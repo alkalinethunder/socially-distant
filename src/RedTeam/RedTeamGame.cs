@@ -14,7 +14,8 @@ namespace RedTeam
 
         public static RedTeamGame Instance
             => _instance;
-        
+
+        private TimeSpan _upTime;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _white;
@@ -24,6 +25,8 @@ namespace RedTeam
         
         public Texture2D White => _white;
 
+        public TimeSpan UpTime => _upTime;
+        
         public SpriteBatch SpriteBatch => _spriteBatch;
 
         public int ScreenWidth
@@ -121,6 +124,8 @@ namespace RedTeam
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+
+            _upTime = gameTime.TotalGameTime;
             
             foreach (var component in _components.ToArray())
             {
