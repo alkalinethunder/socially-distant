@@ -447,6 +447,11 @@ namespace RedTeam
 
                 if (word == ">" || word == ">>")
                 {
+                    if (ins == null)
+                        throw new SyntaxErrorException("expected command before " + word);
+                    
+                    ins.CheckName();
+
                     var file = string.Join(" ", words.Skip(i + 1));
                     file = ResolvePath(file);
 

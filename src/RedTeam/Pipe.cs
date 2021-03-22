@@ -1,10 +1,23 @@
-﻿namespace RedTeam
+﻿using System;
+
+namespace RedTeam
 {
-    public class Pipe : IConsole
+    public class Pipe : IConsole, IDisposable
     {
         private IConsole _input;
         private IConsole _output;
 
+        public void Dispose()
+        {
+            if (_input is IDisposable i)
+                i.Dispose();
+            if (_output is IDisposable o)
+                o.Dispose();
+
+            _input = null;
+            _output = null;
+        }
+        
         public Pipe(IConsole input, IConsole output)
         {
             _input = input;
