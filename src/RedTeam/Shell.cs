@@ -521,6 +521,7 @@ namespace RedTeam
                         _instructions.Enqueue(ins);
 
                     _executing = true;
+                    _console.Write("&0");
                 }
                 else
                 {
