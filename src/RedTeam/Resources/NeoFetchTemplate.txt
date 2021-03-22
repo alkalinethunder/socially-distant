@@ -1,20 +1,20 @@
-﻿            .-/+oossssoo+/-.               {user}
-        `:+ssssssssssssssssss+:`           {line}
-      -+ssssssssssssssssssyyssss+-         OS: Redteam OS {version}
-    .ossssssssssssssssssdMMMNysssso.       Host: {host}
-   /ssssssssssshdmmNNmmyNMMMMhssssss/      Kernel: {kernelname} {kernelversion}
-  +ssssssssshmydMMMMMMMNddddyssssssss+     Uptime: {uptime}
- /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/    Packages: {pkgs}
-.ssssssssdMMMNhsssssssssshNMMMdssssssss.   DE: {de}
-+sssshhhyNMMNyssssssssssssyNMMMysssssss+   WM: {wm}
-ossyNMMMNyMMhsssssssssssssshmmmhssssssso   Shell: {shell}
-ossyNMMMNyMMhsssssssssssssshmmmhssssssso   Terminal: {term}
-+sssshhhyNMMNyssssssssssssyNMMMysssssss+   CPU: {cpu}
-.ssssssssdMMMNhsssssssssshNMMMdssssssss.   GPU: {gpu}
- /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/    Memory: {memUsed}MiB / {memTotal}MiB
-  +sssssssssdmydMMMMMMMMddddyssssssss+     
-   /ssssssssssshdmNNNNmyNMMMMhssssss/      $0   $1   $2   $3   $4   $5   $6   $7   $0
-    .ossssssssssssssssssdMMMNysssso.       $8   $9   $a   $b   $c   $d   $e   $f   $0
-      -+sssssssssssssssssyyyssss+-
-        `:+ssssssssssssssssss+:`
-            .-/+oossssoo+/-.
+﻿         #c6666              6666              &0#c{user}&0
+     #c6666666666666    6666666666666          &0{line}
+   #c6666666666666666666666666666666666        &0#c&bOS&0: Redteam OS {version}
+  #c66666#fcoxOOkxl#c6666666666#flxkOOkoc#c66666       &0#c&bHost&0: {host}
+ #c66666#flkNWMMMWKdc#c666666#fcdKWMMMWNkl#c66666      &0#c&bKernel&0: {kernelname} {kernelversion}
+#c666666#fdXMMMMMMW0l#c666666#fl0WMMMMMMXd#c666666     &0#c&bUptime&0: {uptime}
+#c666666#fxNMMMMMMMKo#c666666#foKMMMMMMMNx#c666666     &0#c&bPackages&0: {pkgs}
+#c666666#fxNMMMMMMMKo#c666666#foKMMMMMMMNx#c666666     &0#c&bDE&0: {de}
+#c666666#fxNMMMMMMMN0OOOOOO0NMMMMMMMWKOOOOOO     &0#c&bWM&0: {wm}
+#c666666#fxNMMMMMMMWXKKKKKKKXXXXXXXXXXKKKKKK     &0#c&bShell&0: {shell}
+#c666666#fxNMMMMMMMKdccccccccccccccccccccccc     &0#c&bTerminal&0: {term}
+#c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bCPU&0: {cpu}
+#c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bGPU&0: {gpu}
+#c666666#fxNMMMMMMMN0kkkkkkkkkkkkkkkxl#c666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
+ #c66666#foKWMMMMMMMMMMMMMMMMMMMWMMWKo#c666666
+ #c666666#foOXNNNWWWNNNNNNNNNNNNNNXOo#c666666      &0$0   $1   $2   $3   $4   $5   $6   $7   $0
+  #c6666666#flooooooooooooooooooool#c6666666       &0$8   $9   $a   $b   $c   $d   $e   $f   $0
+    #c66666666666666666666666666666666
+       #c66666666666666666666666666
+          #c66666666666666666666
