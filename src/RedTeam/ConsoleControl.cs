@@ -799,6 +799,13 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
+            while (_linesWritten > MaxLinesRetained)
+            {
+                _text = _text.Substring(_text.IndexOf('\n') + 1);
+                _linesWritten--;
+                _textIsDirty = true;
+            }
+            
             _cursorBlink += gameTime.ElapsedGameTime.TotalSeconds;
             _blink += gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -1161,6 +1168,17 @@ namespace RedTeam
             }
         }
 
+        private void CountLines(string text)
+        {
+            var sub = text;
+            while (sub.Contains('\n'))
+            {
+                var i = sub.IndexOf('\n');
+                sub = sub.Substring(i + 1);
+                _linesWritten++;
+            }
+        }
+        
         public void Write(object value)
         {
             var text = string.Empty;
@@ -1175,6 +1193,8 @@ namespace RedTeam
         {
             _text += text;
             _textIsDirty = true;
+
+            CountLines(text);
         }
         
         public void WriteLine(object value)
@@ -1192,8 +1212,7 @@ namespace RedTeam
         public void Write(string format, params object[] values)
         {
             var text = string.Format(format, values);
-            _text += text;
-            _textIsDirty = true;
+            Write(text);
         }
 
         public void WriteLine(string format, params object[] values)
@@ -1204,15 +1223,7 @@ namespace RedTeam
 
         public void WriteLine()
         {
-            _text += Environment.NewLine;
-            _textIsDirty = true;
-            _linesWritten++;
-
-            if (_linesWritten > MaxLinesRetained)
-            {
-                _linesWritten--;
-                _text = _text.Substring(_text.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
-            }
+            Write(Environment.NewLine);
         }
 
         public void Clear()
