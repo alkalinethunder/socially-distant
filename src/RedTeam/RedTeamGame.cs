@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RedTeam.Config;
 using RedTeam.Input;
 
 namespace RedTeam
@@ -80,19 +81,53 @@ namespace RedTeam
             var scene = new T();
             LoadScene(scene);
         }
+
+        private void ApplyConfig()
+        {
+            // Get the config manager.
+            var config = GetComponent<ConfigurationManager>();
+            
+            // Get our display mode.
+            var displayMode = config.GetDisplayMode();
+            
+            // Should we apply a new GPU display mode?
+            var applyGraphicsSettings = false;
+            
+            // Set the display mode.
+            if (_graphics.PreferredBackBufferWidth != displayMode.Width ||
+                _graphics.PreferredBackBufferHeight != displayMode.Height)
+            {
+                _graphics.PreferredBackBufferWidth = displayMode.Width;
+                _graphics.PreferredBackBufferHeight = displayMode.Height;
+                applyGraphicsSettings = true;
+            }
+            
+            // Set the fullscreen mode.
+            if (_graphics.IsFullScreen != config.ActiveConfig.IsFullscreen)
+            {
+                _graphics.IsFullScreen = config.ActiveConfig.IsFullscreen;
+                applyGraphicsSettings = true;
+            }
+
+            if (applyGraphicsSettings)
+            {
+                _graphics.ApplyChanges();
+            }
+
+        }
         
         protected override void Initialize()
         {
+            RegisterComponent<ConfigurationManager>();
             RegisterComponent<InputManager>();
-
-            // use native screen resolution
-            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-
-            Window.IsBorderless = true;
             
-            _graphics.ApplyChanges();
+            ApplyConfig();
 
+            GetComponent<ConfigurationManager>().ConfigurationLoaded += (sender, args) =>
+            {
+                ApplyConfig();
+            };
+            
             _white = new Texture2D(GraphicsDevice, 1, 1);
             _white.SetData<uint>(new[] {0xFFFFFFFF});
 
@@ -133,7 +168,7 @@ namespace RedTeam
             _frameTime = gameTime.ElapsedGameTime;
             
             foreach (var component in _components.ToArray())
-            {
+            {   
                 component.Update(gameTime);
             }
 

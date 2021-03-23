@@ -1,0 +1,119 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using RedTeam.IO;
+using System.Text.Json;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace RedTeam.Config
+{
+    public class ConfigurationManager : GlobalComponent
+    {
+        private FileSystem _fs;
+        private GameConfiguration _gameConfig = null;
+
+        public event EventHandler ConfigurationLoaded;
+        
+        public GameConfiguration ActiveConfig => _gameConfig;
+
+        public DisplayMode GetDisplayMode()
+        {
+            if (ParseDisplayMode(_gameConfig.Resolution, out int w, out int h))
+            {
+                var supported =
+                    GraphicsAdapter.DefaultAdapter.SupportedDisplayModes.FirstOrDefault(x =>
+                        x.Width == w && x.Height == h);
+
+                if (supported != null)
+                    return supported;
+            }
+
+            return GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+        }
+
+        public void ApplyChanges()
+        {
+            ConfigurationLoaded?.Invoke(this, EventArgs.Empty);
+            SaveConfiguration();
+        }
+
+        public void DiscardChanges()
+        {
+            LoadInitialConfig();
+        }
+        
+        protected override void OnLoad()
+        {
+            // Create the local data path if it does not already exist.
+            if (!Directory.Exists(RedTeamPlatform.LocalDataPath))
+                Directory.CreateDirectory(RedTeamPlatform.LocalDataPath);
+
+            // Initialize a virtual file system for that path.
+            _fs = FileSystem.FromHostDirectory(RedTeamPlatform.LocalDataPath);
+            
+            // Load the initial configuration.
+            LoadInitialConfig();
+        }
+
+        protected override void OnUnload()
+        {
+            base.OnUnload();
+            
+            // Save the configuration.
+            SaveConfiguration();
+        }
+
+        private bool ParseDisplayMode(string displayMode, out int width, out int height)
+        {
+            var result = false;
+
+            width = 0;
+            height = 0;
+
+            if (!string.IsNullOrWhiteSpace(displayMode))
+            {
+                var lowercase = displayMode.ToLower();
+
+                var x = 'x';
+
+                if (lowercase.Contains(x))
+                {
+                    var index = lowercase.IndexOf(x);
+
+                    var wString = lowercase.Substring(0, index);
+                    var hString = lowercase.Substring(index + 1);
+
+                    if (int.TryParse(wString, out width) && int.TryParse(hString, out height))
+                    {
+                        result = true;
+                    }
+                }
+            }
+            
+            return result;
+        }
+        
+        private void SaveConfiguration()
+        {
+            var json = JsonSerializer.Serialize(_gameConfig);
+            _fs.WriteAllText("/config.json", json);
+        }
+        
+        private void LoadInitialConfig()
+        {
+            _gameConfig = null;
+
+            if (_fs.FileExists("/config.json"))
+            {
+                var json = _fs.ReadAllText("/config.json");
+                _gameConfig = JsonSerializer.Deserialize<GameConfiguration>(json);
+            }
+            else
+            {
+                _gameConfig = new GameConfiguration();
+            }
+
+            ConfigurationLoaded?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}

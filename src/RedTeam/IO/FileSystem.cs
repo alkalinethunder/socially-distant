@@ -205,6 +205,16 @@ namespace RedTeam.IO
                 throw new InvalidOperationException("File exists.");
             }
         }
+
+        public static FileSystem FromHostDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+                throw new DirectoryNotFoundException(path);
+
+            var hostNode = new HostDirectoryNode(null, path);
+
+            return new FileSystem(hostNode);
+        }
         
         public static FileSystem FromHostOS()
         {

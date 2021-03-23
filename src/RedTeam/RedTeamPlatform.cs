@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
@@ -13,6 +15,18 @@ namespace RedTeam
     {
         public static string OSName
             => Environment.OSVersion.VersionString;
+
+        public static string DeveloperName
+            => typeof(RedTeamPlatform).Assembly.GetCustomAttributes(false).OfType<AssemblyCompanyAttribute>().First()
+                .Company;
+
+        public static string TitleName
+            => typeof(RedTeamPlatform).Assembly.GetCustomAttributes(false).OfType<AssemblyProductAttribute>().First()
+                .Product;
+
+        public static string LocalDataPath
+            => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DeveloperName,
+                TitleName);
         
         public static Platform GetCurrentPlatform()
         {
