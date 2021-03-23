@@ -417,11 +417,31 @@ namespace RedTeam
             {
                 if (builtin.Action != null)
                 {
-                    builtin.Action(console, name, args);
-                    
-                    // reset console formatting
-                    console.Write("&0");
-                    
+                    try
+                    {
+                        builtin.Action(console, name, args);
+                    }
+                    catch (SyntaxErrorException sex)
+                    {
+                        // reset console formatting
+                        console.Write("&0");
+                        console.WriteLine("sh: {0}", sex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        // reset console formatting
+                        console.Write("&0");
+
+                        console.WriteLine(
+                            "#csh: &b&2&u/!\\&U FATAL GAMEDEV FUCKUP DETECTED IN REDSH BUILT-IN &u/!\\&U&0");
+                        console.WriteLine(ex.ToString());
+                    }
+                    finally
+                    {
+                        // reset console formatting
+                        console.Write("&0");
+                    }
+
                     return true;
                 }
             }
