@@ -109,6 +109,16 @@ namespace RedTeam
                 applyGraphicsSettings = true;
             }
 
+            // Change the vsync setting.
+            if (_graphics.SynchronizeWithVerticalRetrace != config.ActiveConfig.VSync)
+            {
+                _graphics.SynchronizeWithVerticalRetrace = config.ActiveConfig.VSync;
+                applyGraphicsSettings = true;
+            }
+            
+            // Set whether we want fixed time stepping.
+            IsFixedTimeStep = config.ActiveConfig.FixedTimeStepping;
+            
             if (applyGraphicsSettings)
             {
                 _graphics.ApplyChanges();

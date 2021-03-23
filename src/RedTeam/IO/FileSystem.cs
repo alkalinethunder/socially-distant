@@ -134,6 +134,7 @@ namespace RedTeam.IO
         public void WriteAllBytes(string path, byte[] bytes)
         {
             using var s = OpenFile(path);
+            s.SetLength(0);
             s.Write(bytes, 0, bytes.Length);
         }
 

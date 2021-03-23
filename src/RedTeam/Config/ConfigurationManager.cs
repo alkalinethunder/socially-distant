@@ -31,6 +31,27 @@ namespace RedTeam.Config
             return GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
         }
 
+        public void SetDisplayMode(string value)
+        {
+            if (ParseDisplayMode(value, out int w, out int h))
+            {
+                var supported =
+                    GraphicsAdapter.DefaultAdapter.SupportedDisplayModes.FirstOrDefault(x =>
+                        x.Width == w && x.Height == h);
+
+                if (supported == null)
+                    throw new InvalidOperationException(
+                        $"\"{value}\" is not a display mode that is supportred by the current video card (\"{GraphicsAdapter.DefaultAdapter.Description}\").");
+
+                _gameConfig.Resolution = $"{w}x{h}";
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"\"{value}\" is not a properly-formatted display mode string. Must be <width>x<height>, e.x: 1920x1080");
+            }
+        }
+        
         public void ApplyChanges()
         {
             ConfigurationLoaded?.Invoke(this, EventArgs.Empty);
@@ -95,7 +116,11 @@ namespace RedTeam.Config
         
         private void SaveConfiguration()
         {
-            var json = JsonSerializer.Serialize(_gameConfig);
+            var json = JsonSerializer.Serialize(_gameConfig, typeof(GameConfiguration), new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true
+            });
             _fs.WriteAllText("/config.json", json);
         }
         
@@ -106,7 +131,10 @@ namespace RedTeam.Config
             if (_fs.FileExists("/config.json"))
             {
                 var json = _fs.ReadAllText("/config.json");
-                _gameConfig = JsonSerializer.Deserialize<GameConfiguration>(json);
+                _gameConfig = JsonSerializer.Deserialize<GameConfiguration>(json, new JsonSerializerOptions
+                {
+                    IncludeFields = true
+                });
             }
             else
             {

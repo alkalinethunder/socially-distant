@@ -2,10 +2,10 @@
 {
     public class GameConfiguration
     {
-        public bool IsFullscreen { get; set; } = true;
-        public bool VSync { get; set; } = true;
-        public bool FixedTimeStepping { get; set; } = true;
-        public bool SwapMouseButtons { get; set; } = true;
+        public bool IsFullscreen = true;
+        public bool VSync = true;
+        public bool FixedTimeStepping = true;
+        public bool SwapMouseButtons = false;
         
         public string Resolution { get; set; } = string.Empty;
     }
