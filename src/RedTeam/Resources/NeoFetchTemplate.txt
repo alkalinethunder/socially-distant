@@ -11,10 +11,10 @@
 #c666666#fxNMMMMMMMKdccccccccccccccccccccccc     &0#c&bTerminal&0: {term}
 #c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bCPU&0: {cpu}
 #c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bGPU&0: {gpu}
-#c666666#fxNMMMMMMMN0kkkkkkkkkkkkkkkxl#c666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
- #c66666#foKWMMMMMMMMMMMMMMMMMMMWMMWKo#c666666
- #c666666#foOXNNNWWWNNNNNNNNNNNNNNXOo#c666666      &0$0   $1   $2   $3   $4   $5   $6   $7   $0
-  #c6666666#flooooooooooooooooooool#c6666666       &0$8   $9   $a   $b   $c   $d   $e   $f   $0
-    #c66666666666666666666666666666666
+#c666666#fxNMMMMMMMN0kkkkkkkkkkkkkkkxl#c666666     &0#c&bDisplay Mode&0: {width}x{height}, {fps}fps
+ #c66666#foKWMMMMMMMMMMMMMMMMMMMWMMWKo#c666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
+ #c666666#foOXNNNWWWNNNNNNNNNNNNNNXOo#c666666      
+  #c6666666#flooooooooooooooooooool#c6666666       &0$0   $1   $2   $3   $4   $5   $6   $7   $0
+    #c66666666666666666666666666666666         &0$8   $9   $a   $b   $c   $d   $e   $f   $0
        #c66666666666666666666666666
           #c66666666666666666666

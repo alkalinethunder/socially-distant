@@ -20,9 +20,11 @@ namespace RedTeam
         private SpriteBatch _spriteBatch;
         private Texture2D _white;
         private Scene _activeScene;
+        private TimeSpan _frameTime;
         
         private List<GlobalComponent> _components = new List<GlobalComponent>();
-        
+
+        public TimeSpan FrameTime => _frameTime;
         public Texture2D White => _white;
 
         public TimeSpan UpTime => _upTime;
@@ -128,6 +130,7 @@ namespace RedTeam
             base.Update(gameTime);
 
             _upTime = gameTime.TotalGameTime;
+            _frameTime = gameTime.ElapsedGameTime;
             
             foreach (var component in _components.ToArray())
             {

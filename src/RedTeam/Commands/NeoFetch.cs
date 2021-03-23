@@ -11,6 +11,7 @@ namespace RedTeam.Commands
     public class NeoFetch : Command
     {
         public override string Name => "neofetch";
+        
         protected override void Main(string[] args)
         {
             var gameUptime = RedTeamGame.Instance.UpTime;
@@ -33,7 +34,13 @@ namespace RedTeam.Commands
             var wm = Context.WindowManager;
             var de = Context.DesktopEnvironment;
             var pkgs = "0 (upgrades) | 0 (rpkg) | 0 (modldr)";
+            var fps = Math.Round(1 / RedTeamGame.Instance.FrameTime.TotalSeconds).ToString();
+            var width = RedTeamGame.Instance.ScreenWidth.ToString();
+            var height = RedTeamGame.Instance.ScreenHeight.ToString();
 
+            Substitute(ref template, nameof(width), width);
+            Substitute(ref template, nameof(height), height);
+            Substitute(ref template, nameof(fps), fps);
             Substitute(ref template, nameof(pkgs), pkgs);
             Substitute(ref template, nameof(uptime), uptime);
             Substitute(ref template, nameof(term), term);
