@@ -21,6 +21,9 @@ namespace RedTeam
         private const double _cursorBlinkTime = 0.75;
         private const double _blinkTime = 1;
 
+        private const int MaxLinesRetained = 5000;
+
+        private int _linesWritten = 0;
         private double _blink;
         private double _cursorBlink;
         private bool _blinkShow = true;
@@ -772,19 +775,29 @@ namespace RedTeam
         {
             renderer.FillRectangle(BoundingBox, _background);
 
-            foreach (var elem in _elements)
+            for(var i = _elements.Count - 1; i >= 0; i--)
             {
-                var measure = elem.Font.MeasureString(elem.Text);
-                var rect = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X, (int) measure.Y);
+                var elem = _elements[i];
 
-                var bg = elem.Background;
-                var fg = elem.Foreground;
+                var pos = elem.Position;
                 
                 if (_height > BoundingBox.Height)
                 {
-                    rect.Y += (int) _scrollback;
+                    pos.Y += _scrollback;
                 }
 
+                if (pos.Y >= BoundingBox.Bottom)
+                    continue;
+
+                var measure = elem.Font.MeasureString(elem.Text);
+                var rect = new Rectangle((int) pos.X, (int) pos.Y, (int) measure.X, (int) measure.Y);
+
+                if (rect.Bottom <= BoundingBox.Top)
+                    break;
+                
+                var bg = elem.Background;
+                var fg = elem.Foreground;
+                
                 if (elem.IsCursor)
                 {
                     if (!_cursorShow)
@@ -1064,10 +1077,18 @@ namespace RedTeam
         {
             _text += Environment.NewLine;
             _textIsDirty = true;
+            _linesWritten++;
+
+            if (_linesWritten > MaxLinesRetained)
+            {
+                _linesWritten--;
+                _text = _text.Substring(_text.IndexOf(Environment.NewLine) + Environment.NewLine.Length);
+            }
         }
 
         public void Clear()
         {
+            _linesWritten = 0;
             _text = string.Empty;
             _textIsDirty = true;
         }
