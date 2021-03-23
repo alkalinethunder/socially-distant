@@ -911,6 +911,7 @@ namespace RedTeam
             renderer.FillRectangle(BoundingBox, _background);
 
             var continuePaint = true;
+            var paintCompletionsThisTime = true;
             
             for(var i = _inputElements.Count - 1; i >= 0; i--)
             {
@@ -918,6 +919,7 @@ namespace RedTeam
                 if (!PaintTextElement(gameTime, renderer, elem))
                 {
                     continuePaint = false;
+                    paintCompletionsThisTime = false;
                     break;
                 }
             }
@@ -935,7 +937,7 @@ namespace RedTeam
                 }
             }
 
-            if (continuePaint)
+            if (paintCompletionsThisTime)
             {
                 // Draw the completions menu
                 if (_paintCompletions && IsFocused)
@@ -944,6 +946,7 @@ namespace RedTeam
                     var cPos = _completionY;
 
                     // Scrolling
+                    cPos.Y -= _scrollbackMax;
                     if (_height > BoundingBox.Height)
                     {
                         cPos.Y += (int) _scrollback;
