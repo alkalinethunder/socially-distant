@@ -31,7 +31,7 @@ namespace RedTeam
 
         
         private bool _textIsDirty = true;
-        
+        private Attributes _attributes;
         private SpriteFont _regularFont;
         private SpriteFont _boldFont;
         private SpriteFont _italicFont;
@@ -43,10 +43,11 @@ namespace RedTeam
         private string _text = "";
         private string _input = string.Empty;
         private int _inputPos = 0;
-
+        private float _textHeight;
+        private float _inputHeight;
         private string[] _relevantCompletions = Array.Empty<string>();
         private int _activeCompletion = 0;
-
+        private bool _inputIsDirty = false;
         private int _completionsPerPage = 10;
         private int _scrollbarWidth = 3;
         private float _scrollbackMax;
@@ -68,7 +69,8 @@ namespace RedTeam
         private const char CURSOR_SIGNAL = (char) 0xFF;
 
         private List<TextElement> _elements = new List<TextElement>();
-
+        private List<TextElement> _inputElements = new List<TextElement>();
+        
         public IAutoCompleteSource AutoCompleteSource { get; set; }
 
         public ColorPalette ColorPalette
@@ -230,7 +232,7 @@ namespace RedTeam
                 _inputPos = 0;
             else
                 _inputPos -= amount;
-            _textIsDirty = true;
+            _inputIsDirty = true;
         }
 
         private bool ParseColorCode(char code, out ConsoleColor color)
@@ -276,19 +278,19 @@ namespace RedTeam
                 _inputPos = _input.Length;
             else
                 _inputPos += amount;
-            _textIsDirty = true;
+            _inputIsDirty = true;
         }
 
         public void MoveToHome()
         {
             _inputPos = 0;
-            _textIsDirty = true;
+            _inputIsDirty = true;
         }
 
         public void MoveToEnd()
         {
             _inputPos = _input.Length;
-            _textIsDirty = true;
+            _inputIsDirty = true;
         }
 
         public void ScrollUp(float amount)
@@ -321,7 +323,7 @@ namespace RedTeam
                 _input = _input.Insert(start, completion);
                 _inputPos = start;
                 MoveRight(completion.Length + 1);
-                _textIsDirty = true;
+                _inputIsDirty = true;
             }
         }
 
@@ -356,48 +358,119 @@ namespace RedTeam
             attribute = attr;
             return attr != ConsoleAttribute.Unknown;
         }
-        
-        private void CreateTextElements()
+
+        private void RegenTextElements()
         {
-            // This is incredibly fucked
-            // Step 1 is clear the old crap
-            _elements.Clear();
-            _textIsDirty = false;
-            _blinkShow = true;
-            _blink = 0;
-            _cursorBlink = 0;
-            _cursorShow = true;
+            // last attributes of non-input elements.
+            var attrs = _attributes;
             
-            var bg = ConsoleColor.Black;
-            var fg = ConsoleColor.Gray;
-            var bold = false;
-            var italic = false;
-            var underline = false;
-            var blink = false;
+            // if text is dirty we're doing a full rerender.
+            if (_textIsDirty)
+            {
+                // clear text elements
+                _elements.Clear();
+                
+                // reset attributes
+                attrs = new Attributes();
+                attrs.Position = BoundingBox.Location.ToVector2();
+                
+                // Create text elements.
+                CreateTextElements(ref attrs, _text, _elements, out _textHeight);
+                
+                // set the last attributes
+                _attributes = attrs;
+                
+                _textIsDirty = false;
+            }
             
-            // step 2 is to break the terminal into words.ords
-            var outWords = BreakWords(_text + _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ");
+            // handle dirty input
+            if (_inputIsDirty)
+            {
+                // clear input elements
+                _inputElements.Clear();
+                
+                // get input text
+                var inputText = _input.Insert(_inputPos, CURSOR_SIGNAL.ToString()) + " ";
+                
+                // create text elements
+                CreateTextElements(ref attrs, inputText, _inputElements, out _inputHeight);
+                
+                // Update completions.
+                UpdateCompletions();
+
+                // fix an autoscroll bug
+                _inputHeight -= _regularFont.LineSpacing;
+            }
             
-            // step 3 is create elements for these words
+            // Update height and scrollback info.
+            _height = _textHeight + _inputHeight;
+            
+            // Oh and let's figure out what the max scrollback is.
+            if (_height > BoundingBox.Height)
+            {
+                _scrollbackMax = _height - BoundingBox.Height;
+            }
+            else
+            {
+                _scrollbackMax = 0;
+            }
+        }
+        
+        private void CreateTextElements(ref Attributes attrs, string rawText, List<TextElement> elements, out float elemHeight)
+        {
+            var rect = BoundingBox; // Short hand for the terminal's bounding box. Needed for line wrapping.
+            var firstLine = true; // line wrapping: have we not wrapped any line yet?
+            
+            // Account for the scrollbar width so the scrollbar never renders over text.
+            rect.Width -= _scrollbarWidth;
+            
+            // Break the text we're given into words. The array that gets returned by BreakWords is independent of the font.
+            // I just want to be able to break the text into whitespace-separated words without actually removing the whitespace
+            // from the words. This makes word-wrapping A HELL of a lot easier.
+            //
+            // Also, don't expect this array to stay the same length. Later on when we get to color/formatting processing,
+            // redterm will parse out format codes and break words accordingly.
+            var outWords = BreakWords(rawText);
+            
+            // Now we get to actually creating text elements from these words. This is where color and formatting codes are
+            // processed. We do not do word- or letter-wrapping at this stage in the process, because wrapping requires us to know
+            // the font of each element already.
             for (var i = 0; i < outWords.Length; i++)
             {
+                // Grab the next word to process. 
                 var word = outWords[i];
 
+                // Create the element for the word. This is where we assign the font, colors
+                // and other attributes. Text isn't assigned yet.
                 var elem = new TextElement();
-                elem.Background = GetColor(bg);
-                elem.Foreground = GetColor(fg);
-                elem.Font = GetFont(bold, italic);
-                elem.Underline = underline;
-                elem.Blinking = blink;
+                elem.Background = GetColor(attrs.Background);
+                elem.Foreground = GetColor(attrs.Foreground);
+                elem.Font = GetFont(attrs.Bold, attrs.Italic);
+                elem.Underline = attrs.Underline;
+                elem.Blinking = attrs.Blink;
 
+                // Attempt to find a color/formatting code in the word. If one is found, the
+                // index of the code in the word and a value representing the type of code found
+                // will be passed through the out params.
                 if (FindFirstCharacterCode(word, out int colorCode, out ConsoleCode firstCode))
                 {
+                    // The index of the actual attribute char.
                     var colorCharIndex = colorCode + 1;
+                    
+                    // Is there actually an attribute char in the word?
                     if (colorCharIndex < word.Length)
                     {
+                        // Misnomer: This is the ASCII representation of the attribute type to set.
                         var colorChar = word[colorCharIndex];
+                        
+                        // Check if we're dealing with a color code and try to parse the attr char as a console color.
+                        // resulting color will be passed through out param.
                         if (firstCode != ConsoleCode.Attr && ParseColorCode(colorChar, out ConsoleColor color))
                         {
+                            // This hellish code will break the word in half, parsing out the attribute we're handling.
+                            // The words array will increase by 1 element and everything after the current word will be
+                            // pushed by 1 index. The first half of current word will become our current word and the second
+                            // half will become the next word.
                             var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
                             var postWord = word.Substring(colorCharIndex + 1) ?? "";
                             word = preWord;
@@ -410,13 +483,19 @@ namespace RedTeam
                             outWords[i + 1] = postWord;
                             outWords[i] = word;
 
+                            // Set the correct color attribute for the next word.
                             if (firstCode == ConsoleCode.Bg)
-                                bg = color;
+                                attrs.Background = color;
                             else
-                                fg = color;
+                                attrs.Foreground = color;
                         }
+                        
+                        // Parse a non-color attribute. If we got a valid attribute, it'll be given to us
+                        // via the out param.
                         else if (ParseAttribute(colorChar, out ConsoleAttribute attr))
                         {
+                            // Same exact hellish code as the color code handler, for resizing and moving around
+                            // the words array.
                             var preWord = word.Substring(0, colorCharIndex - 1) ?? "";
                             var postWord = word.Substring(colorCharIndex + 1) ?? "";
                             word = preWord;
@@ -425,58 +504,63 @@ namespace RedTeam
                             {
                                 outWords[j] = outWords[j - 1];
                             }
-
                             outWords[i + 1] = postWord;
                             outWords[i] = word;
 
+                            // Set the attributes of the next word.
                             switch (attr)
                             {
                                 case ConsoleAttribute.Reset:
-                                    underline = false;
-                                    bold = false;
-                                    italic = false;
-                                    fg = ConsoleColor.Gray;
-                                    bg = ConsoleColor.Black;
-                                    blink = false;
+                                    attrs.Underline = false;
+                                    attrs.Bold = false;
+                                    attrs.Italic = false;
+                                    attrs.Foreground = ConsoleColor.Gray;
+                                    attrs.Background = ConsoleColor.Black;
+                                    attrs.Blink = false;
                                     break;
                                 case ConsoleAttribute.ResetFont:
-                                    bold = false;
-                                    italic = false;
+                                    attrs.Bold = false;
+                                    attrs.Italic = false;
                                     break;
                                 case ConsoleAttribute.FontBold:
-                                    bold = true;
+                                    attrs.Bold = true;
                                     break;
                                 case ConsoleAttribute.FontItalic:
-                                    italic = true;
+                                    attrs.Italic = true;
                                     break;
                                 case ConsoleAttribute.FontNoBold:
-                                    bold = false;
+                                    attrs.Bold = false;
                                     break;
                                 case ConsoleAttribute.FontNoItalic:
-                                    italic = false;
+                                    attrs.Italic = false;
                                     break;
                                 case ConsoleAttribute.Underline:
-                                    underline = true;
+                                    attrs.Underline = true;
                                     break;
                                 case ConsoleAttribute.Blink:
-                                    blink = true;
+                                    attrs.Blink = true;
                                     break;
                                 case ConsoleAttribute.NoUnderline:
-                                    underline = false;
+                                    attrs.Underline = false;
                                     break;
                             }
                         }
                     }
                 }
 
+                // Set the text of the element.
                 elem.Text = word;
-                _elements.Add(elem);
+                
+                // add the element to the output list.
+                elements.Add(elem);
             }
             
-            // step 4 is to handle the cursor.
-            for (int i = 0; i < _elements.Count; i++)
+            // TODO: This is where we handle the cursor... a huge optimization might involve removing this
+            // entire loop and handling the cursor the same way we do the format codes....but...I'm too tired.
+            for (int i = 0; i < elements.Count; i++)
             {
-                var elem = _elements[i];
+                // Current element to process.
+                var elem = elements[i];
 
                 // handle the cursor
                 if (elem.Text.Contains(CURSOR_SIGNAL))
@@ -509,7 +593,7 @@ namespace RedTeam
                     cElem.IsCursor = true;
                     cElem.Underline = elem.Underline;
                     cElem.Text = text[cursorChar].ToString();
-                    _elements.Insert(i, cElem);
+                    elements.Insert(i, cElem);
 
                     // and this is everything after the cursor.
                     i++;
@@ -519,30 +603,31 @@ namespace RedTeam
                     aElem.Font = elem.Font;
                     aElem.Underline = elem.Underline;
                     aElem.Text = text.Substring(afterCursor);
-                    _elements.Insert(i, aElem);
+                    elements.Insert(i, aElem);
                 }
             }
             
-            // step 5 is purging empty elements.
-            for (int i = 0; i < _elements.Count; i++)
+            // Purge any elements without any text.
+            for (int i = 0; i < elements.Count; i++)
             {
-                var elem = _elements[i];
+                var elem = elements[i];
                 if (string.IsNullOrEmpty(elem.Text))
                 {
-                    _elements.RemoveAt(i);
+                    elements.RemoveAt(i);
                     i--;
                 }
             }
             
-            // step 6 is to position the elements.
-            var rect = BoundingBox;
-            rect.Width -= _scrollbarWidth;
-            var firstLine = true;
-            var pos = rect.Location.ToVector2();
-            for (int i = 0; i < _elements.Count; i++)
+            // The next part of the process is positioning the now-processed elements.
+            // This is where line wrapping happens, so do expect more elements to be created.
+            for (int i = 0; i < elements.Count; i++)
             {
-                var elem = _elements[i];
+                // Current element to process.
+                var elem = elements[i];
 
+                // Because we're doing text measurement with MG SpriteFonts, we need to filter any
+                // unrecognized text characters for this element's font. Otherwise, crash. This code
+                // does that.
                 for (int j = 0; j < elem.Text.Length; j++)
                 {
                     if (char.IsWhiteSpace(elem.Text[j]))
@@ -556,13 +641,14 @@ namespace RedTeam
                 var measure = elem.Font.MeasureString(elem.Text);
 
                 // wrap to new line if the measurement states we can't fit
-                if (!firstLine && pos.X + measure.X >= rect.Right)
+                if (!firstLine && attrs.Position.X + measure.X >= rect.Right)
                 {
-                    pos.X = rect.Left;
-                    pos.Y += elem.Font.LineSpacing;
+                    attrs.Position.X = rect.Left;
+                    attrs.Position.Y += elem.Font.LineSpacing;
                 }
 
-                elem.Position = pos;
+                // Set the position of the element from our attributes.
+                elem.Position = attrs.Position;
                 
                 // is the element larger than a lie?
                 if (measure.X >= rect.Width)
@@ -580,22 +666,17 @@ namespace RedTeam
                         i++;
                         
                         // oh my fucking god.
-                        var wtf = new TextElement();
-                        wtf.Font = elem.Font;
+                        var wtf = elem.Clone();
                         wtf.Text = line;
-                        wtf.Foreground = elem.Foreground;
-                        wtf.Background = elem.Background;
-                        wtf.Underline = elem.Underline;
-                        wtf.Position = elem.Position;
                         
                         // I wanna die
                         wtf.Position.Y += wtf.Font.LineSpacing;
                         
                         // fuck this
-                        pos = wtf.Position;
+                        attrs.Position = wtf.Position;
                         
                         // my god I'm screwed
-                        _elements.Insert(i, wtf);
+                        elements.Insert(i, wtf);
                         elem = wtf;
                         
                         // SWEET MOTHER OF FUCK
@@ -603,23 +684,25 @@ namespace RedTeam
                     }
                 }
 
+                // Go to a new line if the element ends with a new line.
                 if (elem.Text.EndsWith('\n'))
                 {
-                    pos.X = rect.Left;
-                    pos.Y += elem.Font.LineSpacing;
+                    attrs.Position.X = rect.Left;
+                    attrs.Position.Y += elem.Font.LineSpacing;
                 }
                 else
                 {
-                    pos.X += measure.X;
+                    attrs.Position.X += measure.X;
                 }
                 
                 firstLine = false;
             }
-            
-            // final step is figuring out how tall the text is.
+
+            // Now everything is positioned on screen so we're going to calculate
+            // the height of everything. This will be factored into the terminal's scroll height.
             var lineY = -1f;
             var height = 0;
-            foreach (var elem in _elements)
+            foreach (var elem in elements)
             {
                 var y = elem.Position.Y;
                 if (MathF.Abs(lineY - y) >= 0.00001f)
@@ -629,28 +712,8 @@ namespace RedTeam
                 }
             }
 
-            _height = height;
-            
-            // Oh and let's figure out what the max scrollback is.
-            if (_height > BoundingBox.Height)
-            {
-                _scrollbackMax = _height - BoundingBox.Height;
-            }
-            else
-            {
-                _scrollbackMax = 0;
-            }
-            
-            // finally, if the text is taller than the bounds then we need to make sure we account for that.
-            // this is literally how the auto-scroll code plays in.
-            foreach (var elem in _elements)
-            {
-                elem.Position.Y -= _scrollbackMax;
-            }
-            
-            // God there will never be a final step to this behemoth of an algorithm.
-            // Update auto-completions.
-            UpdateCompletions();
+            // Report the element height to the caller.
+            elemHeight = height;
         }
 
         private bool FindFirstCharacterCode(string word, out int firstIndex, out ConsoleCode firstCode)
@@ -698,7 +761,7 @@ namespace RedTeam
             _activeCompletion = 0;
             
             // find the cursor.
-            var cursor = _elements.First(x => x.IsCursor);
+            var cursor = _inputElements.First(x => x.IsCursor);
             
             // is it the first element on the line?
             if (cursor.Position.X <= BoundingBox.Left)
@@ -709,10 +772,10 @@ namespace RedTeam
             else
             {
                 // use the element before it.
-                var index = _elements.IndexOf(cursor);
+                var index = _inputElements.IndexOf(cursor);
                 if (index > 0)
                 {
-                    var elem = _elements[index - 1];
+                    var elem = _inputElements[index - 1];
                     _completionY = elem.Position;
                 }
                 else
@@ -751,9 +814,9 @@ namespace RedTeam
                 _blinkShow = !_blinkShow;
             }
 
-            if (_textIsDirty)
+            if (_textIsDirty || _inputIsDirty)
             {
-                CreateTextElements();
+                RegenTextElements();
             }
         }
 
@@ -771,120 +834,167 @@ namespace RedTeam
             return result;
         }
 
+        private bool PaintTextElement(GameTime gameTime, GuiRenderer renderer, TextElement elem)
+        {
+            var continuePaint = true;
+
+            // Position of the element.
+            var pos = elem.Position;
+                
+            // Account for scrollback.
+            pos.Y -= _scrollbackMax;
+            if (_height > BoundingBox.Height)
+            {
+                pos.Y += _scrollback;
+            }
+
+            // only paint this element if it's above the bottom of the terminal bounds.
+            if (pos.Y <= BoundingBox.Bottom)
+            {
+                // Measure the element and create a rectangle so we know how large it is and we can
+                // render the background.
+                var measure = elem.Font.MeasureString(elem.Text);
+                var rect = new Rectangle((int) pos.X, (int) pos.Y, (int) measure.X, (int) measure.Y);
+
+                // If the element is above the terminal bounds then we'll instruct the OnPaint routine to stop
+                // painting elements. This is a major perf boost.
+                if (rect.Bottom <= BoundingBox.Top)
+                {
+                    continuePaint = false;
+                }
+
+                // Otherwise, THIS DAY WE FIGHT.
+                else
+                {
+                    // Get the colors for the element.
+                    var bg = elem.Background;
+                    var fg = elem.Foreground;
+
+                    // is this the cursor?
+                    if (elem.IsCursor)
+                    {
+                        // is the cursor blinked off?
+                        if (!_cursorShow)
+                        {
+                            // swap the colors of the cursor.
+                            var s = bg;
+                            bg = fg;
+                            fg = s;
+                        }
+                    }
+
+                    // if this is a blinking element, and the blinker is off, set foreground to transparent.
+                    if (elem.Blinking && !_blinkShow)
+                    {
+                        fg = Color.Transparent;
+                    }
+
+                    // render the background rect followed by the text.
+                    renderer.FillRectangle(rect, bg);
+                    renderer.DrawString(elem.Font, elem.Text, rect.Location.ToVector2(), fg);
+
+                    // Render a nice text underline if that attribute is set.
+                    if (elem.Underline)
+                    {
+                        rect.Height = 2;
+                        rect.Y += (int) measure.Y - rect.Height;
+                        renderer.FillRectangle(rect, fg);
+                    }
+                }
+            }
+
+            return continuePaint;
+        }
+
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
         {
             renderer.FillRectangle(BoundingBox, _background);
 
-            for(var i = _elements.Count - 1; i >= 0; i--)
+            var continuePaint = true;
+            
+            for(var i = _inputElements.Count - 1; i >= 0; i--)
             {
-                var elem = _elements[i];
-
-                var pos = elem.Position;
-                
-                if (_height > BoundingBox.Height)
+                var elem = _inputElements[i];
+                if (!PaintTextElement(gameTime, renderer, elem))
                 {
-                    pos.Y += _scrollback;
-                }
-
-                if (pos.Y >= BoundingBox.Bottom)
-                    continue;
-
-                var measure = elem.Font.MeasureString(elem.Text);
-                var rect = new Rectangle((int) pos.X, (int) pos.Y, (int) measure.X, (int) measure.Y);
-
-                if (rect.Bottom <= BoundingBox.Top)
+                    continuePaint = false;
                     break;
-                
-                var bg = elem.Background;
-                var fg = elem.Foreground;
-                
-                if (elem.IsCursor)
-                {
-                    if (!_cursorShow)
-                    {
-                        var s = bg;
-                        bg = fg;
-                        fg = s;
-                    }
-                }
-
-                if (elem.Blinking && !_blinkShow)
-                {
-                    fg = Color.Transparent;
-                }
-                
-                renderer.FillRectangle(rect, bg);
-
-                renderer.DrawString(elem.Font, elem.Text, rect.Location.ToVector2(), fg);
-
-                if (elem.Underline)
-                {
-                    rect.Height = 2;
-                    rect.Y += (int) measure.Y - rect.Height;
-                    renderer.FillRectangle(rect, fg);
                 }
             }
-            
-            // Draw the completions menu
-            if (_paintCompletions && IsFocused)
+
+            if (continuePaint)
             {
-                var cHeight = Math.Min(_relevantCompletions.Length, _completionsPerPage) * _regularFont.LineSpacing;
-                var cPos = _completionY;
-
-                // Scrolling
-                if (_height > BoundingBox.Height)
+                for (var i = _elements.Count - 1; i >= 0; i--)
                 {
-                    cPos.Y += (int) _scrollback;
-                }
-
-                // Make sure the menu doesn't go beyond the width of the terminal
-                if (cPos.X + _completionsWidth > BoundingBox.Right)
-                {
-                    var back = BoundingBox.Right - (cPos.X + _completionsWidth);
-                    cPos.X -= back;
-                }
-                
-                // if the page height's going to go below the terminal bounds then we're going to render above the cursor.
-                if (cPos.Y + cHeight > BoundingBox.Bottom)
-                {
-                    // cursor
-                    cPos.Y -= _regularFont.LineSpacing;
-                    // menu
-                    cPos.Y -= cHeight;
-                }
-
-                // paint the background
-                var bgRect = new Rectangle((int) cPos.X, (int) cPos.Y, (int) _completionsWidth, (int) cHeight);
-                renderer.FillRectangle(bgRect, _background);
-                
-                // paint each line
-                var c = 0;
-                bgRect.Height = _regularFont.LineSpacing;
-                for (int i = _completionPageStart; i < _relevantCompletions.Length; i++)
-                {
-                    if (c > _completionsPerPage)
-                        break;
-
-                    c++;
-                    
-                    // render the background if we're the active element
-                    var color = _foreground;
-                    if (i == _activeCompletion)
+                    var elem = _elements[i];
+                    if (!PaintTextElement(gameTime, renderer, elem))
                     {
-                        renderer.FillRectangle(bgRect, _highlight);
-                        color = _highlightFG;
+                        continuePaint = false;
+                        break;
                     }
-                    
-                    // draw the text
-                    renderer.DrawString(_regularFont, _relevantCompletions[i], bgRect.Location.ToVector2(), color);
-
-                    bgRect.Y += _regularFont.LineSpacing;
                 }
-                
-
-
             }
-            
+
+            if (continuePaint)
+            {
+                // Draw the completions menu
+                if (_paintCompletions && IsFocused)
+                {
+                    var cHeight = Math.Min(_relevantCompletions.Length, _completionsPerPage) * _regularFont.LineSpacing;
+                    var cPos = _completionY;
+
+                    // Scrolling
+                    if (_height > BoundingBox.Height)
+                    {
+                        cPos.Y += (int) _scrollback;
+                    }
+
+                    // Make sure the menu doesn't go beyond the width of the terminal
+                    if (cPos.X + _completionsWidth > BoundingBox.Right)
+                    {
+                        var back = BoundingBox.Right - (cPos.X + _completionsWidth);
+                        cPos.X -= back;
+                    }
+
+                    // if the page height's going to go below the terminal bounds then we're going to render above the cursor.
+                    if (cPos.Y + cHeight > BoundingBox.Bottom)
+                    {
+                        // cursor
+                        cPos.Y -= _regularFont.LineSpacing;
+                        // menu
+                        cPos.Y -= cHeight;
+                    }
+
+                    // paint the background
+                    var bgRect = new Rectangle((int) cPos.X, (int) cPos.Y, (int) _completionsWidth, (int) cHeight);
+                    renderer.FillRectangle(bgRect, _background);
+
+                    // paint each line
+                    var c = 0;
+                    bgRect.Height = _regularFont.LineSpacing;
+                    for (int i = _completionPageStart; i < _relevantCompletions.Length; i++)
+                    {
+                        if (c > _completionsPerPage)
+                            break;
+
+                        c++;
+
+                        // render the background if we're the active element
+                        var color = _foreground;
+                        if (i == _activeCompletion)
+                        {
+                            renderer.FillRectangle(bgRect, _highlight);
+                            color = _highlightFG;
+                        }
+
+                        // draw the text
+                        renderer.DrawString(_regularFont, _relevantCompletions[i], bgRect.Location.ToVector2(), color);
+
+                        bgRect.Y += _regularFont.LineSpacing;
+                    }
+                }
+            }
+
             // paint the scroollbar.
             if (_scrollbarWidth > 0 && _height > BoundingBox.Height)
             {
@@ -908,14 +1018,14 @@ namespace RedTeam
         protected override bool OnBlurred(FocusChangedEventArgs e)
         {
             base.OnBlurred(e);
-            _textIsDirty = true;
+            _inputIsDirty = true;
             return true;
         }
 
         protected override bool OnFocused(FocusChangedEventArgs e)
         {
             base.OnFocused(e);
-            _textIsDirty = true;
+            _inputIsDirty = true;
             return true;
         }
 
@@ -969,7 +1079,7 @@ namespace RedTeam
                     if (_inputPos < _input.Length)
                     {
                         _input = _input.Remove(_inputPos, 1);
-                        _textIsDirty = true;
+                        _inputIsDirty = true;
                     }
                     break;
                 case Keys.Tab:
@@ -993,6 +1103,7 @@ namespace RedTeam
             {
                 var nl = Environment.NewLine;
                 _input += nl;
+                _inputIsDirty = true;
                 MoveToEnd();
                 result = true;
             }
@@ -1003,7 +1114,7 @@ namespace RedTeam
                 {
                     _inputPos--;
                     _input = _input.Remove(_inputPos, 1);
-                    _textIsDirty = true;
+                    _inputIsDirty = true;
                 }
 
                 return true;
@@ -1013,7 +1124,7 @@ namespace RedTeam
             {
                 _input = _input.Insert(_inputPos, e.Character.ToString());
                 _inputPos += 1;
-                _textIsDirty = true;
+                _inputIsDirty = true;
                 result = true;
             }
 
@@ -1030,6 +1141,21 @@ namespace RedTeam
             public Vector2 Position;
             public bool IsCursor;
             public bool Blinking;
+
+            public TextElement Clone()
+            {
+                var elem = new TextElement();
+
+                elem.Text = this.Text;
+                elem.Position = this.Position;
+                elem.Font = this.Font;
+                elem.Background = this.Background;
+                elem.Foreground = this.Foreground;
+                elem.Blinking = this.Blinking;
+                elem.Underline = this.Underline;
+
+                return elem;
+            }
         }
 
         public void Write(object value)
@@ -1106,7 +1232,8 @@ namespace RedTeam
                 var index = _input.IndexOf(nl);
                 text = _input.Substring(0, index);
                 _input = _input.Substring(text.Length + nl.Length);
-
+                _inputIsDirty = true;
+                
                 // Write the extracted line to output.
                 WriteLine(text);
                 
@@ -1130,6 +1257,7 @@ namespace RedTeam
                 
                 // remove it from input.
                 _input = _input.Substring(1);
+                _inputIsDirty = true;
                 
                 // echo it
                 Write(character);
@@ -1142,6 +1270,17 @@ namespace RedTeam
 
             character = '\0';
             return false;
+        }
+
+        private struct Attributes
+        {
+            public bool Bold;
+            public bool Italic;
+            public bool Underline;
+            public bool Blink;
+            public ConsoleColor Background;
+            public ConsoleColor Foreground;
+            public Vector2 Position;
         }
     }
 
