@@ -1,20 +1,20 @@
-﻿         #c6666              6666              &0#c{user}&0
-     #c6666666666666    6666666666666          &0{line}
-   #c6666666666666666666666666666666666        &0#c&bOS&0: Redteam OS {version}
-  #c66666#fcoxOOkxl#c6666666666#flxkOOkoc#c66666       &0#c&bHost&0: {host}
- #c66666#flkNWMMMWKdc#c666666#fcdKWMMMWNkl#c66666      &0#c&bKernel&0: {kernelname} {kernelversion}
-#c666666#fdXMMMMMMW0l#c666666#fl0WMMMMMMXd#c666666     &0#c&bUptime&0: {uptime}
-#c666666#fxNMMMMMMMKo#c666666#foKMMMMMMMNx#c666666     &0#c&bPackages&0: {pkgs}
-#c666666#fxNMMMMMMMKo#c666666#foKMMMMMMMNx#c666666     &0#c&bDE&0: {de}
-#c666666#fxNMMMMMMMN0OOOOOO0NMMMMMMMWKOOOOOO     &0#c&bWM&0: {wm}
-#c666666#fxNMMMMMMMWXKKKKKKKXXXXXXXXXXKKKKKK     &0#c&bShell&0: {shell}
-#c666666#fxNMMMMMMMKdccccccccccccccccccccccc     &0#c&bTerminal&0: {term}
-#c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bCPU&0: {cpu}
-#c666666#fxNMMMMMMMKo#c66666666666666666666666     &0#c&bGPU&0: {gpu}
-#c666666#fxNMMMMMMMN0kkkkkkkkkkkkkkkxl#c666666     &0#c&bDisplay Mode&0: {width}x{height}, {fps}fps
- #c66666#foKWMMMMMMMMMMMMMMMMMMMWMMWKo#c666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
- #c666666#foOXNNNWWWNNNNNNNNNNNNNNXOo#c666666      
-  #c6666666#flooooooooooooooooooool#c6666666       &0$0   $1   $2   $3   $4   $5   $6   $7   $0
-    #c66666666666666666666666666666666         &0$8   $9   $a   $b   $c   $d   $e   $f   $0
-       #c66666666666666666666666666
-          #c66666666666666666666
+﻿         #f6666              6666              &0#c{user}&0
+     #f6666666666666    6666666666666          &0{line}
+   #f6666666666666666666666666666666666        &0#c&bOS&0: Redteam OS {version}
+  #f66666#ccoxOOkxl#f6666666666#clxkOOkoc#f66666       &0#c&bHost&0: {host}
+ #f66666#clkNWMMMWKdc#f666666#ccdKWMMMWNkl#f66666      &0#c&bKernel&0: {kernelname} {kernelversion}
+#f666666#cdXMMMMMMW0l#f666666#cl0WMMMMMMXd#f666666     &0#c&bUptime&0: {uptime}
+#f666666#cxNMMMMMMMKo#f666666#coKMMMMMMMNx#f666666     &0#c&bPackages&0: {pkgs}
+#f666666#cxNMMMMMMMKo#f666666#coKMMMMMMMNx#f666666     &0#c&bDE&0: {de}
+#f666666#cxNMMMMMMMN0OOOOOO0NMMMMMMMWKOOOOOO     &0#c&bWM&0: {wm}
+#f666666#cxNMMMMMMMWXKKKKKKKXXXXXXXXXXKKKKKK     &0#c&bShell&0: {shell}
+#f666666#cxNMMMMMMMKdccccccccccccccccccccccc     &0#c&bTerminal&0: {term}
+#f666666#cxNMMMMMMMKo#f66666666666666666666666     &0#c&bCPU&0: {cpu}
+#f666666#cxNMMMMMMMKo#f66666666666666666666666     &0#c&bGPU&0: {gpu}
+#f666666#cxNMMMMMMMN0kkkkkkkkkkkkkkkxl#f666666     &0#c&bDisplay Mode&0: {width}x{height}, {fps}fps
+ #f66666#coKWMMMMMMMMMMMMMMMMMMMWMMWKo#f666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
+ #f666666#coOXNNNWWWNNNNNNNNNNNNNNXOo#f666666      
+  #f6666666#clooooooooooooooooooool#f6666666       &0$0   $1   $2   $3   $4   $5   $6   $7   $0
+    #f66666666666666666666666666666666         &0$8   $9   $a   $b   $c   $d   $e   $f   $0
+       #f66666666666666666666666666
+          #f66666666666666666666
