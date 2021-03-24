@@ -142,6 +142,9 @@ namespace RedTeam
             // post process effects
             // stoner vision
             _postProcessor.EnableBloom = config.ActiveConfig.Effects.Bloom;
+            
+            // crt shadowmask
+            _postProcessor.EnableShadowMask = config.ActiveConfig.Effects.ShadowMask;
         }
         
         protected override void Initialize()

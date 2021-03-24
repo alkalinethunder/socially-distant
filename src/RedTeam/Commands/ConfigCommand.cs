@@ -155,6 +155,13 @@ namespace RedTeam.Commands
                 () => GetBoolean(ref _config.ActiveConfig.Effects.Bloom),
                 x => SetBoolean(ref _config.ActiveConfig.Effects.Bloom, x)
             );
+            
+            RegisterSetting(
+                "effects.shadowmask",
+                "Enable/disable Cathode Ray Tube Shadow-mask effect",
+                () => GetBoolean(ref _config.ActiveConfig.Effects.ShadowMask),
+                x => SetBoolean(ref _config.ActiveConfig.Effects.ShadowMask, x)
+            );
         }
 
         protected override void Main(string[] args)
