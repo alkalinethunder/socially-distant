@@ -20,6 +20,8 @@
     <EmbeddedResource Include="Icon.bmp" />
     <None Remove="Resources\NeoFetchTemplate.txt" />
     <EmbeddedResource Include="Resources\NeoFetchTemplate.txt" />
+    <None Remove="Resources\Cowsay.txt" />
+    <EmbeddedResource Include="Resources\Cowsay.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

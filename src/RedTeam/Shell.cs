@@ -307,6 +307,9 @@ namespace RedTeam
                     }
                 }
                 
+                // reset console formatting
+                _console.Write("&0");
+                _console.WriteLine();
                 WritePrompt();
                 _executing = false;
             }
@@ -314,6 +317,7 @@ namespace RedTeam
             {
                 if (_console.GetLine(out string line))
                 {
+                    _console.Write("&0");
                     if (!string.IsNullOrWhiteSpace(line))
                     {
                         ProcessCommand(line);
@@ -328,7 +332,7 @@ namespace RedTeam
 
         private void Echo(IConsole console, string name, string[] args)
         {
-            console.WriteLine(string.Join(" ", args));
+            console.Write(string.Join(" ", args));
         }
 
         private string[] BreakLine(string commandLine)
@@ -436,12 +440,6 @@ namespace RedTeam
                             "#csh: &b&2&u/!\\&U FATAL GAMEDEV FUCKUP DETECTED IN REDSH BUILT-IN &u/!\\&U&0");
                         console.WriteLine(ex.ToString());
                     }
-                    finally
-                    {
-                        // reset console formatting
-                        console.Write("&0");
-                    }
-
                     return true;
                 }
             }

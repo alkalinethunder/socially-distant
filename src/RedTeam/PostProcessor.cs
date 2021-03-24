@@ -21,7 +21,7 @@ namespace RedTeam
         private float _bloomIntensity = 0.7f;
         private float _bloomSaturation = 1;
         private float _bloomThreshold = 0.26f;
-        private float _blurAmount = 1.25f;
+        private float _blurAmount = 1.1f;
 
         public bool EnableBloom { get; set; } = true;
         
