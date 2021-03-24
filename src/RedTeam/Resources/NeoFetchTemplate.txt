@@ -14,7 +14,7 @@
 #f666666#cxNMMMMMMMN0kkkkkkkkkkkkkkkxl#f666666     &0#c&bDisplay Mode&0: {width}x{height}, {fps}fps
  #f66666#coKWMMMMMMMMMMMMMMMMMMMWMMWKo#f666666     &0#c&bMemory&0: {memUsed}MiB / {memTotal}MiB
  #f666666#coOXNNNWWWNNNNNNNNNNNNNNXOo#f666666      
-  #f6666666#clooooooooooooooooooool#f6666666       &0$0   $1   $2   $3   $4   $5   $6   $7   $0
-    #f66666666666666666666666666666666         &0$8   $9   $a   $b   $c   $d   $e   $f   $0
+  #f6666666#clooooooooooooooooooool#f6666666       &0$0   $1   $2   $3   $4   $5   $6   $7   &0
+    #f66666666666666666666666666666666         &0$8   $9   $a   $b   $c   $d   $e   $f   &0
        #f66666666666666666666666666
           #f66666666666666666666

@@ -22,6 +22,8 @@
     <EmbeddedResource Include="Resources\NeoFetchTemplate.txt" />
     <None Remove="Resources\Cowsay.txt" />
     <EmbeddedResource Include="Resources\Cowsay.txt" />
+    <None Remove="Resources\Fortunes.txt" />
+    <EmbeddedResource Include="Resources\Fortunes.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

@@ -309,7 +309,6 @@ namespace RedTeam
                 
                 // reset console formatting
                 _console.Write("&0");
-                _console.WriteLine();
                 WritePrompt();
                 _executing = false;
             }
@@ -440,6 +439,11 @@ namespace RedTeam
                             "#csh: &b&2&u/!\\&U FATAL GAMEDEV FUCKUP DETECTED IN REDSH BUILT-IN &u/!\\&U&0");
                         console.WriteLine(ex.ToString());
                     }
+                    finally
+                    {
+                        console.WriteLine();
+                    }
+                    
                     return true;
                 }
             }
