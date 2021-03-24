@@ -7,6 +7,8 @@
         public bool FixedTimeStepping = true;
         public bool SwapMouseButtons = false;
         
+        public EffectsConfiguration Effects = new EffectsConfiguration();
+        
         public string Resolution { get; set; } = string.Empty;
     }
 }

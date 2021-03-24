@@ -22,6 +22,8 @@ namespace RedTeam
         private float _bloomSaturation = 1;
         private float _bloomThreshold = 0.26f;
         private float _blurAmount = 1.25f;
+
+        public bool EnableBloom { get; set; } = true;
         
         private float[] _gaussianKernel = new float[KERNEL_SIZE]
         {
@@ -126,49 +128,57 @@ namespace RedTeam
         {
             var rect = renderTarget.Bounds;
 
-            var hWidth = (float) rect.Width;
-            var hHeight = (float) rect.Height;
-            
-            _gfx.SetRenderTarget(_effectBuffer1);
-            
-            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _brightnessThreshold.CurrentTechnique.Passes[0].Apply();
-            _batch.Draw(renderTarget, rect, Color.White);
-            _batch.End();
+            if (EnableBloom)
+            {
+                var hWidth = (float) rect.Width;
+                var hHeight = (float) rect.Height;
 
-            _gfx.SetRenderTarget(_effectBuffer2);
+                _gfx.SetRenderTarget(_effectBuffer1);
 
-            SetBlurOffsets(1.0f / hWidth, 0f);
-            
-            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _gaussian.CurrentTechnique.Passes[0].Apply();
-            _batch.Draw(_effectBuffer1, rect, Color.White);
-            _batch.End();
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                _brightnessThreshold.CurrentTechnique.Passes[0].Apply();
+                _batch.Draw(renderTarget, rect, Color.White);
+                _batch.End();
 
-            _gfx.SetRenderTarget(_effectBuffer1);
+                _gfx.SetRenderTarget(_effectBuffer2);
 
-            SetBlurOffsets(0f, 1f / hHeight);
-            
-            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _gaussian.CurrentTechnique.Passes[0].Apply();
-            _batch.Draw(_effectBuffer2, rect, Color.White);
-            _batch.End();
+                SetBlurOffsets(1.0f / hWidth, 0f);
 
-            _gfx.SetRenderTarget(_effectBuffer2);
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                _gaussian.CurrentTechnique.Passes[0].Apply();
+                _batch.Draw(_effectBuffer1, rect, Color.White);
+                _batch.End();
 
-            SetBloomTexture(_effectBuffer1);
-            
-            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _bloom.CurrentTechnique.Passes[0].Apply();
-            _batch.Draw(renderTarget, rect, Color.White);
-            _batch.End();
+                _gfx.SetRenderTarget(_effectBuffer1);
 
-            _gfx.SetRenderTarget(null);
+                SetBlurOffsets(0f, 1f / hHeight);
 
-            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
-            _batch.Draw(_effectBuffer2, rect, Color.White);
-            _batch.End();
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                _gaussian.CurrentTechnique.Passes[0].Apply();
+                _batch.Draw(_effectBuffer2, rect, Color.White);
+                _batch.End();
 
+                _gfx.SetRenderTarget(_effectBuffer2);
+
+                SetBloomTexture(_effectBuffer1);
+
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                _bloom.CurrentTechnique.Passes[0].Apply();
+                _batch.Draw(renderTarget, rect, Color.White);
+                _batch.End();
+
+                _gfx.SetRenderTarget(null);
+
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+                _batch.Draw(_effectBuffer2, rect, Color.White);
+                _batch.End();
+            }
+            else
+            {
+                _batch.Begin();
+                _batch.Draw(renderTarget, rect, Color.White);
+                _batch.End();
+            }
         }
     }
 }

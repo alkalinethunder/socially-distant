@@ -95,6 +95,7 @@ namespace RedTeam.Commands
             RegisterSetting("wm.resolution", SetResolution);
             RegisterSetting("input.swapMouseButtons",
                 (value) => SetBoolean(ref config.ActiveConfig.SwapMouseButtons, value));
+            RegisterSetting("wm.effects.bloom", (value) => SetBoolean(ref config.ActiveConfig.Effects.Bloom, value));
             
             var setting = args.First();
             if (setting == "help")

@@ -138,6 +138,10 @@ namespace RedTeam
                 
                 _postProcessor.ReallocateEffectBuffers();
             }
+            
+            // post process effects
+            // stoner vision
+            _postProcessor.EnableBloom = config.ActiveConfig.Effects.Bloom;
         }
         
         protected override void Initialize()
