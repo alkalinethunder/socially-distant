@@ -31,6 +31,13 @@ namespace RedTeam.Config
             return GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
         }
 
+        public void ResetToDefaults()
+        {
+            _gameConfig = new GameConfiguration();
+            SaveConfiguration();
+            ApplyChanges();
+        }
+        
         public void SetDisplayMode(string value)
         {
             if (ParseDisplayMode(value, out int w, out int h))

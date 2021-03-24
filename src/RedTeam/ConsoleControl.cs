@@ -352,6 +352,8 @@ namespace RedTeam
                 'I' => ConsoleAttribute.FontNoItalic,
                 '2' => ConsoleAttribute.Blink,
                 'U' => ConsoleAttribute.NoUnderline,
+                'w' => ConsoleAttribute.WrapSet,
+                'W' => ConsoleAttribute.WrapReset,
                 _ => ConsoleAttribute.Unknown
             };
 
@@ -448,7 +450,13 @@ namespace RedTeam
                 elem.Font = GetFont(attrs.Bold, attrs.Italic);
                 elem.Underline = attrs.Underline;
                 elem.Blinking = attrs.Blink;
-
+                elem.IsWrapPoint = attrs.WrapSet;
+                elem.IsWrapResetPoint = attrs.WrapReset;
+                
+                // Wrap set attrs are one-time values so they're reset after they've been applied to an element.
+                attrs.WrapSet = false;
+                attrs.WrapReset = false;
+                
                 // Attempt to find a color/formatting code in the word. If one is found, the
                 // index of the code in the word and a value representing the type of code found
                 // will be passed through the out params.
@@ -517,6 +525,14 @@ namespace RedTeam
                                     attrs.Foreground = ConsoleColor.Gray;
                                     attrs.Background = ConsoleColor.Black;
                                     attrs.Blink = false;
+                                    attrs.WrapSet = false;
+                                    attrs.WrapReset = true;
+                                    break;
+                                case ConsoleAttribute.WrapSet:
+                                    attrs.WrapSet = true;
+                                    break;
+                                case ConsoleAttribute.WrapReset:
+                                    attrs.WrapReset = true;
                                     break;
                                 case ConsoleAttribute.ResetFont:
                                     attrs.Bold = false;
@@ -620,11 +636,22 @@ namespace RedTeam
             
             // The next part of the process is positioning the now-processed elements.
             // This is where line wrapping happens, so do expect more elements to be created.
+            var wrapPointAccount = 0f;
             for (int i = 0; i < elements.Count; i++)
             {
                 // Current element to process.
                 var elem = elements[i];
 
+                // Handle wrap points.
+                if (elem.IsWrapPoint)
+                {
+                    wrapPointAccount = attrs.Position.X - rect.Left;
+                }
+                else if (elem.IsWrapResetPoint)
+                {
+                    wrapPointAccount = 0;
+                }
+                
                 // Because we're doing text measurement with MG SpriteFonts, we need to filter any
                 // unrecognized text characters for this element's font. Otherwise, crash. This code
                 // does that.
@@ -641,9 +668,9 @@ namespace RedTeam
                 var measure = elem.Font.MeasureString(elem.Text);
 
                 // wrap to new line if the measurement states we can't fit
-                if (!firstLine && attrs.Position.X + measure.X >= rect.Right)
+                if (!firstLine && attrs.Position.X + measure.X >= rect.Right - wrapPointAccount)
                 {
-                    attrs.Position.X = rect.Left;
+                    attrs.Position.X = rect.Left + wrapPointAccount;
                     attrs.Position.Y += elem.Font.LineSpacing;
                 }
 
@@ -651,10 +678,10 @@ namespace RedTeam
                 elem.Position = attrs.Position;
                 
                 // is the element larger than a lie?
-                if (measure.X >= rect.Width)
+                if (measure.X >= rect.Width - wrapPointAccount)
                 {
                     // letter-wrap the text
-                    var lines = LetterWrap(elem.Font, elem.Text, rect.Width);
+                    var lines = LetterWrap(elem.Font, elem.Text, rect.Width - wrapPointAccount);
                     
                     // this element gets the first line
                     elem.Text = lines.First();
@@ -687,7 +714,7 @@ namespace RedTeam
                 // Go to a new line if the element ends with a new line.
                 if (elem.Text.EndsWith('\n'))
                 {
-                    attrs.Position.X = rect.Left;
+                    attrs.Position.X = rect.Left + wrapPointAccount;
                     attrs.Position.Y += elem.Font.LineSpacing;
                 }
                 else
@@ -1151,6 +1178,8 @@ namespace RedTeam
             public Vector2 Position;
             public bool IsCursor;
             public bool Blinking;
+            public bool IsWrapPoint;
+            public bool IsWrapResetPoint;
 
             public TextElement Clone()
             {
@@ -1295,6 +1324,8 @@ namespace RedTeam
             public ConsoleColor Background;
             public ConsoleColor Foreground;
             public Vector2 Position;
+            public bool WrapSet;
+            public bool WrapReset;
         }
     }
 
@@ -1351,6 +1382,8 @@ namespace RedTeam
         FontNoItalic,
         Underline,
         NoUnderline,
-        Blink
+        Blink,
+        WrapSet,
+        WrapReset
     }
 }
