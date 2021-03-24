@@ -16,6 +16,8 @@ namespace RedTeam
         public static RedTeamGame Instance
             => _instance;
 
+        private PostProcessor _postProcessor;
+        private RenderTarget2D _renderTarget;
         private TimeSpan _upTime;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -93,6 +95,10 @@ namespace RedTeam
             // Should we apply a new GPU display mode?
             var applyGraphicsSettings = false;
             
+            // if the game render target is null then we need to set gfx settings.
+            if (_renderTarget == null)
+                applyGraphicsSettings = true;
+            
             // Set the display mode.
             if (_graphics.PreferredBackBufferWidth != displayMode.Width ||
                 _graphics.PreferredBackBufferHeight != displayMode.Height)
@@ -121,13 +127,23 @@ namespace RedTeam
             
             if (applyGraphicsSettings)
             {
-                _graphics.ApplyChanges();
-            }
+                if (_renderTarget != null)
+                    _renderTarget.Dispose();
 
+                _graphics.ApplyChanges();
+
+                _renderTarget = new RenderTarget2D(GraphicsDevice, ScreenWidth, ScreenHeight, false,
+                    GraphicsDevice.PresentationParameters.BackBufferFormat, DepthFormat.None, 0,
+                    RenderTargetUsage.PreserveContents);
+                
+                _postProcessor.ReallocateEffectBuffers();
+            }
         }
         
         protected override void Initialize()
         {
+            _postProcessor = new PostProcessor(GraphicsDevice);
+            
             RegisterComponent<ConfigurationManager>();
             RegisterComponent<InputManager>();
             
@@ -148,6 +164,8 @@ namespace RedTeam
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            _postProcessor.LoadContent(Content);
+            
             LoadScene<ConsoleScene>();
         }
 
@@ -187,9 +205,15 @@ namespace RedTeam
 
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.SetRenderTarget(_renderTarget);
             GraphicsDevice.Clear(Color.Black);
 
             _activeScene?.Draw(gameTime);
+
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+            _postProcessor.Process(_renderTarget);
             
             base.Draw(gameTime);
         }

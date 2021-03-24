@@ -55,7 +55,7 @@ namespace RedTeam
         private float _scrollback;
         private Color _scrollFG = Color.Cyan;
         private Color _scrollBG = Color.Gray;
-        private Color _foreground = Color.LightGray;
+        private Color _foreground = Color.Gray;
         private Color _background = new Color(22, 22, 22);
         private Color _cursorColor = Color.White;
         private Color _cursorFG = Color.Black;

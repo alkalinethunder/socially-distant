@@ -13,6 +13,24 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Effects/Bloom.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Bloom.fx
+
+#begin Effects/BrightnessThreshold.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/BrightnessThreshold.fx
+
+#begin Effects/Gaussian.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Gaussian.fx
+
 #begin Fonts/Console/Bold.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
