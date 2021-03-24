@@ -417,6 +417,32 @@ namespace RedTeam
                 _scrollbackMax = 0;
             }
         }
+
+        private bool EscapeCharCode(string word, out int index)
+        {
+            var result = false;
+            index = -1;
+
+            for (var i = 0; i < word.Length; i++)
+            {
+                var ch = word[i];
+                if (ch == BackgroundColorCode || ch == ForegroundColorCode || ch == AttributeCode)
+                {
+                    var next = i + 1;
+                    if (next < word.Length)
+                    {
+                        var nextCh = word[next];
+                        if (nextCh == ch)
+                        {
+                            index = i;
+                            result = true;
+                        }
+                    }
+                }
+            }
+            
+            return result;
+        }
         
         private void CreateTextElements(ref Attributes attrs, string rawText, List<TextElement> elements, out float elemHeight)
         {
@@ -457,10 +483,29 @@ namespace RedTeam
                 attrs.WrapSet = false;
                 attrs.WrapReset = false;
                 
+                // Attempt to find a double-sequence of either the Background, Foreground or Attribute format codes.
+                // If we do then we're going to treat it as an escaped format code and only print one.
+                if (EscapeCharCode(word, out int index))
+                {
+                    var next = index + 1;
+                    var pre = word.Substring(0, next);
+                    var post = word.Substring(next + 1);
+                    word = pre;
+
+                    Array.Resize(ref outWords, outWords.Length + 1);
+                    outWords[i] = post;
+                    for (var j = outWords.Length - 1; j > i; j--)
+                    {
+                        outWords[j] = outWords[j - 1];
+                    }
+
+                    outWords[i] = pre;
+                }
+                
                 // Attempt to find a color/formatting code in the word. If one is found, the
                 // index of the code in the word and a value representing the type of code found
                 // will be passed through the out params.
-                if (FindFirstCharacterCode(word, out int colorCode, out ConsoleCode firstCode))
+                else if (FindFirstCharacterCode(word, out int colorCode, out ConsoleCode firstCode))
                 {
                     // The index of the actual attribute char.
                     var colorCharIndex = colorCode + 1;
