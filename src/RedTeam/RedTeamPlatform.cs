@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
@@ -47,6 +48,22 @@ namespace RedTeam
             }
 
             return Platform.Unknown;
+        }
+
+        public static bool VerifyInternetConnection()
+        {
+            try
+            {
+                using var client = new WebClient();
+                using (client.OpenRead("http://google.com/generate_204"))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
         
         public static bool IsPlatform(Platform platform)

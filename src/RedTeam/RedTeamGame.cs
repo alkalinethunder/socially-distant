@@ -150,7 +150,7 @@ namespace RedTeam
         protected override void Initialize()
         {
             _postProcessor = new PostProcessor(GraphicsDevice);
-            
+
             RegisterComponent<ConfigurationManager>();
             RegisterComponent<InputManager>();
             

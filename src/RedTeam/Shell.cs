@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Transactions;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using RedTeam.Commands;
 using RedTeam.IO;
 
@@ -13,6 +14,8 @@ namespace RedTeam
 {
     public class Shell : SceneComponent, IAutoCompleteSource
     {
+        private SoundEffect _cmdNotFound;
+        
         private string _home;
         private List<string> _completions = new List<string>();
         private IConsole _console;
@@ -205,6 +208,8 @@ namespace RedTeam
         {
             base.OnLoad();
 
+            _cmdNotFound = Game.Content.Load<SoundEffect>("Sounds/Redsh/cmdNotFound");
+            
             if (_fs.DirectoryExists(_home))
             {
                 _work = _home;
@@ -304,6 +309,7 @@ namespace RedTeam
                         if (cmd == null)
                         {
                             ins.Console.WriteLine("{0}: {1}: Command not found.", "sh", ins.Name);
+                            _cmdNotFound.Play();
                         }
                         else
                         {

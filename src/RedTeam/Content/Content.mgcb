@@ -72,3 +72,9 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/DebugSmall.spritefont
 
+#begin Sounds/Redsh/cmdNotFound.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Redsh/cmdNotFound.mp3
+

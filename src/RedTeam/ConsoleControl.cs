@@ -365,6 +365,8 @@ namespace RedTeam
                 // reset attributes
                 attrs = new Attributes();
                 attrs.Position = BoundingBox.Location.ToVector2();
+                attrs.Background = ConsoleColor.Black;
+                attrs.Foreground = ConsoleColor.Gray;
                 
                 // Create text elements.
                 CreateTextElements(ref attrs, _text, _elements, out _textHeight);
