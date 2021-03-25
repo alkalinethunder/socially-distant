@@ -19,7 +19,7 @@ namespace RedTeam.IO
         
         public abstract IEnumerable<Node> Children { get; }
 
-        public virtual long Length => Children.Aggregate(0l, (acc, x) => acc + x.Length);
+        public virtual long Length => Children.Aggregate(0L, (acc, x) => acc + x.Length);
         
         public abstract string Name { get; }
 

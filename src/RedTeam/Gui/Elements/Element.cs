@@ -147,6 +147,42 @@ namespace RedTeam.Gui.Elements
 
         public bool IsFocused => GuiSystem.FocusedElement == this;
         public bool HasAnyFocus => IsFocused || _children.Any(x => x.HasAnyFocus);
+
+        public int FixedWidth
+        {
+            get => _fixedWidth;
+            set => _fixedWidth = value;
+        }
+
+        public int FixedHeight
+        {
+            get => _fixedHeight;
+            set => _fixedHeight = value;
+        }
+
+        public int MinimumWidth
+        {
+            get => _minWidth;
+            set => _minWidth = value;
+        }
+
+        public int MinimumHeight
+        {
+            get => _minHeight;
+            set => _minHeight = value;
+        }
+
+        public int MaximumWidth
+        {
+            get => _maxWidth;
+            set => _maxWidth = value;
+        }
+
+        public int MaximumHeight
+        {
+            get => _maxHeight;
+            set => _maxHeight = value;
+        }
         
         public Element()
         {

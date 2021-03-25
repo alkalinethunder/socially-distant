@@ -229,8 +229,7 @@ namespace RedTeam
         private bool ParseColorCode(char code, out ConsoleColor color)
         {
             var result = true;
-            var c = ConsoleColor.Black;
-
+            
             int num = code switch
             {
                 '0' => 0,

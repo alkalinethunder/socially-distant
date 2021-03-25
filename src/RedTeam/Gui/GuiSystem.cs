@@ -18,6 +18,12 @@ namespace RedTeam.Gui
         private InputManager _input;
 
         public Element FocusedElement => _focused;
+
+        public bool ShowBoundingRects
+        {
+            get => _debugShowBounds;
+            set => _debugShowBounds = value;
+        }
         
         protected override void OnLoad()
         {
@@ -36,22 +42,22 @@ namespace RedTeam.Gui
             _input.KeyUp += HandleKeyUp;
         }
         
-        private void HandleKeyUp(object? sender, KeyEventArgs e)
+        private void HandleKeyUp(object sender, KeyEventArgs e)
         {
             Bubble(_focused, x => x.FireKeyUp(e));
         }
 
-        private void HandleKeyDown(object? sender, KeyEventArgs e)
+        private void HandleKeyDown(object sender, KeyEventArgs e)
         {
             Bubble(_focused, x => x.FireKeyDown(e));
         }
 
-        private void HandleMouseScroll(object? sender, MouseScrollEventArgs e)
+        private void HandleMouseScroll(object sender, MouseScrollEventArgs e)
         {
             Bubble(_hovered, x => x.FireMouseScroll(e));
         }
 
-        private void HandleKeyChar(object? sender, KeyCharEventArgs e)
+        private void HandleKeyChar(object sender, KeyCharEventArgs e)
         {
             Bubble(_focused, x => x.FireKeyChar(e));
         }
@@ -89,7 +95,7 @@ namespace RedTeam.Gui
             }
         }
         
-        private void HandleMouseUp(object? sender, MouseButtonEventArgs e)
+        private void HandleMouseUp(object sender, MouseButtonEventArgs e)
         {
             var hovered = FindElement(e.XPosition, e.YPosition);
 
@@ -102,7 +108,7 @@ namespace RedTeam.Gui
             }
         }
 
-        private void HandleMouseDown(object? sender, MouseButtonEventArgs e)
+        private void HandleMouseDown(object sender, MouseButtonEventArgs e)
         {
             var hovered = FindElement(e.XPosition, e.YPosition);
 
@@ -110,7 +116,7 @@ namespace RedTeam.Gui
             Bubble(_down, x => x.FireMouseDown(e));
         }
 
-        private void HandleMouseMove(object? sender, MouseMoveEventArgs e)
+        private void HandleMouseMove(object sender, MouseMoveEventArgs e)
         {
             var hovered = FindElement(e.XPosition, e.YPosition);
 
@@ -152,7 +158,7 @@ namespace RedTeam.Gui
         {
             var screenRectangle = new Rectangle(0, 0, Game.ScreenWidth, Game.ScreenHeight);
 
-            var rootLayout = _rootElement.LayoutManager;
+            var rootLayout = _rootElement.RootLayoutManager;
 
             rootLayout.SetBounds(screenRectangle);
         }

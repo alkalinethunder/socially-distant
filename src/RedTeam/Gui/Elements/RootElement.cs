@@ -7,7 +7,7 @@ namespace RedTeam.Gui.Elements
     {
         protected override bool SupportsChildren => true;
 
-        public LayoutManager LayoutManager
+        public LayoutManager RootLayoutManager
             => GetLayoutManager();
 
         internal RootElement(GuiSystem gui)

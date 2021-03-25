@@ -28,7 +28,7 @@ namespace RedTeam
             _console.ColorPalette = _config.GetRedTermPalette();
         }
 
-        private void ApplyConfig(object? sender, EventArgs e)
+        private void ApplyConfig(object sender, EventArgs e)
         {
             _console.ColorPalette = _config.GetRedTermPalette();
         }

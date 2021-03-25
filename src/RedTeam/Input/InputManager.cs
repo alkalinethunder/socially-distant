@@ -29,17 +29,17 @@ namespace RedTeam.Input
             Game.Window.TextInput += ForwardText;
         }
 
-        private void ForwardText(object? sender, TextInputEventArgs e)
+        private void ForwardText(object sender, TextInputEventArgs e)
         {
             KeyChar?.Invoke(this, new KeyCharEventArgs(e.Key, e.Character));
         }
 
-        private void ForwardKeyUp(object? sender, InputKeyEventArgs e)
+        private void ForwardKeyUp(object sender, InputKeyEventArgs e)
         {
             KeyUp?.Invoke(this, new KeyEventArgs(e.Key));
         }
 
-        private void ForwardKeyDown(object? sender, InputKeyEventArgs e)
+        private void ForwardKeyDown(object sender, InputKeyEventArgs e)
         {
             KeyDown?.Invoke(this, new KeyEventArgs(e.Key));
         }
