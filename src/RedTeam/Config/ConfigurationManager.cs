@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using RedTeam.IO;
 using System.Text.Json;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,6 +18,71 @@ namespace RedTeam.Config
         
         public GameConfiguration ActiveConfig => _gameConfig;
 
+        public IEnumerable<RedTermPalette> GetPalettes()
+        {
+            foreach (var path in _fs.GetFiles("/palettes"))
+            {
+                if (!path.ToLower().EndsWith(".json"))
+                    continue;
+                
+                var palette = null as RedTermPalette;
+                
+                try
+                {
+                    var json = _fs.ReadAllText(path);
+                    palette = JsonSerializer.Deserialize<RedTermPalette>(json, new JsonSerializerOptions
+                    {
+                        IncludeFields = true
+                    });
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                if (palette != null)
+                {
+                    var name = PathUtils.GetFileName(path);
+                    name = name.Substring(0, name.IndexOf("."));
+                    palette.id = name;
+                    yield return palette;
+                }
+            }
+        }
+        
+        public ColorPalette GetRedTermPalette()
+        {
+            var paletteName = _gameConfig.RedTermPalette;
+
+            if (string.IsNullOrEmpty(paletteName))
+                paletteName = "default";
+            
+            var path = $"/palettes/{paletteName}.json";
+
+            if (_fs.FileExists(path))
+            {
+                try
+                {
+                    var json = _fs.ReadAllText(path);
+                    var palette = JsonSerializer.Deserialize<RedTermPalette>(json,
+                        new JsonSerializerOptions
+                        {
+                            IncludeFields = true
+                        });
+
+                    return palette.ToColorPalette();
+                }
+                catch
+                {
+                    return new ColorPalette();
+                }
+            }
+            else
+            {
+                return new ColorPalette();
+            }
+        }
+        
         public DisplayMode GetDisplayMode()
         {
             if (ParseDisplayMode(_gameConfig.Resolution, out int w, out int h))
@@ -69,7 +136,27 @@ namespace RedTeam.Config
         {
             LoadInitialConfig();
         }
-        
+
+        private void WritePalette(string resourceName)
+        {
+            var resource = this.GetType().Assembly.GetManifestResourceStream("RedTeam.Resources.RedTermPalettes." + resourceName + ".json");
+            using var reader = new StreamReader(resource, Encoding.UTF8, true);
+
+            var json = reader.ReadToEnd();
+
+            _fs.WriteAllText($"/palettes/" + resourceName + ".json", json);
+        }
+
+        private void WriteReadme()
+        {
+            var readme = this.GetType().Assembly
+                .GetManifestResourceStream("RedTeam.Resources.RedTermPalettes.README.txt");
+            using var reader = new StreamReader(readme, Encoding.UTF8, true);
+            var readmeText = reader.ReadToEnd();
+
+            _fs.WriteAllText("/palettes/README.txt", readmeText);
+        }
+
         protected override void OnLoad()
         {
             // Create the local data path if it does not already exist.
@@ -78,6 +165,18 @@ namespace RedTeam.Config
 
             // Initialize a virtual file system for that path.
             _fs = FileSystem.FromHostDirectory(RedTeamPlatform.LocalDataPath);
+            
+            // redterm palettes
+            if (!_fs.DirectoryExists("/palettes"))
+                _fs.CreateDirectory("/palettes");
+
+            // write default palettes if they don't exist.
+            WritePalette("default");
+            WritePalette("light");
+            WritePalette("highContrast");
+
+            // palettes readme
+            WriteReadme();
             
             // Load the initial configuration.
             LoadInitialConfig();

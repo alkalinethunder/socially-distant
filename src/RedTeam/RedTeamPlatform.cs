@@ -27,6 +27,8 @@ namespace RedTeam
         public static string LocalDataPath
             => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), DeveloperName,
                 TitleName);
+
+        public static readonly string Community = "https://community.mvanoverbeek.me/";
         
         public static Platform GetCurrentPlatform()
         {
@@ -98,6 +100,14 @@ namespace RedTeam
             {
                 return "Unknown";
             }
+        }
+
+        public static void OpenFile(string path)
+        {
+            var info = new ProcessStartInfo();
+            info.UseShellExecute = true;
+            info.FileName = path;
+            Process.Start(info);
         }
         
         /// <summary>

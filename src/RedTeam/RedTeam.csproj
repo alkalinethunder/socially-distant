@@ -24,6 +24,14 @@
     <EmbeddedResource Include="Resources\Cowsay.txt" />
     <None Remove="Resources\Fortunes.txt" />
     <EmbeddedResource Include="Resources\Fortunes.txt" />
+    <None Remove="Resources\RedTermPalettes\default.json" />
+    <EmbeddedResource Include="Resources\RedTermPalettes\default.json" />
+    <None Remove="Resources\RedTermPalettes\highContrast.json" />
+    <EmbeddedResource Include="Resources\RedTermPalettes\highContrast.json" />
+    <None Remove="Resources\RedTermPalettes\light.json" />
+    <EmbeddedResource Include="Resources\RedTermPalettes\light.json" />
+    <None Remove="Resources\RedTermPalettes\README.txt" />
+    <EmbeddedResource Include="Resources\RedTermPalettes\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

@@ -8,7 +8,8 @@
         public bool SwapMouseButtons = false;
         
         public EffectsConfiguration Effects = new EffectsConfiguration();
-        
+
+        public string RedTermPalette = "";
         public string Resolution { get; set; } = string.Empty;
     }
 }

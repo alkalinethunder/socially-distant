@@ -55,10 +55,6 @@ namespace RedTeam
         private float _scrollback;
         private Color _scrollFG = Color.Cyan;
         private Color _scrollBG = Color.Gray;
-        private Color _foreground = Color.Gray;
-        private Color _background = new Color(22, 22, 22);
-        private Color _cursorColor = Color.White;
-        private Color _cursorFG = Color.Black;
         private Color _highlight = Color.White;
         private Color _highlightFG = Color.Black;
         private Vector2 _completionY;
@@ -93,15 +89,7 @@ namespace RedTeam
 
         private Color GetColor(ConsoleColor color)
         {
-            switch (color)
-            {
-                case ConsoleColor.Black:
-                    return _background;
-                case ConsoleColor.Gray:
-                    return _foreground;
-                default:
-                    return ColorPalette.GetColor(color);
-            }
+            return ColorPalette.GetColor(color);
         }
 
         private (int Start, int End, string Text) GetWordAtInputPos()
@@ -642,8 +630,8 @@ namespace RedTeam
                     cElem.Font = elem.Font;
                     if (HasAnyFocus)
                     {
-                        cElem.Background = _cursorColor;
-                        cElem.Foreground = _cursorFG;
+                        cElem.Background = ColorPalette.CursorColor;
+                        cElem.Foreground = ColorPalette.CursorForeground;
                     }
                     else
                     {
@@ -987,7 +975,7 @@ namespace RedTeam
 
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
         {
-            renderer.FillRectangle(BoundingBox, _background);
+            renderer.FillRectangle(BoundingBox, GetColor(ConsoleColor.Black));
 
             var continuePaint = true;
             var paintCompletionsThisTime = true;
@@ -1049,7 +1037,7 @@ namespace RedTeam
 
                     // paint the background
                     var bgRect = new Rectangle((int) cPos.X, (int) cPos.Y, (int) _completionsWidth, (int) cHeight);
-                    renderer.FillRectangle(bgRect, _background);
+                    renderer.FillRectangle(bgRect, ColorPalette.CompletionsBackground);
 
                     // paint each line
                     var c = 0;
@@ -1062,11 +1050,11 @@ namespace RedTeam
                         c++;
 
                         // render the background if we're the active element
-                        var color = _foreground;
+                        var color = ColorPalette.CompletionsText;
                         if (i == _activeCompletion)
                         {
-                            renderer.FillRectangle(bgRect, _highlight);
-                            color = _highlightFG;
+                            renderer.FillRectangle(bgRect, ColorPalette.CompletionsHighlight);
+                            color = ColorPalette.CompletionsHighlightText;
                         }
 
                         // draw the text
@@ -1371,41 +1359,6 @@ namespace RedTeam
             public Vector2 Position;
             public bool WrapSet;
             public bool WrapReset;
-        }
-    }
-
-    public class ColorPalette
-    {
-        private Dictionary<ConsoleColor, Color> _map = new Dictionary<ConsoleColor, Color>();
-
-        public ColorPalette()
-        {
-            _map.Add(ConsoleColor.Black, Color.Black);
-            _map.Add(ConsoleColor.White, Color.White);
-            _map.Add(ConsoleColor.Red, Color.Red);
-            _map.Add(ConsoleColor.Green, Color.Green);
-            _map.Add(ConsoleColor.Blue, Color.Blue);
-            _map.Add(ConsoleColor.Gray, Color.Gray);
-            _map.Add(ConsoleColor.DarkGray, Color.DarkGray);
-            _map.Add(ConsoleColor.Cyan, Color.Cyan);
-            _map.Add(ConsoleColor.Magenta, Color.Magenta);
-            _map.Add(ConsoleColor.Yellow, Color.Yellow);
-            _map.Add(ConsoleColor.DarkYellow, Color.Orange);
-            _map.Add(ConsoleColor.DarkRed, Color.DarkRed);
-            _map.Add(ConsoleColor.DarkGreen, Color.DarkGreen);
-            _map.Add(ConsoleColor.DarkBlue, Color.DarkBlue);
-            _map.Add(ConsoleColor.DarkCyan, Color.DarkCyan);
-            _map.Add(ConsoleColor.DarkMagenta, Color.DarkMagenta);
-        }
-        
-        public Color GetColor(ConsoleColor consoleColor)
-        {
-            return _map[consoleColor];
-        }
-
-        public void SetColor(ConsoleColor consoleColor, Color color)
-        {
-            _map[consoleColor] = new Color(color.R, color.G, color.B);
         }
     }
 

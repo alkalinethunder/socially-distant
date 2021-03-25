@@ -1,0 +1,34 @@
+﻿{
+  "name": "Default",
+  "description": "Default dark color scheme of redterm",
+  "author": "Michael VanOverbeek",
+  "cursor": {
+    "bg": "#202020",
+    "fg": "white"
+  },
+  "completions": {
+    "bg": "#222222",
+    "border": "#242424",
+    "text": "#999",
+    "textHighlight": "#fff",
+    "highlight": "#1baaf7"
+  },
+  "colors": {
+    "black": "#202020",
+    "darkBlue": "#000080",
+    "darkGreen": "#008000",
+    "darkCyan": "#008080",
+    "darkRed": "#800000",
+    "darkMagenta": "#800080",
+    "darkYellow": "#808000",
+    "gray": "#999",
+    "darkGray": "#808080",
+    "blue": "#0000ff",
+    "green": "#00ff00",
+    "cyan": "#00ffff",
+    "red": "#ff0000",
+    "magenta": "#ff00ff",
+    "yellow": "#ffff00",
+    "white": "#ffffff"
+  }
+}
