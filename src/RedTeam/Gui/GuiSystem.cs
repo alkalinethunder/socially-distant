@@ -35,7 +35,7 @@ namespace RedTeam.Gui
             _input.KeyDown += HandleKeyDown;
             _input.KeyUp += HandleKeyUp;
         }
-
+        
         private void HandleKeyUp(object? sender, KeyEventArgs e)
         {
             Bubble(_focused, x => x.FireKeyUp(e));
@@ -93,6 +93,8 @@ namespace RedTeam.Gui
         {
             var hovered = FindElement(e.XPosition, e.YPosition);
 
+            Bubble(_down, x => x.FireMouseUp(e));
+            
             if (_down == hovered)
             {
                 SetFocus(hovered);
@@ -105,13 +107,18 @@ namespace RedTeam.Gui
             var hovered = FindElement(e.XPosition, e.YPosition);
 
             _down = hovered;
+            Bubble(_down, x => x.FireMouseDown(e));
         }
 
         private void HandleMouseMove(object? sender, MouseMoveEventArgs e)
         {
             var hovered = FindElement(e.XPosition, e.YPosition);
 
+            // TODO: mouse enter/leave
+            
             _hovered = hovered;
+            
+            Bubble(_hovered, x => x.FireMouseMove(e));
         }
 
         public void AddToViewport(Element element)

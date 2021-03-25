@@ -57,7 +57,7 @@ namespace RedTeam.Commands
                 }
 
                 Console.WriteLine("Download more redterm palettes and create your own at");
-                Console.WriteLine("#b&b&u{0}&0", RedTeamPlatform.Community);
+                Console.WriteLine("#b&b&u{0}&0", "https://community.mvanoverbeek.me/viewforum.php?f=25");
                 
                 return;
             }

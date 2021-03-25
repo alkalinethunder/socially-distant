@@ -303,7 +303,42 @@ namespace RedTeam.Gui.Elements
         public event EventHandler<MouseScrollEventArgs> MouseScroll;
         public event EventHandler<KeyEventArgs> KeyDown;
         public event EventHandler<KeyEventArgs> KeyUp;
+        public event EventHandler<MouseMoveEventArgs> MouseMove;
+        public event EventHandler<MouseButtonEventArgs> MouseDown;
+        public event EventHandler<MouseButtonEventArgs> MouseUp;
+
+        protected virtual bool OnMouseDown(MouseButtonEventArgs e)
+        {
+            if (MouseDown != null)
+            {
+                MouseDown(this, e);
+                return true;
+            }
+
+            return false;
+        }
         
+        protected virtual bool OnMouseUp(MouseButtonEventArgs e)
+        {
+            if (MouseUp != null)
+            {
+                MouseUp(this, e);
+                return true;
+            }
+
+            return false;
+        }
+        
+        protected virtual bool OnMouseMove(MouseMoveEventArgs e)
+        {
+            if (MouseMove != null)
+            {
+                MouseMove(this, e);
+                return true;
+            }
+
+            return false;
+        }
         
         protected virtual bool OnBlurred(FocusChangedEventArgs e)
         {
@@ -369,6 +404,21 @@ namespace RedTeam.Gui.Elements
             }
 
             return false;
+        }
+
+        internal bool FireMouseDown(MouseButtonEventArgs e)
+        {
+            return OnMouseDown(e);
+        }
+
+        internal bool FireMouseUp(MouseButtonEventArgs e)
+        {
+            return OnMouseUp(e);
+        }
+        
+        internal bool FireMouseMove(MouseMoveEventArgs e)
+        {
+            return OnMouseMove(e);
         }
         
         internal bool FireBlurred(FocusChangedEventArgs e)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -40,6 +41,8 @@ namespace RedTeam
         private ColorPalette _fallbackPalette = new ColorPalette();
         private ColorPalette _activePalette = null;
 
+        private TextElement _hoverElement;
+        
         private string _text = "";
         private string _input = string.Empty;
         private int _inputPos = 0;
@@ -744,6 +747,10 @@ namespace RedTeam
                     }
                 }
 
+                // store a rectangle for mouse hit detection
+                elem.MouseBounds = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X,
+                    (int) measure.Y);
+                
                 // Go to a new line if the element ends with a new line.
                 if (elem.Text.EndsWith('\n'))
                 {
@@ -905,24 +912,19 @@ namespace RedTeam
         {
             var continuePaint = true;
 
-            // Position of the element.
-            var pos = elem.Position;
-                
+            // use the mouse rect to speed things up.
+            var rect = elem.MouseBounds;
+            
             // Account for scrollback.
-            pos.Y -= _scrollbackMax;
+            rect.Y -= (int)_scrollbackMax;
             if (_height > BoundingBox.Height)
             {
-                pos.Y += _scrollback;
+                rect.Y += (int)_scrollback;
             }
 
             // only paint this element if it's above the bottom of the terminal bounds.
-            if (pos.Y <= BoundingBox.Bottom)
+            if (rect.Top <= BoundingBox.Bottom)
             {
-                // Measure the element and create a rectangle so we know how large it is and we can
-                // render the background.
-                var measure = elem.Font.MeasureString(elem.Text);
-                var rect = new Rectangle((int) pos.X, (int) pos.Y, (int) measure.X, (int) measure.Y);
-
                 // If the element is above the terminal bounds then we'll instruct the OnPaint routine to stop
                 // painting elements. This is a major perf boost.
                 if (rect.Bottom <= BoundingBox.Top)
@@ -963,14 +965,49 @@ namespace RedTeam
                     // Render a nice text underline if that attribute is set.
                     if (elem.Underline)
                     {
+                        var h = rect.Height - 2;
+                        rect.Y += h;
                         rect.Height = 2;
-                        rect.Y += (int) measure.Y - rect.Height;
                         renderer.FillRectangle(rect, fg);
                     }
                 }
             }
 
             return continuePaint;
+        }
+
+        private void TryOpenUrl(string text)
+        {
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                try
+                {
+                    var url = new Uri(text);
+
+                    RedTeamPlatform.OpenFile(url.ToString());
+                }
+                catch
+                {
+                    // Ignored.
+                }
+            }
+        }
+        
+        protected override bool OnMouseUp(MouseButtonEventArgs e)
+        {
+            var result = base.OnMouseUp(e);
+
+            if (e.Button == MouseButton.Primary)
+            {
+                if (_hoverElement != null)
+                {
+                    TryOpenUrl(_hoverElement.Text);
+                }
+
+                result = true;
+            }
+
+            return result;
         }
 
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
@@ -1201,6 +1238,43 @@ namespace RedTeam
             return result;
         }
 
+        protected override bool OnMouseMove(MouseMoveEventArgs e)
+        {
+            var x = e.XPosition;
+            var y = e.YPosition;
+
+            var rect = BoundingBox;
+
+            _hoverElement = null;
+            
+            for (var i = _elements.Count - 1; i >= 0; i--)
+            {
+                var elem = _elements[i];
+
+                var elemRect = elem.MouseBounds;
+                elemRect.Y -= (int) _scrollbackMax;
+                
+                if (_height > rect.Height)
+                {
+                    elemRect.Y += (int) _scrollback;
+                }
+
+                if (elemRect.Top >= rect.Bottom)
+                    continue;
+
+                if (elemRect.Bottom >= rect.Bottom)
+                    break;
+
+                if (x >= elemRect.Left && x <= elemRect.Right && y >= elemRect.Top && y <= elemRect.Bottom)
+                {
+                    _hoverElement = elem;
+                    break;
+                }
+            }
+            
+            return base.OnMouseMove(e);
+        }
+
         private class TextElement
         {
             public SpriteFont Font;
@@ -1213,7 +1287,8 @@ namespace RedTeam
             public bool Blinking;
             public bool IsWrapPoint;
             public bool IsWrapResetPoint;
-
+            public Rectangle MouseBounds;
+            
             public TextElement Clone()
             {
                 var elem = new TextElement();

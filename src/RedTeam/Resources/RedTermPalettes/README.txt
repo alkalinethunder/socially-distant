@@ -4,7 +4,7 @@ Much like ShiftOS, RED TEAM OS allows you to customize the look and feel of your
 
 You can create your own redterm palette using any text editor by basing it off of either of the three that come with the game (default.json, light.json or highContrast.json). You CANNOT edit these files, the game will overwrite your changes. They're just here as examples. You can also download other players' redterm palettes from the Alkaline Thunder community forum:
 
-https://community.mvanoverbeek.me/
+https://community.mvanoverbeek.me/viewforum.php?f=25
 
 ===================================================================================
 
