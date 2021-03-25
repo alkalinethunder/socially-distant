@@ -703,7 +703,7 @@ namespace RedTeam
                 var measure = elem.Font.MeasureString(elem.Text);
 
                 // wrap to new line if the measurement states we can't fit
-                if (!firstLine && attrs.Position.X + measure.X >= rect.Right - wrapPointAccount)
+                if (attrs.Position.X + measure.X >= rect.Right)
                 {
                     attrs.Position.X = rect.Left + wrapPointAccount;
                     attrs.Position.Y += elem.Font.LineSpacing;
@@ -721,6 +721,13 @@ namespace RedTeam
                     // this element gets the first line
                     elem.Text = lines.First();
                     
+                    // re-measure
+                    measure = elem.Font.MeasureString(elem.Text);
+                    
+                    // OH FUCKING JESUS FUCK FUCK
+                    elem.MouseBounds = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X,
+                        (int) measure.Y);
+
                     // this is some seriously fucked shit
                     foreach (var line in lines.Skip(1))
                     {
@@ -740,9 +747,13 @@ namespace RedTeam
                         // my god I'm screwed
                         elements.Insert(i, wtf);
                         elem = wtf;
-                        
+                    
                         // SWEET MOTHER OF FUCK
                         measure = elem.Font.MeasureString(elem.Text);
+                        
+                        // OH FUCKING JESUS FUCK FUCK
+                        elem.MouseBounds = new Rectangle((int) elem.Position.X, (int) elem.Position.Y, (int) measure.X,
+                            (int) measure.Y);
                     }
                 }
 
@@ -760,8 +771,6 @@ namespace RedTeam
                 {
                     attrs.Position.X += measure.X;
                 }
-                
-                firstLine = false;
             }
 
             // Now everything is positioned on screen so we're going to calculate
