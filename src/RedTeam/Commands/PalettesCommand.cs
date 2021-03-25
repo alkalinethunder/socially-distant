@@ -34,6 +34,19 @@ namespace RedTeam.Commands
                 return;
             }
 
+            if (action == "reset")
+            {
+                config.ActiveConfig.RedTermPalette = string.Empty;
+                config.ApplyChanges();
+                return;
+            }
+
+            if (action == "reload")
+            {
+                config.DiscardChanges();
+                return;
+            }
+            
             if (action == "list")
             {
                 Console.WriteLine("Available redterm palettes:");
