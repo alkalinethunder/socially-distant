@@ -60,7 +60,7 @@ namespace RedTeam.Commands
                 foreach (var palette in palettes)
                 {
                     Console.Write(" - {0}", palette.name);
-                    for (var i = 0; i < palette.name.Length - longestName; i++)
+                    for (var i = 0; i < longestName - palette.name.Length; i++)
                         Console.Write(" ");
 
                     Console.WriteLine(" - &w{0}", palette.description);
