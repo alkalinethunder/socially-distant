@@ -7,6 +7,8 @@ namespace RedTeam.Commands
     {
         public override string Name => "colors";
 
+        public override string Description => "redterm Color and Formatting help";
+        
         protected override void Main(string[] args)
         {
             Console.WriteLine("redterm formatting guide");

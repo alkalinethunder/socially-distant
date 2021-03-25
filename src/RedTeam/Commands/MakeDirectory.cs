@@ -6,7 +6,8 @@ namespace RedTeam.Commands
     public class MakeDirectory : Command
     {
         public override string Name => "mkdir";
-
+        public override string Description => "Make a directory.";
+        
         protected override void Main(string[] args)
         {
             if (!args.Any())

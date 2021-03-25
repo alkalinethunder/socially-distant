@@ -152,15 +152,21 @@ namespace RedTeam
             console.WriteLine("Commands:");
             console.WriteLine();
 
-            foreach (var cmd in _builtins)
+            var longest = _builtins.Select(x => x.Name).OrderByDescending(x => x.Length).First().Length + 2;
+            
+            foreach (var cmd in _builtins.OrderBy(x=>x.Name))
             {
-                if (string.IsNullOrWhiteSpace(cmd.Description))
-                    console.WriteLine(" - {0}", cmd.Name);
-                else
-                    console.WriteLine(" - {0}: {1}", cmd.Name, cmd.Description);
-            }
+                console.Write(" - #d{0}&0", cmd.Name);
+                if (!string.IsNullOrWhiteSpace(cmd.Description))
+                {
+                    console.Write(":");
+                    for (var i = 0; i < longest - cmd.Name.Length; i++)
+                        console.Write(" ");
+                    console.Write("&w{0}&W", cmd.Description);
+                }
 
-            console.WriteLine();
+                console.WriteLine();
+            }
         }
         
         private void PrintExternals(IConsole console)
@@ -168,15 +174,21 @@ namespace RedTeam
             console.WriteLine("Programs:");
             console.WriteLine();
 
-            foreach (var cmd in _commands)
+            var longest = _commands.Select(x => x.Name).OrderByDescending(x => x.Length).First().Length + 2;
+            
+            foreach (var cmd in _commands.OrderBy(x=>x.Name))
             {
-                if (string.IsNullOrWhiteSpace(cmd.Description))
-                    console.WriteLine(" - {0}", cmd.Name);
-                else
-                    console.WriteLine(" - {0}: {1}", cmd.Name, cmd.Description);
-            }
+                console.Write(" - #9{0}&0", cmd.Name);
+                if (!string.IsNullOrWhiteSpace(cmd.Description))
+                {
+                    console.Write(":");
+                    for (var i = 0; i < longest - cmd.Name.Length; i++)
+                        console.Write(" ");
+                    console.Write("&w{0}&W", cmd.Description);
+                }
 
-            console.WriteLine();
+                console.WriteLine();
+            }
         }
 
         public void PrintHelp(IConsole console)

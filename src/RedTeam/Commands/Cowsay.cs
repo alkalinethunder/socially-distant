@@ -9,6 +9,9 @@ namespace RedTeam.Commands
     public class Cowsay : Command
     {
         public override string Name => "cowsay";
+
+        public override string Description =>
+            "Have the almighty cow use its voice of reason. The cowsay cow holds authority over all of man-kind.";
         protected override void Main(string[] args)
         {
             var cow = GetCow();

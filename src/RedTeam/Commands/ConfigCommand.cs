@@ -12,6 +12,8 @@ namespace RedTeam.Commands
         private List<Setting> _settings = new List<Setting>();
         private ConfigurationManager _config;
 
+        public override string Description => "redwm configuration utility.";
+        
         private string _usage = @"usage:
     {0} help                    - show this screen
     {0} set <setting> <value>   - set the value of a given setting

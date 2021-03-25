@@ -6,6 +6,8 @@ namespace RedTeam.Commands
     {
         public override string Name => "ls";
 
+        public override string Description => "List the contents of a directory.";
+        
         protected override void Main(string[] args)
         {
             var dir = WorkingDirectory;

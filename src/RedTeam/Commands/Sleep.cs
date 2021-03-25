@@ -7,7 +7,8 @@ namespace RedTeam.Commands
         private float _timeLeft;
         
         public override string Name => "sleep";
-
+        public override string Description => "Sleep for a given amount of time in milliseconds.";
+        
         protected override void Main(string[] args)
         {
             if (!args.Any())

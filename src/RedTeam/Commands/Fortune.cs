@@ -7,6 +7,7 @@ namespace RedTeam.Commands
     public class Fortune : Command
     {
         public override string Name => "fortune";
+        public override string Description => "Read the contents of a fortune cookie to the console.";
 
         private string[] GetFortunes()
         {

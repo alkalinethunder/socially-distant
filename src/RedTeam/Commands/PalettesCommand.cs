@@ -7,7 +7,8 @@ namespace RedTeam.Commands
     public class PalettesCommand : Command
     {
         public override string Name => "palette";
-
+        public override string Description => "Customize the redterm terminal.";
+        
         private string _help = @"usage:
     {0} list            - list available color palettes
     {0} set <palette>   - change the active redterm palette

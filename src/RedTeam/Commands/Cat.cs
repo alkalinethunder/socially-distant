@@ -6,6 +6,8 @@ namespace RedTeam.Commands
     {
         public override string Name => "cat";
 
+        public override string Description => "Type the contents of a file to the console.";
+
         protected override void Main(string[] args)
         {
             if (args.Length < 1)

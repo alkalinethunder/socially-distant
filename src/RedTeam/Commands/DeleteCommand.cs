@@ -8,7 +8,8 @@ namespace RedTeam.Commands
         private bool _recursive;
         
         public override string Name => "rm";
-
+        public override string Description => "Delete a file or directory.";
+        
         private bool ApplyFlag(string flag)
         {
             switch (flag)

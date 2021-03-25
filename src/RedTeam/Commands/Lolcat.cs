@@ -11,7 +11,8 @@ namespace RedTeam.Commands
         private const int _colors = 16;
 
         public override string Name => "lolcat";
-
+        public override string Description => "Mmmmmmmm....tasty rainbows....";
+        
         private bool ParseColorCode(string text, out int index)
         {
             var result = false;

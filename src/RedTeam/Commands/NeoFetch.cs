@@ -11,6 +11,7 @@ namespace RedTeam.Commands
     public class NeoFetch : Command
     {
         public override string Name => "neofetch";
+        public override string Description => "Print fancy system information.";
         
         protected override void Main(string[] args)
         {
