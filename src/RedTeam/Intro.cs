@@ -33,13 +33,16 @@ namespace RedTeam
         private TextComponent _presents;
         private TextComponent _redTeam;
         private TextComponent _prompt;
-        
+        private Backdrop _backdrop;
         private SolidRectangle _cursor;
         
         protected override void OnLoad()
         {
+            _backdrop = AddComponent<Backdrop>();
             _cursor = AddComponent<SolidRectangle>();
             _glitchPlayer = AddComponent<VorbisPlayer>();
+
+            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
             
             _welcomee = Game.Content.Load<SoundEffect>("Sounds/Intro/Welcome");
             _typingSound = Game.Content.Load<SoundEffect>("Sounds/Intro/Typing");
