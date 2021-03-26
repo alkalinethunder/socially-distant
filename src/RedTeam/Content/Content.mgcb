@@ -31,6 +31,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Gaussian.fx
 
+#begin Effects/GlitchEffect.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/GlitchEffect.fx
+
 #begin Effects/ShadowMask.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -71,6 +77,50 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/DebugSmall.spritefont
+
+#begin Fonts/Intro/Big.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Intro/Big.spritefont
+
+#begin Fonts/Intro/Small.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Intro/Small.spritefont
+
+#begin Sounds/Intro/MichaelGlitch.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Intro/MichaelGlitch.mp3
+
+#begin Sounds/Intro/RedTeamGlitch.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Intro/RedTeamGlitch.mp3
+
+#begin Sounds/Intro/ThundershockGlitch.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Intro/ThundershockGlitch.mp3
+
+#begin Sounds/Intro/Typing.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Intro/Typing.mp3
+
+#begin Sounds/Intro/Welcome.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Intro/Welcome.mp3
 
 #begin Sounds/Redsh/cmdNotFound.mp3
 /importer:Mp3Importer

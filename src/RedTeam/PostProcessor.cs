@@ -8,6 +8,8 @@ namespace RedTeam
 {
     public class PostProcessor
     {
+        public PostProcessSettings Settings { get; }
+        
         private GraphicsDevice _gfx;
         private SpriteBatch _batch;
         private RenderTarget2D _effectBuffer1;
@@ -26,6 +28,9 @@ namespace RedTeam
         private Effect _shadowmask;
         private float _hardPix = -6;
         private float _hardScan = -10;
+        private Effect _glitch;
+        private float _glitchIntensity;
+        private float _glitchSkew;
         
         public bool EnableShadowMask { get; set; } = true;
         public bool EnableBloom { get; set; } = true;
@@ -53,6 +58,7 @@ namespace RedTeam
         
         public PostProcessor(GraphicsDevice gfx)
         {
+            Settings = new PostProcessSettings(this);
             _gfx = gfx;
             _batch = new SpriteBatch(_gfx);
         }
@@ -63,6 +69,7 @@ namespace RedTeam
             _gaussian = content.Load<Effect>("Effects/Gaussian");
             _bloom = content.Load<Effect>("Effects/Bloom");
             _shadowmask = content.Load<Effect>("Effects/ShadowMask");
+            _glitch = content.Load<Effect>("Effects/GlitchEffect");
             
             _brightnessThreshold.Parameters["Threshold"].SetValue(_bloomThreshold);
             _gaussian.Parameters["Kernel"].SetValue(_gaussianKernel);
@@ -72,7 +79,6 @@ namespace RedTeam
 
             _bloom.Parameters["BloomSaturation"].SetValue(_bloomSaturation);
             _bloom.Parameters["BaseSaturation"].SetValue(_baseSaturation);
-            
         }
         
         public void ReallocateEffectBuffers()
@@ -214,6 +220,28 @@ namespace RedTeam
                 NoEffect(renderTarget, rect);
             }
 
+            if (Settings.EnableGlitch)
+            {
+                // update glitch settings.
+                _glitch.Parameters["Intensity"].SetValue(_glitchIntensity);
+                _glitch.Parameters["TextureSize"].SetValue(rect.Size.ToVector2());
+                _glitch.Parameters["Skew"].SetValue(_glitchSkew);
+                
+                // copy intermediate to effect buffer 1.
+                // using the glitch effect.
+                _gfx.SetRenderTarget(_effectBuffer1);
+                _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap);
+                _glitch.CurrentTechnique.Passes[0].Apply();
+                _batch.Draw(_intermediate, rect, Color.White);
+                _batch.End();
+                
+                // render effect buffer 1 to intermediate
+                _gfx.SetRenderTarget(_intermediate);
+                _batch.Begin();
+                _batch.Draw(_effectBuffer1, rect, Color.White);
+                _batch.End();
+            }
+
             if (EnableShadowMask)
             {
                 SetShadowMaskParams();
@@ -233,13 +261,35 @@ namespace RedTeam
                 _batch.End();
             }
             
-            
-            
             _gfx.SetRenderTarget(null);
 
-            _batch.Begin();
+            _batch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearWrap);
             _batch.Draw(_intermediate, rect, Color.White);
             _batch.End();
+        }
+
+        public class PostProcessSettings
+        {
+            private PostProcessor _processor;
+
+            public bool EnableGlitch { get; set; }
+            
+            public float GlitchIntensity
+            {
+                get => _processor._glitchIntensity;
+                set => _processor._glitchIntensity = value;
+            }
+            
+            public float GlitchSkew
+            {
+                get => _processor._glitchSkew;
+                set => _processor._glitchSkew = value;
+            }
+            
+            public PostProcessSettings(PostProcessor processor)
+            {
+                _processor = processor;
+            }
         }
     }
 }

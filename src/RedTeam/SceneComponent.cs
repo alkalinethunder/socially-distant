@@ -9,6 +9,8 @@ namespace RedTeam
         private Scene _scene;
 
         public Scene Scene => _scene;
+
+        public bool Visible { get; set; } = true;
         
         public RedTeamGame Game => _scene.Game;
         
@@ -31,7 +33,10 @@ namespace RedTeam
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            OnDraw(gameTime, spriteBatch);
+            if (Visible)
+            {
+                OnDraw(gameTime, spriteBatch);
+            }
         }
         
         protected virtual void OnLoad() {}

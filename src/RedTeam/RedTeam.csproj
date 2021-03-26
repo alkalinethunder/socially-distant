@@ -38,6 +38,13 @@
     <EmbeddedResource Include="Resources\RedTermPalettes\light.json" />
     <None Remove="Resources\RedTermPalettes\README.txt" />
     <EmbeddedResource Include="Resources\RedTermPalettes\README.txt" />
+    <None Remove="Resources\Audio\MichaelGlitch.ogg" />
+    <EmbeddedResource Include="Resources\Audio\MichaelGlitch.ogg" />
+    <None Remove="Resources\Audio\RedTeamGlitch.ogg" />
+    <EmbeddedResource Include="Resources\Audio\RedTeamGlitch.ogg" />
+    <None Remove="Resources\Audio\ThundershockGlitch.ogg" />
+    <EmbeddedResource Include="Resources\Audio\ThundershockGlitch.ogg" />
+    <None Remove="Resources\TestAudio.ogg" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
@@ -46,6 +53,7 @@
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FftSharp" Version="1.0.8" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>

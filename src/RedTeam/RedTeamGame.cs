@@ -31,6 +31,8 @@ namespace RedTeam
         public Texture2D White => _white;
 
         public TimeSpan UpTime => _upTime;
+
+        public PostProcessor.PostProcessSettings PostProcessSettings => _postProcessor.Settings;
         
         public SpriteBatch SpriteBatch => _spriteBatch;
 
@@ -173,7 +175,7 @@ namespace RedTeam
 
             _postProcessor.LoadContent(Content);
             
-            LoadScene<ConsoleScene>();
+            LoadScene<Intro>();
         }
 
         protected override void UnloadContent()

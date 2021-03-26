@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using Microsoft.Xna.Framework;
 using BindingFlags = System.Reflection.BindingFlags;
 
 namespace RedTeam
@@ -30,6 +31,12 @@ namespace RedTeam
                 TitleName);
 
         public static readonly string Community = "https://community.mvanoverbeek.me/";
+
+        public static Color HtmlColor(string html)
+        {
+            var gdiColor = System.Drawing.ColorTranslator.FromHtml(html);
+            return new Color(gdiColor.R, gdiColor.G, gdiColor.B, gdiColor.A);
+        }
         
         public static Platform GetCurrentPlatform()
         {

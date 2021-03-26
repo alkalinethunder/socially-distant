@@ -15,19 +15,13 @@ namespace RedTeam.Config
         public RedTermColors colors = new RedTermColors();
         public RedTermCompletions completions = new RedTermCompletions();
         public RedTermCursor cursor = new RedTermCursor();
-
-        private Microsoft.Xna.Framework.Color FromGdiColor(System.Drawing.Color color)
-        {
-            return new Microsoft.Xna.Framework.Color(color.R, color.G, color.B, color.A);
-        }
         
         public ColorPalette ToColorPalette()
         {
             var palette = new ColorPalette();
 
-            Func<string, System.Drawing.Color> sysColor = (value) => ColorTranslator.FromHtml(value);
-            Func<string, Microsoft.Xna.Framework.Color> html = (value) => FromGdiColor(sysColor(value));
-
+            Func<string, Microsoft.Xna.Framework.Color> html = RedTeamPlatform.HtmlColor;
+            
             palette.SetColor(ConsoleColor.Black, html(colors.black));
             palette.SetColor(ConsoleColor.DarkBlue, html(colors.darkBlue));
             palette.SetColor(ConsoleColor.DarkGreen, html(colors.darkGreen));
