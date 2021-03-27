@@ -1,7 +1,10 @@
-﻿namespace RedTeam
+﻿using RedTeam.IO;
+
+namespace RedTeam
 {
     public interface IRedTeamContext
     {
+        public FileSystem Vfs { get; }
         string UserName { get; }
         string HostName { get; }
         string HomeDirectory { get; }

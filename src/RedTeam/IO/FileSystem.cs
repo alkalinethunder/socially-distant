@@ -232,5 +232,10 @@ namespace RedTeam.IO
             
             return new FileSystem(node);
         }
+
+        public static FileSystem FromRedRoot(RedRoot rootfs)
+        {
+            return new FileSystem(rootfs);
+        }
     }
 }

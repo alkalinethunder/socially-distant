@@ -6,6 +6,18 @@ namespace RedTeam
 {
     public class HostContext : IRedTeamContext
     {
+        private FileSystem _vfs;
+        
+        public FileSystem Vfs
+        {
+            get
+            {
+                if (_vfs == null)
+                    _vfs = FileSystem.FromHostOS();
+
+                return _vfs;
+            }
+        }
         public string Shell => "redsh 0.1";
         public string Terminal => "redterm";
         public string WindowManager => "redwm";

@@ -45,6 +45,8 @@
     <None Remove="Resources\Audio\ThundershockGlitch.ogg" />
     <EmbeddedResource Include="Resources\Audio\ThundershockGlitch.ogg" />
     <None Remove="Resources\TestAudio.ogg" />
+    <None Remove="Resources\Intro.txt" />
+    <EmbeddedResource Include="Resources\Intro.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

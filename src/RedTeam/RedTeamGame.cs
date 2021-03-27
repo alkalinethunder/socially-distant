@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RedTeam.Config;
 using RedTeam.Input;
+using RedTeam.SaveData;
 
 namespace RedTeam
 {
@@ -152,9 +153,10 @@ namespace RedTeam
         protected override void Initialize()
         {
             _postProcessor = new PostProcessor(GraphicsDevice);
-
+            
             RegisterComponent<ConfigurationManager>();
             RegisterComponent<InputManager>();
+            RegisterComponent<SaveManager>();
             
             ApplyConfig();
 

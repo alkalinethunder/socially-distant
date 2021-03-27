@@ -1,0 +1,26 @@
+﻿&b#cRED TEAM&0
+========
+
+Hey there everyone, I'm Michael, and welcome to my new hacking game. This is a Phase 3 in-development build of Red Team. Before I let you play the game, there are a few things I want to say - so please read this carefully before submitting bug reports or asking certain questions.
+
+First and foremost, I want to thank you for deciding to check this build out. I'm only one programmer and I'm ssill a student. Game development isn't easy and there's a reason there are post-secondary courses for it. Red Team is an &bincredibly&B large project for someone like me and it means &b&ia lot&B&I to me that you have decided it is worth checking out. Your feedback and criticism is valued deeply.
+
+Secondly, I'd like to thank the following people for helping me with the game and various challenges I've faced (Discord usernames used in cases where I don't know their real name or they would not be comfortable having it displayed).
+
+ - &bDeclan Hoare&B                         - &wfor advising me on how to do basic audio processing for the glitch effect in the thundershock intro&W
+ - &bJohn Tur&B                             - &wfor giving me better ideas of faster/more secure APIs to use in .NET Core&W
+ - &bViperidae Fractures Status Quo&B       - &wfor giving insights on real-life hacking tools and Linux shell commands, on which Red Team's in-game commands/programs are loosely based, or of which I have created renditions of.&W
+ - &bJames Dupuis&B                         - &wfor being a mentor and an &bawesome&B gamedev professor&W
+ - &bMatt Trobbiani&B                       - for inspiring me to do this, thanks to Hacknet.
+ 
+
+This is not the final game and so there are a lot of features missing. However, the core gameplay is here and I have created a demo op for you to complete after creating your Agent. It will teach you the core mechanics of the game and give you an idea of what's to come. I hope you enjoy what you play.
+
+To keep up with development, follow me on Twitter:
+&b&u#bhttps://twitter.com/aklnthndr&0
+
+Submit all bugs and feedback to the community forum.
+&b&u#bhttps://community.mvanoverbeek.me/&0
+
+Thank you,
+ - #bMichael&0
