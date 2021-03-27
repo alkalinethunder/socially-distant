@@ -152,7 +152,8 @@ namespace RedTeam.IO
         public IConsole CreateFileConsole(IConsole input, string path, bool append)
         {
             var s = OpenFile(path, append);
-
+            if (!append)
+                s.SetLength(0);
             return new FileConsole(input, s);
         }
         
