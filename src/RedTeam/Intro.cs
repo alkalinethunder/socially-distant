@@ -154,7 +154,7 @@ namespace RedTeam
         
         private void Done()
         {
-            Game.LoadScene<ConsoleScene>();
+            App.LoadScene<ConsoleScene>();
         }
 
         private void StartTyping(TextComponent text)
