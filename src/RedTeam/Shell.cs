@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using RedTeam.Commands;
 using RedTeam.IO;
+using Thundershock;
+using Thundershock.IO;
 
 namespace RedTeam
 {
@@ -227,7 +229,7 @@ namespace RedTeam
             RegisterBuiltin("echo", "Write text to the screen", Echo);
             RegisterBuiltin("cd", "Change directory", ChangeWorkingDirectory);
 
-            foreach (var type in RedTeamPlatform.GetAllTypes<Command>())
+            foreach (var type in ThundershockPlatform.GetAllTypes<Command>())
             {
                 var cmd = (Command) Activator.CreateInstance(type, null);
 

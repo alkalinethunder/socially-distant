@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Thundershock.IO;
 using RedTeam.SaveData;
+using Thundershock;
 
 namespace RedTeam.IO
 {
@@ -56,7 +58,7 @@ namespace RedTeam.IO
 
         private string GetHostDirectory()
         {
-            var homes = Path.Combine(RedTeamPlatform.LocalDataPath, "homes");
+            var homes = Path.Combine(ThundershockPlatform.LocalDataPath, "homes");
             var myHome = Path.Combine(homes, _agent.IsPlayer ? "player" : _agent.DeviceId);
 
             if (!Directory.Exists(homes))

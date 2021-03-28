@@ -7,9 +7,10 @@ using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using RedTeam.Gui;
-using RedTeam.Gui.Elements;
-using RedTeam.Input;
+using Thundershock;
+using Thundershock.Gui;
+using Thundershock.Gui.Elements;
+using Thundershock.Input;
 
 namespace RedTeam
 {
@@ -84,10 +85,10 @@ namespace RedTeam
 
         public ConsoleControl()
         {
-            _regularFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Regular");
-            _boldFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Bold");
-            _boldItalicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/BoldItalic");
-            _italicFont = RedTeamGame.Instance.Content.Load<SpriteFont>("Fonts/Console/Italic");
+            _regularFont = EntryPoint.CurrentApp.Content.Load<SpriteFont>("Fonts/Console/Regular");
+            _boldFont = EntryPoint.CurrentApp.Content.Load<SpriteFont>("Fonts/Console/Bold");
+            _boldItalicFont = EntryPoint.CurrentApp.Content.Load<SpriteFont>("Fonts/Console/BoldItalic");
+            _italicFont = EntryPoint.CurrentApp.Content.Load<SpriteFont>("Fonts/Console/Italic");
         }
 
         private Color GetColor(ConsoleColor color)
@@ -994,7 +995,7 @@ namespace RedTeam
                 {
                     var url = new Uri(text);
 
-                    RedTeamPlatform.OpenFile(url.ToString());
+                    ThundershockPlatform.OpenFile(url.ToString());
                 }
                 catch
                 {

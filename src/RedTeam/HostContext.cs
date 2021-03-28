@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using RedTeam.IO;
+using Thundershock;
+using Thundershock.IO;
 
 namespace RedTeam
 {
@@ -31,7 +33,7 @@ namespace RedTeam
             {
                 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 
-                if (RedTeamPlatform.IsPlatform(Platform.Windows))
+                if (ThundershockPlatform.IsPlatform(Platform.Windows))
                 {
                     // windows to vfs path separators
                     home = home.Replace(Path.DirectorySeparatorChar.ToString(), PathUtils.Separator);

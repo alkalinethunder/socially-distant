@@ -2,8 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using RedTeam.Components;
-using RedTeam.Input;
+using Thundershock.Components;
+using Thundershock.Input;
+using Thundershock;
 
 namespace RedTeam
 {
@@ -76,9 +77,9 @@ namespace RedTeam
             _redTeam.Text = "RED TEAM";
             _michael.Text = "Michael VanOverbeek";
 
-            _redTeam.Color = RedTeamPlatform.HtmlColor("#f71b1b");
+            _redTeam.Color = ThundershockPlatform.HtmlColor("#f71b1b");
 
-            _michael.Color = RedTeamPlatform.HtmlColor("#1baaf7");
+            _michael.Color = ThundershockPlatform.HtmlColor("#1baaf7");
             _thundershock.Color = Color.Green;
 
             _prompt.Visible = false;
@@ -112,7 +113,7 @@ namespace RedTeam
             _poweredBy.Position = pos;
             _poweredBy.Pivpt = new Vector2(0, 0.5f);
 
-            var input = Game.GetComponent<InputManager>();
+            var input = App.GetComponent<InputManager>();
             input.KeyDown += HandleKeyDown;
             
             base.OnLoad();
@@ -120,7 +121,7 @@ namespace RedTeam
 
         protected override void OnUnload()
         {
-            var input = Game.GetComponent<InputManager>();
+            var input = App.GetComponent<InputManager>();
             input.KeyDown -= HandleKeyDown;
 
             _typingSoundInstance?.Dispose();

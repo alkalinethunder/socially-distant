@@ -1,5 +1,6 @@
 ﻿using System;
 using RedTeam.IO;
+using Thundershock.IO;
 
 namespace RedTeam.SaveData
 {
@@ -36,7 +37,7 @@ namespace RedTeam.SaveData
 
         public FileSystem CreateVfs()
         {
-            return FileSystem.FromRedRoot(_rootfs);
+            return FileSystem.FromNode(_rootfs);
         }
     }
 }

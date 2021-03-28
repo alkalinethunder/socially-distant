@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using RedTeam.Gui;
+using Thundershock.Gui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using RedTeam.Config;
 using RedTeam.IO;
 using RedTeam.SaveData;
+using Thundershock;
 
 namespace RedTeam
 {
@@ -21,15 +22,12 @@ namespace RedTeam
         private GuiSystem _guiSystem;
         private ConsoleControl _console;
         private Shell _shell;
-        private ConfigurationManager _config;
         private SaveManager _saveManager;
         
         protected override void OnLoad()
         {
-            _saveManager = Game.GetComponent<SaveManager>();
-            _config = Game.GetComponent<ConfigurationManager>();
-            _config.ConfigurationLoaded += ApplyConfig;
-
+            _saveManager = App.GetComponent<SaveManager>();
+            
             _guiSystem = AddComponent<GuiSystem>();
             _console = new ConsoleControl();
             _guiSystem.AddToViewport(_console);
@@ -47,9 +45,6 @@ namespace RedTeam
                 _console.WriteLine(" * container image not found *");
                 _timer = 0.5;
             }
-            
-            _console.ColorPalette = _config.GetRedTermPalette();
-
         }
         
         private void StartShell()
@@ -62,11 +57,6 @@ namespace RedTeam
             AddComponent(_shell);
         }
         
-        private void ApplyConfig(object sender, EventArgs e)
-        {
-            _console.ColorPalette = _config.GetRedTermPalette();
-        }
-
         private void PrintIntro()
         {
             var resource = this.GetType().Assembly.GetManifestResourceStream("RedTeam.Resources.Intro.txt");

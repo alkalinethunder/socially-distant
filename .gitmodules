@@ -1,0 +1,3 @@
+[submodule "thundershock"]
+	path = thundershock
+	url = https://github.com/redteam-os/thundershock

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using RedTeam.Config;
+using Thundershock;
 
 namespace RedTeam.Commands
 {
@@ -26,7 +27,7 @@ namespace RedTeam.Commands
                 return;
             }
 
-            var config = RedTeamGame.Instance.GetComponent<ConfigurationManager>();
+            var config = EntryPoint.CurrentApp.GetComponent<RedConfigManager>();
             var action = args.First();
 
             if (action == "help")

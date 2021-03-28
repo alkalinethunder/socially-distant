@@ -1,14 +1,15 @@
 ﻿using System;
+using Thundershock;
 
 namespace RedTeam
 {
     public static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            using var game = new RedTeamGame();
-            game.Run();
+            // TODO: content editor
+            EntryPoint.Run<RedTeamApp>(args);
         }
     }
 }

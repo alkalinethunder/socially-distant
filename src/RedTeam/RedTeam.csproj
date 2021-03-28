@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
@@ -9,6 +8,8 @@
     <AssemblyVersion>0.0.2.*</AssemblyVersion>
     <FileVersion>0.0.2.0</FileVersion>
     <Deterministic>false</Deterministic>
+    <OutputType>WinExe</OutputType>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -47,6 +48,7 @@
     <None Remove="Resources\TestAudio.ogg" />
     <None Remove="Resources\Intro.txt" />
     <EmbeddedResource Include="Resources\Intro.txt" />
+    <None Remove="Resources\glitchie.ogg" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
@@ -56,7 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\thundershock\src\Thundershock\Thundershock.csproj" />
   </ItemGroup>
 </Project>

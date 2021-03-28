@@ -25,36 +25,6 @@
 /processorParam:TextureFormat=Color
 /build:Backgrounds/DesktopBackgroundImage2.png
 
-#begin Effects/Bloom.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/Bloom.fx
-
-#begin Effects/BrightnessThreshold.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/BrightnessThreshold.fx
-
-#begin Effects/Gaussian.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/Gaussian.fx
-
-#begin Effects/GlitchEffect.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/GlitchEffect.fx
-
-#begin Effects/ShadowMask.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/ShadowMask.fx
-
 #begin Fonts/Console/Bold.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -82,13 +52,6 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Console/Regular.spritefont
-
-#begin Fonts/DebugSmall.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/DebugSmall.spritefont
 
 #begin Fonts/Intro/Big.spritefont
 /importer:FontDescriptionImporter

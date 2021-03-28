@@ -3,10 +3,12 @@ using System.Linq;
 using System.Reflection.PortableExecutable;
 using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Config;
+using Thundershock;
+using System;
+using Thundershock.Config;
 
 namespace RedTeam.Commands
-{using System;
-    
+{
     public class ConfigCommand : Command
     {
         private List<Setting> _settings = new List<Setting>();
@@ -177,7 +179,7 @@ namespace RedTeam.Commands
 
             RegisterSettings();
             
-            var config = RedTeamGame.Instance.GetComponent<ConfigurationManager>();
+            var config = EntryPoint.CurrentApp.GetComponent<ConfigurationManager>();
 
             _config = config;
             

@@ -1,4 +1,6 @@
-﻿namespace RedTeam.Commands
+﻿using Thundershock;
+
+namespace RedTeam.Commands
 {
     public class LocalDataOpen : Command
     {
@@ -7,7 +9,7 @@
 
         protected override void Main(string[] args)
         {
-            RedTeamPlatform.OpenFile(RedTeamPlatform.LocalDataPath);
+            ThundershockPlatform.OpenFile(ThundershockPlatform.LocalDataPath);
         }
     }
 }

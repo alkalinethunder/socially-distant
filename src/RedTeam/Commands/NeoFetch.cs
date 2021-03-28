@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
+using Thundershock;
 
 namespace RedTeam.Commands
 {
@@ -15,29 +16,29 @@ namespace RedTeam.Commands
         
         protected override void Main(string[] args)
         {
-            var gameUptime = RedTeamGame.Instance.UpTime;
+            var gameUptime = EntryPoint.CurrentApp.UpTime;
 
             var uptime = $"{(int) gameUptime.TotalHours} hours, {gameUptime.Minutes} minutes, {gameUptime.Seconds} seconds";
             var template = GetTemplate();
             var xnaAsm = typeof(Microsoft.Xna.Framework.Game).Assembly;
             var user = $"{Context.UserName}@{Context.HostName}";
             var line = Repeat('-', user.Length);
-            var host = RedTeamPlatform.OSName;
+            var host = ThundershockPlatform.OSName;
             var version = this.GetType().Assembly.GetName().Version.ToString();
             var kernelname = xnaAsm.GetName().Name;
             var kernelversion = xnaAsm.GetName().Version.ToString();
             var gpu = GraphicsAdapter.DefaultAdapter.Description;
             var memUsed = (GC.GetTotalMemory(false) / 1024 / 1024).ToString();
-            var memTotal = RedTeamPlatform.GetTotalSystemMemory().ToString();
-            var cpu = RedTeamPlatform.GetProcessorName();
+            var memTotal = ThundershockPlatform.GetTotalSystemMemory().ToString();
+            var cpu = ThundershockPlatform.GetProcessorName();
             var term = Context.Terminal;
             var shell = Context.Shell;
             var wm = Context.WindowManager;
             var de = Context.DesktopEnvironment;
             var pkgs = "0 (upgrades) | 0 (rpkg) | 0 (modldr)";
-            var fps = Math.Round(1 / RedTeamGame.Instance.FrameTime.TotalSeconds).ToString();
-            var width = RedTeamGame.Instance.ScreenWidth.ToString();
-            var height = RedTeamGame.Instance.ScreenHeight.ToString();
+            var fps = Math.Round(1 / EntryPoint.CurrentApp.FrameTime.TotalSeconds).ToString();
+            var width = EntryPoint.CurrentApp.ScreenWidth.ToString();
+            var height = EntryPoint.CurrentApp.ScreenHeight.ToString();
 
             Substitute(ref template, nameof(width), width);
             Substitute(ref template, nameof(height), height);

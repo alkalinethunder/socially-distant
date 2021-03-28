@@ -2,6 +2,7 @@
 using System.Drawing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Thundershock;
 
 namespace RedTeam.Config
 {
@@ -20,7 +21,7 @@ namespace RedTeam.Config
         {
             var palette = new ColorPalette();
 
-            Func<string, Microsoft.Xna.Framework.Color> html = RedTeamPlatform.HtmlColor;
+            Func<string, Microsoft.Xna.Framework.Color> html = ThundershockPlatform.HtmlColor;
             
             palette.SetColor(ConsoleColor.Black, html(colors.black));
             palette.SetColor(ConsoleColor.DarkBlue, html(colors.darkBlue));
