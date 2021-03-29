@@ -2,6 +2,17 @@
 {
     public static class NetworkHelpers
     {
+        public const uint RegionSubnetMask = 0xff000000;
+        public const uint IspSubnetMask = 0xffff0000;
+        public const uint NetworkSubnetMask = 0xffffff00;
+
+        public static readonly uint[] LocalNets = new uint[]
+        {
+            0x0a000000, // 10.0.0.0/24,
+            0xc0a80000, // 192.168.0.0/24
+            0xc0a80100, // 192.168.1.0/24
+        };
+        
         public static string ToIPv4String(uint address)
         {
             var oct1 = (byte) address;

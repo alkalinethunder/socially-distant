@@ -7,7 +7,7 @@ namespace RedTeam.SaveData
     {
         public Guid Id = Guid.NewGuid();
 
-        public Guid IspNetwork;
+        public Guid InternetServiceProviderId;
         
         public string DisplayName;
 
@@ -16,6 +16,5 @@ namespace RedTeam.SaveData
         public uint PublicAddress;
 
         public NetworkType NetworkType;
-        
     }
 }

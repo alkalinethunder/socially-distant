@@ -7,7 +7,6 @@
         Corporate,
         StoreFront,
         Financial,
-        Isp,
         Government,
         RedTeamAgency
     }

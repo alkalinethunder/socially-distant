@@ -9,5 +9,8 @@ namespace RedTeam.SaveData
         public List<Device> Devices = new List<Device>();
         public List<Identity> Identities = new List<Identity>();
         public List<Network> Networks = new List<Network>();
+        public List<InternetServiceProvider> ISPs = new();
+        public List<RegionNetwork> Regions = new List<RegionNetwork>();
+        public List<RegionLInk> RegionLinks = new();
     }
 }

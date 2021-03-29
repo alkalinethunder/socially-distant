@@ -81,16 +81,167 @@ namespace RedTeam.SaveData
                     yield return dev;
         }
         
-        public Network CreateNetwork(NetworkType type, string displayName)
+        public Network CreateNetwork(InternetServiceProvider isp, NetworkType type, string displayName)
         {
             ThrowIfNotLoaded();
             
             var net = new Network();
 
             net.DisplayName = displayName;
+            net.InternetServiceProviderId = isp.Id;
+            net.SubnetMask = NetworkHelpers.NetworkSubnetMask;
+            
+            // set the network's local address
+            var totalNetCount = _currentGame.Networks.Count;
+            var localNetChooser = totalNetCount % NetworkHelpers.LocalNets.Length;
+            net.SubnetAddress = NetworkHelpers.LocalNets[localNetChooser];
+
+            // Assign the public address.
+            var netCount = _currentGame.Networks.Aggregate(0,
+                (acc, x) => (x.InternetServiceProviderId == isp.Id) ? acc + 1 : acc);
+
+            var addrMin = 2;
+            var addrMax = 253;
+            var addr = addrMin + netCount;
+
+            if (addr > addrMax)
+                throw new InvalidOperationException(
+                    $"The ISP {isp.Name} has run out of free network IP addresses. The max network limit has been reached.");
+
+            net.PublicAddress = isp.NetworkAddress | ((uint) addr << 8);
             
             _currentGame.Networks.Add(net);
             return net;
+        }
+
+        public IEnumerable<RegionNetwork> GetRegionNeighbours(RegionNetwork region)
+        {
+            ThrowIfNotLoaded();
+
+            foreach (var link in _currentGame.RegionLinks)
+            {
+                var n = default(Guid);
+
+                if (link.RegionA == region.Id)
+                    n = link.RegionB;
+                else if (link.RegionB == region.Id)
+                    n = link.RegionA;
+                else continue;
+
+                var regionNeighbour = _currentGame.Regions.FirstOrDefault(x => x.Id == n);
+                if (regionNeighbour != null)
+                    yield return regionNeighbour;
+            }
+        }
+        
+        public void LinkRegions(RegionNetwork a, RegionNetwork b)
+        {
+            ThrowIfNotLoaded();
+
+            if (a.Id != b.Id)
+            {
+                if (!_currentGame.RegionLinks.Any(x =>
+                    (x.RegionA == a.Id && x.RegionB == b.Id) || (x.RegionB == a.Id && x.RegionA == b.Id)))
+                {
+                    var link = new RegionLInk
+                    {
+                        RegionA = a.Id,
+                        RegionB = b.Id
+                    };
+                    _currentGame.RegionLinks.Add(link);
+                }
+            }
+        }
+        
+        public InternetServiceProvider GetNetworkIsp(Network network)
+        {
+            ThrowIfNotLoaded();
+            return _currentGame.ISPs.First(x => x.Id == network.InternetServiceProviderId);
+        }
+
+        public RegionNetwork GetIspRegion(InternetServiceProvider isp)
+        {
+            ThrowIfNotLoaded();
+            return _currentGame.Regions.First(x => x.Id == isp.RegionId);
+        }
+
+        public RegionNetwork GetNetworkRegion(Network network)
+        {
+            return GetIspRegion(GetNetworkIsp(network));
+        }
+
+        public RegionNetwork CreateRegion(string name)
+        {
+            ThrowIfNotLoaded();
+
+            var region = new RegionNetwork();
+            region.Name = name;
+            region.SubnetMask = NetworkHelpers.RegionSubnetMask;
+            
+            // Assign the region an IP address.
+            // This will be a value between 11 and 240 not including 192.
+            // 192 is reserved for local addresses.
+            // By the end of this, if we end up with an address above 240,
+            // the game's region limit has been reached.
+            var addressMin = 11;
+            var addressMax = 240;
+
+            // address will be minimum + amount of already added regions
+            var address = addressMin + _currentGame.Regions.Count;
+            
+            // skip 192.
+            if (address >= 192)
+                address++;
+            
+            // check if we've exceeded the maximum, and crash.
+            if (address > addressMax)
+                throw new InvalidOperationException(
+                    "The game has run out of free regional IP Addresses. The game's regional limit has been exceeded.");
+            
+            // bit-shift the address to the left by 24 bits and assign it.
+            region.RegionAddress = (uint) address << 24;
+            
+            
+            _currentGame.Regions.Add(region);
+            return region;
+        }
+
+        public InternetServiceProvider CreateIsp(RegionNetwork region, string name)
+        {
+            ThrowIfNotLoaded();
+
+            var isp = new InternetServiceProvider();
+
+            isp.Name = name;
+            isp.RegionId = region.Id;
+            isp.SubnetMask = NetworkHelpers.IspSubnetMask;
+            
+            // Address assignment works basically the same way as for regions.
+            // It'll be a value between 1 and 240 excluding 168.
+            var addressMin = 1;
+            var addressMax = 240;
+            
+            // Count the number of ISPs in this region.
+            var ispCount = _currentGame.ISPs.Aggregate(0, (acc, x) => acc = (x.RegionId == region.Id) ? acc + 1 : acc);
+
+            // That's the base address.
+            var address = addressMin + ispCount;
+            
+            // skip 168
+            if (address >= 168)
+                address++;
+            
+            // check the maximum
+            if (address > addressMax)
+                throw new InvalidOperationException(
+                    $"{region.Name} has run out of available IP addresses for ISP networks - the max ISP limit has been reached for this region.");
+            
+            // the final ISP address is the regional address, OR'd with the value we calculated above, bit shifted to the left by 16.
+            isp.NetworkAddress = region.RegionAddress | ((uint) address << 16);
+            
+            _currentGame.ISPs.Add(isp);
+
+            return isp;
         }
 
         public Device CreateDevice(Network network, string hostname)
@@ -101,6 +252,21 @@ namespace RedTeam.SaveData
 
             dev.Network = network.Id;
             dev.HostName = hostname;
+
+            // Device address assignment is extremely easy.
+            var addressMin = 2;
+            var addressMax = (~ network.SubnetMask) - addressMin;
+
+            var devCount =
+                _currentGame.Devices.Aggregate(0, (acc, x) => acc = (x.Network == network.Id) ? acc + 1 : acc);
+
+            var address = addressMin + devCount;
+
+            if (address > addressMax)
+                throw new InvalidOperationException(
+                    $"The network \"{network.DisplayName}\" has run out of local IP addresses. The maximum device limit for this network has been reached.");
+
+            dev.LocalAddress = (uint) address;
             
             _currentGame.Devices.Add(dev);
             return dev;
