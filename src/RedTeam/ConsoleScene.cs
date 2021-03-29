@@ -23,9 +23,11 @@ namespace RedTeam
         private ConsoleControl _console;
         private Shell _shell;
         private SaveManager _saveManager;
+        private RedConfigManager _redConfig;
         
         protected override void OnLoad()
         {
+            _redConfig = App.GetComponent<RedConfigManager>();
             _saveManager = App.GetComponent<SaveManager>();
             
             _guiSystem = AddComponent<GuiSystem>();
@@ -45,8 +47,17 @@ namespace RedTeam
                 _console.WriteLine(" * container image not found *");
                 _timer = 0.5;
             }
+
+            _console.ColorPalette = _redConfig.GetPalette();
+            
+            _redConfig.ConfigUpdated += ApplyConfig;
         }
-        
+
+        private void ApplyConfig(object? sender, EventArgs e)
+        {
+            _console.ColorPalette = _redConfig.GetPalette();
+        }
+
         private void StartShell()
         {
             _isBooted = true;
