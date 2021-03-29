@@ -25,6 +25,8 @@ namespace RedTeam.IO
             get
             {
                 yield return new NullNode(this);
+                yield return new DebugNode(this);
+                yield return new KmsgNode(this);
             }
         }
 

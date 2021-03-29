@@ -1,4 +1,6 @@
-﻿using RedTeam.Config;
+﻿using DocoptNet;
+using RedTeam.Config;
+using RedTeam.IO;
 using RedTeam.SaveData;
 using Thundershock;
 
@@ -6,6 +8,14 @@ namespace RedTeam
 {
     public class RedTeamApp : App
     {
+        protected override void OnPreInit()
+        {
+            // Register the KmsgLogOutput now so that the user can see the thundershock log in /dev/kmsg.
+            Logger.AddOutput(new KmsgLogOutput());
+            
+            base.OnPreInit();
+        }
+
         protected override void OnInit()
         {
             // Window Title
