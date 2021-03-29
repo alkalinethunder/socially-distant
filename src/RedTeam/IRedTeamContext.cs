@@ -1,9 +1,11 @@
-﻿using Thundershock.IO;
+﻿using RedTeam.Net;
+using Thundershock.IO;
 
 namespace RedTeam
 {
     public interface IRedTeamContext
     {
+        public NetworkInterface Network { get; }
         public FileSystem Vfs { get; }
         string UserName { get; }
         string HostName { get; }

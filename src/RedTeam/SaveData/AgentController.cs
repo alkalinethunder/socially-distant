@@ -17,7 +17,7 @@ namespace RedTeam.SaveData
             _rootfs = new RedRoot(this);
         }
 
-        private Device Device => _saveManager.FindDeviceById(_agent.HomeDevice);
+        public Device Device => _saveManager.FindDeviceById(_agent.HomeDevice);
         private Identity Identity => _saveManager.FindIdentityById(_agent.Identity);
 
         public bool IsPlayer

@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using RedTeam.Config;
 using RedTeam.IO;
+using RedTeam.Net;
 using RedTeam.SaveData;
 using Thundershock;
 
@@ -24,11 +25,14 @@ namespace RedTeam
         private Shell _shell;
         private SaveManager _saveManager;
         private RedConfigManager _redConfig;
+        private NetworkSimulation _netSimulation;
         
         protected override void OnLoad()
         {
             _redConfig = App.GetComponent<RedConfigManager>();
             _saveManager = App.GetComponent<SaveManager>();
+
+            _netSimulation = AddComponent<NetworkSimulation>();
             
             _guiSystem = AddComponent<GuiSystem>();
             _console = new ConsoleControl();
@@ -62,7 +66,9 @@ namespace RedTeam
         {
             _isBooted = true;
 
-            var ctx = _saveManager.CreatePlayerContexxt();
+            var agent = _saveManager.GetPlayerAgent();
+            var nic = _netSimulation.GetNetworkInterface(agent.Device);
+            var ctx = new DeviceContext(agent, nic);
             var fs = ctx.Vfs;
             _shell = new Shell(_console, fs, ctx);
             AddComponent(_shell);
@@ -165,7 +171,8 @@ namespace RedTeam
 
         private void CreateContainer()
         {
-            var dev = _saveManager.CreateDevice(_username + "-pc");
+            var net = _saveManager.CreateNetwork(NetworkType.RedTeamAgency, _name + "'s Agency VPN");
+            var dev = _saveManager.CreateDevice(net, _username + "-pc");
             var id = _saveManager.CreateIdentity(_username, _name);
 
             _saveManager.SetPlayerInfo(id, dev);

@@ -1,10 +1,12 @@
 ﻿using System;
+using RedTeam.Net;
 using Thundershock.IO;
 
 namespace RedTeam.Commands
 {
     public abstract class Command
     {
+        private NetworkManager _network;
         private string _home;
         private IRedTeamContext _userContext;
         private bool _completed = false;
@@ -17,6 +19,7 @@ namespace RedTeam.Commands
         public abstract string Name { get; }
         public virtual string Description => string.Empty;
 
+        protected NetworkManager Network => _network;
         protected IRedTeamContext Context => _userContext;
         protected IConsole Console => _console;
         protected string[] Arguments => _args;
@@ -45,7 +48,7 @@ namespace RedTeam.Commands
             _workingDirectory = work ?? throw new ArgumentNullException(nameof(work));
             _fs = fs ?? throw new ArgumentNullException(nameof(fs));
             _console = console ?? throw new ArgumentNullException(nameof(console));
-
+            _network = new NetworkManager(_userContext);
             _home = _userContext.HomeDirectory;
             
             try

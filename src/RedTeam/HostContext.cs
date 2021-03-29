@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using RedTeam.IO;
+using RedTeam.Net;
 using Thundershock;
 using Thundershock.IO;
 
@@ -9,7 +10,8 @@ namespace RedTeam
     public class HostContext : IRedTeamContext
     {
         private FileSystem _vfs;
-        
+
+        public NetworkInterface Network => null;
         public FileSystem Vfs
         {
             get

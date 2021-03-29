@@ -8,5 +8,9 @@ namespace RedTeam.SaveData
         
         public string RootDirectory { get; set; }
         public string HostName { get; set; }
+
+        public Guid Network;
+        
+        public uint LocalAddress;
     }
 }

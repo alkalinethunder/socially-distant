@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using RedTeam.Commands;
+using RedTeam.Net;
 using Thundershock;
 
 namespace RedTeam.SaveData
@@ -64,12 +66,40 @@ namespace RedTeam.SaveData
             return new AgentController(this, agent);
         }
 
-        public Device CreateDevice(string hostname)
+        public Network GetDeviceNetwork(Device device)
+        {
+            ThrowIfNotLoaded();
+            return _currentGame.Networks.First(x => x.Id == device.Network);
+        }
+
+        public IEnumerable<Device> GetNetworkDevices(Network network)
+        {
+            ThrowIfNotLoaded();
+            
+            foreach (var dev in _currentGame.Devices)
+                if (dev.Network == network.Id)
+                    yield return dev;
+        }
+        
+        public Network CreateNetwork(NetworkType type, string displayName)
+        {
+            ThrowIfNotLoaded();
+            
+            var net = new Network();
+
+            net.DisplayName = displayName;
+            
+            _currentGame.Networks.Add(net);
+            return net;
+        }
+
+        public Device CreateDevice(Network network, string hostname)
         {
             ThrowIfNotLoaded();
 
             var dev = new Device();
 
+            dev.Network = network.Id;
             dev.HostName = hostname;
             
             _currentGame.Devices.Add(dev);
@@ -86,15 +116,14 @@ namespace RedTeam.SaveData
             _currentGame.Identities.Add(id);
             return id;
         }
-        
-        public AgentContext CreatePlayerContexxt()
+
+        public AgentController GetPlayerAgent()
         {
             ThrowIfNotLoaded();
             ThrowIfAgentNotReady(_currentGame.PlayerAgent);
-
-            return new AgentContext(CreateAgentController(_currentGame.PlayerAgent));
+            return CreateAgentController(_currentGame.PlayerAgent);
         }
-
+        
         public void SetPlayerInfo(Identity identity, Device homeDevice)
         {
             ThrowIfPlayerReady();

@@ -8,5 +8,6 @@ namespace RedTeam.SaveData
         public List<Agent> NonPlayerAgents = new List<Agent>();
         public List<Device> Devices = new List<Device>();
         public List<Identity> Identities = new List<Identity>();
+        public List<Network> Networks = new List<Network>();
     }
 }
