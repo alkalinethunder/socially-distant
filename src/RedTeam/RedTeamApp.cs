@@ -8,6 +8,9 @@ namespace RedTeam
     {
         protected override void OnInit()
         {
+            // Window Title
+            Window.Title = "Michael VanOverbeek's RED TEAM";
+            
             // register red team components
             RegisterComponent<SaveManager>();
             RegisterComponent<RedConfigManager>();

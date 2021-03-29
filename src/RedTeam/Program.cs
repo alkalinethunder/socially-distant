@@ -8,7 +8,7 @@ namespace RedTeam
         [STAThread]
         static void Main(string[] args)
         {
-            // TODO: content editor
+            EntryPoint.RegisterApp("editor", typeof(ContentEditorApp));
             EntryPoint.Run<RedTeamApp>(args);
         }
     }
