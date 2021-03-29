@@ -10,7 +10,16 @@ namespace RedTeam.SaveData
     public class SaveManager : GlobalComponent
     {
         private SaveGame _currentGame;
+        
+        #region Events
 
+        public event Action<RegionNetwork> RegionAdded;
+        public event Action<InternetServiceProvider> IspAdded;
+        public event Action<Network> NetworkAdded;
+        public event Action<Device> DeviceAdded;
+        public event Action<RegionNetwork, RegionNetwork> RegionLinked;
+        #endregion
+        
         public bool IsSaveAvailable
             => false; //TODO
         
@@ -111,6 +120,9 @@ namespace RedTeam.SaveData
             net.PublicAddress = isp.NetworkAddress | ((uint) addr << 8);
             
             _currentGame.Networks.Add(net);
+
+            NetworkAdded?.Invoke(net);
+            
             return net;
         }
 
@@ -149,6 +161,8 @@ namespace RedTeam.SaveData
                         RegionB = b.Id
                     };
                     _currentGame.RegionLinks.Add(link);
+
+                    RegionLinked?.Invoke(a, b);
                 }
             }
         }
@@ -201,8 +215,8 @@ namespace RedTeam.SaveData
             // bit-shift the address to the left by 24 bits and assign it.
             region.RegionAddress = (uint) address << 24;
             
-            
             _currentGame.Regions.Add(region);
+            RegionAdded?.Invoke(region);
             return region;
         }
 
@@ -240,7 +254,7 @@ namespace RedTeam.SaveData
             isp.NetworkAddress = region.RegionAddress | ((uint) address << 16);
             
             _currentGame.ISPs.Add(isp);
-
+            IspAdded?.Invoke(isp);
             return isp;
         }
 
@@ -269,6 +283,7 @@ namespace RedTeam.SaveData
             dev.LocalAddress = (uint) address;
             
             _currentGame.Devices.Add(dev);
+            DeviceAdded?.Invoke(dev);
             return dev;
         }
 

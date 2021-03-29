@@ -1,0 +1,44 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using RedTeam.SaveData;
+
+namespace RedTeam.Net
+{
+    public class IspNode : WebNode
+    {
+        private RegionNode _region;
+        private InternetServiceProvider _isp;
+        private List<NetworkNode> _nets = new List<NetworkNode>();
+        
+        public IspNode(RegionNode region, InternetServiceProvider isp)
+        {
+            _region = region;
+            _isp = isp;
+        }
+
+        public InternetServiceProvider Isp => _isp;
+        
+        public override WebNodeType Type => WebNodeType.Isp;
+
+        public override IEnumerable<WebNode> ConnectedNodes
+        {
+            get
+            {
+                yield return _region;
+
+                foreach (var net in _nets)
+                    yield return net;
+            }
+        }
+
+        public void AddNetwork(Network net)
+        {
+            _nets.Add(new NetworkNode(this, net));
+        }
+
+        public NetworkNode GetNetwork(Network net)
+        {
+            return _nets.First(x => x.Network.Id == net.Id);
+        }
+    }
+}
