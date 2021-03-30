@@ -12,6 +12,39 @@ namespace RedTeam.Net
 
         public override WebNodeType Type => WebNodeType.Master;
 
+        public override string Name => "<MASTER>";
+        public override uint Address => 0x0;
+        
+        public IEnumerable<WebNode> CollapseNodes()
+        {
+            // UNLEASH...
+            // YOUR INNER...
+            // PHILIP ADAMS!
+            foreach (var region in _regions)
+            {
+                yield return region;
+                foreach (var rChild in region.ConnectedNodes)
+                {
+                    if (rChild is IspNode isp)
+                    {
+                        yield return isp;
+                        foreach (var iChild in isp.ConnectedNodes)
+                        {
+                            if (iChild is NetworkNode net)
+                            {
+                                yield return net;
+                                foreach (var nChild in net.ConnectedNodes)
+                                {
+                                    if (nChild is DeviceNode dev)
+                                        yield return dev;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         public RegionNode GetRegionNode(RegionNetwork region)
         {
             return _regions.First(x => x.Region.Id == region.Id);

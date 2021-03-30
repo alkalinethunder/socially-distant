@@ -7,5 +7,8 @@ namespace RedTeam.Net
     {
         public abstract IEnumerable<WebNode> ConnectedNodes { get; }
         public abstract WebNodeType Type { get; }
+        
+        public abstract string Name { get; }
+        public abstract uint Address { get; }
     }
 }

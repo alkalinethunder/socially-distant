@@ -1,6 +1,7 @@
 ﻿using System;
 using RedTeam.SaveData;
 using Thundershock;
+using Thundershock.Debugging;
 
 namespace RedTeam.Net
 {
@@ -23,6 +24,17 @@ namespace RedTeam.Net
             _saveManager.IspAdded += AddIspNode;
             _saveManager.NetworkAdded += AddNetworkNode;
             _saveManager.DeviceAdded += AddDeviceNode;
+
+            var cheater = App.GetComponent<CheatManager>();
+            
+            cheater.AddCheat("shownets", Cheat_ShowNets);
+        }
+
+        private void Cheat_ShowNets()
+        {
+            foreach (var node in _masterWebNode.CollapseNodes())
+                App.Logger.Log(
+                    $" - {node.Name} ({node.Address}, {NetworkHelpers.ToIPv4String(node.Address)}) type: {node.Type}");
         }
 
         private void AddDeviceNode(Device dev)

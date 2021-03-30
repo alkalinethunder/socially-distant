@@ -10,6 +10,9 @@ namespace RedTeam.Net
         private List<Device> _devs = new();
 
         public Network Network => _net;
+
+        public override string Name => _net.DisplayName;
+        public override uint Address => _net.PublicAddress;
         
         public NetworkNode(IspNode isp, Network net)
         {

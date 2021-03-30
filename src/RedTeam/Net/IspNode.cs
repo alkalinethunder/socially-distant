@@ -9,6 +9,9 @@ namespace RedTeam.Net
         private RegionNode _region;
         private InternetServiceProvider _isp;
         private List<NetworkNode> _nets = new List<NetworkNode>();
+
+        public override string Name => _isp.Name;
+        public override uint Address => _isp.NetworkAddress;
         
         public IspNode(RegionNode region, InternetServiceProvider isp)
         {

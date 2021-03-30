@@ -8,6 +8,9 @@ namespace RedTeam.Net
         private Device _dev;
         private NetworkNode _net;
 
+        public override string Name => _dev.HostName;
+        public override uint Address => _dev.LocalAddress;
+        
         public DeviceNode(NetworkNode net, Device dev)
         {
             _net = net;

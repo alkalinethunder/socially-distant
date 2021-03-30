@@ -11,6 +11,9 @@ namespace RedTeam.Net
         private List<IspNode> _isps = new();
         
         public RegionNetwork Region => _region;
+
+        public override string Name => _region.Name;
+        public override uint Address => _region.RegionAddress;
         
         public RegionNode(MasterWebNode master, RegionNetwork region)
         {
