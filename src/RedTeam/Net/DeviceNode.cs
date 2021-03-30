@@ -8,8 +8,12 @@ namespace RedTeam.Net
         private Device _dev;
         private NetworkNode _net;
 
+        public Network Network => _net.Network;
+        
         public override string Name => _dev.HostName;
-        public override uint Address => _dev.LocalAddress;
+        public override uint Address => _net.Address | _dev.LocalAddress;
+
+        public Device Device => _dev;
         
         public DeviceNode(NetworkNode net, Device dev)
         {
@@ -25,6 +29,21 @@ namespace RedTeam.Net
             {
                 yield return _net;
             }
+        }
+
+        public WebNode FindOtherLocalDevice(uint address)
+        {
+            return _net.DeviceLookup(address & ~Network.SubnetMask);
+        }
+
+        public WebNode NetworkLookup(uint address)
+        {
+            // if the address matches our network, return our network.
+            if (address == _net.Address)
+                return _net;
+            
+            // otherwise do a lookup with our ISP.
+            return _net.Isp.NetworkLookup(address);
         }
     }
 }

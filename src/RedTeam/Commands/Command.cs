@@ -1,5 +1,7 @@
 ﻿using System;
 using RedTeam.Net;
+using Thundershock;
+using Thundershock.Debugging;
 using Thundershock.IO;
 
 namespace RedTeam.Commands
@@ -58,6 +60,7 @@ namespace RedTeam.Commands
             catch (Exception ex)
             {
                 console.WriteLine("{0}: error: {1}", Name, ex.Message);
+                EntryPoint.CurrentApp.Logger.LogException(ex, LogLevel.Warning);
                 Complete();
             }
         }
@@ -97,6 +100,7 @@ namespace RedTeam.Commands
                 catch (Exception ex)
                 {
                     _console.WriteLine("{0}: error: {1}", Name, ex.Message);
+                    EntryPoint.CurrentApp.Logger.LogException(ex, LogLevel.Warning);
                     Complete();
                 }
             }

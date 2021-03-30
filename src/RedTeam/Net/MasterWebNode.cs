@@ -20,6 +20,7 @@ namespace RedTeam.Net
             // UNLEASH...
             // YOUR INNER...
             // PHILIP ADAMS!
+            yield return this;
             foreach (var region in _regions)
             {
                 yield return region;
@@ -56,7 +57,19 @@ namespace RedTeam.Net
             _regions.Add(node);
             return node;
         }
-        
-        
+
+        public WebNode NetworkLookup(uint address)
+        {
+            // try to find a region with a matching subnet
+            var reg = _regions.FirstOrDefault(x =>
+                (address & x.Region.SubnetMask) == (x.Address & x.Region.SubnetMask));
+
+            // do a lookup in that area of the world.
+            if (reg != null)
+                return reg.NetworkLookup(address);
+            
+            // The requested host doesn't exist.
+            return null;
+        }
     }
 }

@@ -43,5 +43,22 @@ namespace RedTeam.Net
         {
             return _nets.First(x => x.Network.Id == net.Id);
         }
+
+        public WebNode NetworkLookup(uint address)
+        {
+            // is the address an exact match of us?
+            if (Address == address)
+                return this;
+            
+            // Check the address to see if it's in our network.
+            if ((address & _isp.SubnetMask) == (_isp.NetworkAddress & _isp.SubnetMask))
+            {
+                // If it is, then find the first network of ours whose address matches.
+                return _nets.FirstOrDefault(x => x.Address == address);
+            }
+            
+            // Send it to the region to do a lookup.
+            return _region.NetworkLookup(address);
+        }
     }
 }

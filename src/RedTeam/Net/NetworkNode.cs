@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using RedTeam.SaveData;
 
 namespace RedTeam.Net
@@ -7,10 +8,12 @@ namespace RedTeam.Net
     {
         private Network _net;
         private IspNode _isp;
-        private List<Device> _devs = new();
+        private List<DeviceNode> _devs = new();
 
         public Network Network => _net;
 
+        public IspNode Isp => _isp;
+        
         public override string Name => _net.DisplayName;
         public override uint Address => _net.PublicAddress;
         
@@ -30,14 +33,24 @@ namespace RedTeam.Net
 
                 foreach (var dev in _devs)
                 {
-                    yield return new DeviceNode(this, dev);
+                    yield return dev;
                 }
             }
         }
 
         public void AddDevice(Device device)
         {
-            _devs.Add(device);
+            _devs.Add(new DeviceNode(this, device));
+        }
+
+        public DeviceNode DeviceLookup(uint deviceAddress)
+        {
+            return _devs.FirstOrDefault(x => x.Device.LocalAddress == deviceAddress);
+        }
+        
+        public DeviceNode GetDevice(Device dev)
+        {
+            return _devs.First(x => x.Device.Id == dev.Id);
         }
     }
 }
