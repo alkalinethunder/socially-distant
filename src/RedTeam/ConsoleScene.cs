@@ -9,6 +9,7 @@ using RedTeam.IO;
 using RedTeam.Net;
 using RedTeam.SaveData;
 using Thundershock;
+using Thundershock.Rendering;
 
 namespace RedTeam
 {
@@ -29,6 +30,8 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
+            Camera = new Camera2D();
+            
             _redConfig = App.GetComponent<RedConfigManager>();
             _saveManager = App.GetComponent<SaveManager>();
 

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Thundershock.Components;
 using Thundershock.Input;
 using Thundershock;
+using Thundershock.Rendering;
 
 namespace RedTeam
 {
@@ -39,6 +40,8 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
+            Camera = new Camera2D();
+            
             _backdrop = AddComponent<Backdrop>();
             _cursor = AddComponent<SolidRectangle>();
             _glitchPlayer = AddComponent<VorbisPlayer>();
