@@ -12,5 +12,6 @@ namespace RedTeam.SaveData
         public List<InternetServiceProvider> ISPs = new();
         public List<RegionNetwork> Regions = new List<RegionNetwork>();
         public List<RegionLInk> RegionLinks = new();
+        public List<DnsEntry> DnsEntries = new();
     }
 }

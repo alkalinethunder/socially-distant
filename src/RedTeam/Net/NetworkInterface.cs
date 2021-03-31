@@ -26,6 +26,9 @@ namespace RedTeam.Net
         public uint NetworkAddress
             => _devNode.Network.SubnetAddress;
 
+        public bool DnsLookup(string host, out uint addr)
+            => _simulation.TryMapHostToAddress(host, out addr);
+        
         public WebNode MapAddressToNode(uint address, out int hops)
         {
             // we've gone nowhere!

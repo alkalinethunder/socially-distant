@@ -84,6 +84,9 @@ namespace RedTeam.Net
             _masterWebNode.AddRegion(region);
         }
 
+        public bool TryMapHostToAddress(string host, out uint address)
+            => _saveManager.TryMapHostToAddress(host, out address);
+        
         public int CalculateHops(WebNode source, WebNode dest)
         {
             if (source == null)

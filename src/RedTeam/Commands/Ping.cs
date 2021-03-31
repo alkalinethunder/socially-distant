@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using RedTeam.Net;
 
 namespace RedTeam.Commands
 {
@@ -9,6 +10,7 @@ namespace RedTeam.Commands
         private double _pingTime;
         private double _pingTimeTotal;
         private string _pingHost;
+        private bool _pingTimeout;
         
         public override string Name => "ping";
 
@@ -22,17 +24,28 @@ namespace RedTeam.Commands
 
             var host = args.First();
 
-            if (Network.GetPingTime(host, out double pingTime, out string resolved))
+            if (Network.DnsLookup(host, out uint address))
             {
-                _pingHost = resolved;
-                _pingTimeTotal = pingTime / 1000;
+                _pingHost = NetworkHelpers.ToIPv4String(address);
                 _pingsLeft = 4;
-                Console.WriteLine("Pinging {0} [{1}] with 32 bytes of data:", host, resolved);
+                Console.WriteLine("Pinging {0} [{1}] with 32 bytes of data:", host, _pingHost);
+                
+                if (Network.GetPingTime(address, out double pingTime))
+                {
+                    _pingTimeTotal = pingTime / 1000;
+                }
+                else
+                {
+                    _pingTimeTotal = 5;
+                    _pingTimeout = true;
+                }
             }
             else
             {
-                Console.WriteLine("Ping request could not find host {0}. Please check the name and try again.", host);
+                Console.WriteLine("Ping request could not find host {0}. Please check the name and try again.",
+                    host);
             }
+
         }
 
         protected override void OnUpdate(float deltaTime)
@@ -45,8 +58,16 @@ namespace RedTeam.Commands
             {
                 if (_pingTime >= _pingTimeTotal + 0.5)
                 {
-                    Console.WriteLine("Reply from {0}: bytes=32 time={1}ms TTL=56", _pingHost,
-                        Math.Round(_pingTimeTotal * 1000));
+                    if (_pingTimeout)
+                    {
+                        Console.WriteLine("Request timed out.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Reply from {0}: bytes=32 time={1}ms TTL=56", _pingHost,
+                            Math.Round(_pingTimeTotal * 1000));
+                    }
+
                     _pingTime = 0;
                     _pingsLeft--;
                 }

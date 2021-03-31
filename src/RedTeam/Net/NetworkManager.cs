@@ -38,23 +38,33 @@ namespace RedTeam.Net
             }
         }
 
-        public bool GetPingTime(string host, out double ping, out string resolvedAddress)
+        public bool DnsLookup(string host, out uint address)
+        {
+            if (_ctx.Network == null)
+            {
+                address = 0;
+                return false;
+            }
+
+            if (NetworkHelpers.TryParseIP(host, out uint parse))
+            {
+                address = parse;
+                return true;
+            }
+            
+            return _ctx.Network.DnsLookup(host, out address);
+        }
+
+        public bool GetPingTime(uint host, out double ping)
         {
             var result = false;
             ping = 0;
-            
-            if (host == "localhost")
-                host = "127.0.0.1"; // TODO: proper host lookups
-            resolvedAddress = host;
-            
-            if (NetworkHelpers.TryParseIP(host, out uint addr))
+
+            var node = _ctx.Network.MapAddressToNode(host, out int hops);
+            if (node != null)
             {
-                var node = _ctx.Network.MapAddressToNode(addr, out int hops);
-                if (node != null)
-                {
-                    ping = hops * 2 + 24;
-                    result = true;
-                }
+                ping = hops * 2 + 24;
+                result = true;
             }
 
             return result;

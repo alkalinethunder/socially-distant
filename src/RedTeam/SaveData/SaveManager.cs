@@ -51,6 +51,32 @@ namespace RedTeam.SaveData
         {
             throw new NotImplementedException();
         }
+
+        public bool TryMapHostToAddress(string hostName, out uint address)
+        {
+            address = 0;
+            var result = false;
+
+            if (hostName == "localhost")
+            {
+                address = NetworkHelpers.LoopbackAddress;
+                result = true;
+            }
+            else
+            {
+                if (_currentGame != null)
+                {
+                    var hostLookup = _currentGame.DnsEntries.FirstOrDefault(x => x.HostName == hostName);
+                    if (hostLookup != null)
+                    {
+                        result = true;
+                        address = hostLookup.Address;
+                    }
+                }
+            }
+            
+            return result;
+        }
         
         public void NewGame()
         {
@@ -187,6 +213,22 @@ namespace RedTeam.SaveData
                 if (regionNeighbour != null)
                     yield return regionNeighbour;
             }
+        }
+
+        public void RegisterDomainName(Network network, string domainName)
+        {
+            ThrowIfNotLoaded();
+
+            if (_currentGame.DnsEntries.Any(x => x.HostName == domainName))
+                throw new InvalidOperationException("Host already registered.");
+
+            var dns = new DnsEntry
+            {
+                HostName = domainName,
+                Address = network.PublicAddress
+            };
+
+            _currentGame.DnsEntries.Add(dns);
         }
         
         public void LinkRegions(RegionNetwork a, RegionNetwork b)
