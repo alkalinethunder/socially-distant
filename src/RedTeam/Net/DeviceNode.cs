@@ -11,7 +11,7 @@ namespace RedTeam.Net
         public Network Network => _net.Network;
         
         public override string Name => _dev.HostName;
-        public override uint Address => _net.Address | _dev.LocalAddress;
+        public override uint Address => _net.Network.SubnetAddress | _dev.LocalAddress;
 
         public Device Device => _dev;
         
