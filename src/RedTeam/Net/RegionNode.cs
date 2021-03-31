@@ -46,10 +46,6 @@ namespace RedTeam.Net
 
         public WebNode NetworkLookup(uint address)
         {
-            // is the address a direct match of us?
-            if (Address == address)
-                return this;
-            
             // first try to find an ISP where the address is in its network.
             var isp = _isps.First(x => (address & x.Isp.SubnetMask) == (x.Address & x.Isp.SubnetMask));
 

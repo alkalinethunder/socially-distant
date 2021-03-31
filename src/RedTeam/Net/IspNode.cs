@@ -46,10 +46,6 @@ namespace RedTeam.Net
 
         public WebNode NetworkLookup(uint address)
         {
-            // is the address an exact match of us?
-            if (Address == address)
-                return this;
-            
             // Check the address to see if it's in our network.
             if ((address & _isp.SubnetMask) == (_isp.NetworkAddress & _isp.SubnetMask))
             {

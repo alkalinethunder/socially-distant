@@ -104,21 +104,64 @@ namespace RedTeam.SaveData
             var totalNetCount = _currentGame.Networks.Count;
             var localNetChooser = totalNetCount % NetworkHelpers.LocalNets.Length;
             net.SubnetAddress = NetworkHelpers.LocalNets[localNetChooser];
-
-            // Assign the public address.
-            var netCount = _currentGame.Networks.Aggregate(0,
-                (acc, x) => (x.InternetServiceProviderId == isp.Id) ? acc + 1 : acc);
-
-            var addrMin = 2;
-            var addrMax = 253;
-            var addr = addrMin + netCount;
-
-            if (addr > addrMax)
-                throw new InvalidOperationException(
-                    $"The ISP {isp.Name} has run out of free network IP addresses. The max network limit has been reached.");
-
-            net.PublicAddress = isp.NetworkAddress | ((uint) addr << 8);
             
+            // So here's the thing.
+            // Region address assignment is easy.
+            // ISP address assignment is easy.
+            // NETWORK address assignment, on the other hand...
+            // ...is harder than trying to date a raccoon.
+            //
+            // See, there's this thing in real life. This wonderful thing.
+            // It's called Network Address Translation, or NAT.
+            //
+            // And we need to emulate that.
+            //
+            // Which means that we actually need to give the network TWO
+            // IP addresses. One for it's local subnet - the LAN...
+            // and another IP which is the public IP address. And the public address
+            // is what the game's simulated Internet actually lets you talk to when
+            // you're hacking in.
+            //
+            // Now, unlike ISPs and Region networks, Customer networks (the one
+            // this code's generating right now) get 16 bits of space in the 4-byte IP address.
+            // Whereas regions and ISPs get 8 bits.
+            //
+            // So here's what we've gotta do.
+            //
+            // First we need to count the number of networks in the ISP.
+            var netCount = _currentGame.Networks.Aggregate(0,
+                (acc, x) => acc = (x.InternetServiceProviderId == isp.Id) ? acc + 1 : acc);
+            
+            // And now, we need to know some rules about the game and how networking in it works.
+            //
+            // The last two bytes of an IP address in-game CANNOT both be 0 when we're in public space.
+            var addressMin = 1;
+
+            // And naturally it can't be larger than 255.255. Or, the max value of an unsigned short.
+            var addressMax = ushort.MaxValue;
+            
+            // So this gives us a range of 65,533 values. But we're not done.
+            //
+            // Neither one of the bytes can ever be above 253.
+            //
+            // This takes care of the upper byte.
+            addressMax -= 2;
+            
+            // And so we end up with this value.
+            var address = addressMin + netCount;
+            
+            // Except that, again, neither of the two bytes can be above 253.
+            if (address >= 253)
+                address += 3; // skip 253, 254, 255.
+            
+            // So NOW we do the address max check.
+            if (address > addressMax)
+                throw new InvalidOperationException(
+                    $"The ISP {isp.Name} has run out of free addresses in its IP range for customers. The max network limit has been reached.");
+            
+            // And NOW we get to set the address of the network.
+            net.PublicAddress = isp.NetworkAddress | (uint) address;
+
             _currentGame.Networks.Add(net);
 
             NetworkAdded?.Invoke(net);
