@@ -49,10 +49,10 @@ namespace RedTeam.Net
             
             if (NetworkHelpers.TryParseIP(host, out uint addr))
             {
-                var node = _ctx.Network.MapAddressToNode(addr);
+                var node = _ctx.Network.MapAddressToNode(addr, out int hops);
                 if (node != null)
                 {
-                    ping = _ctx.Network.GetHopsCount(node) * 2 + 24;
+                    ping = hops * 2 + 24;
                     result = true;
                 }
             }

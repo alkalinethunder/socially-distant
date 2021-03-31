@@ -58,7 +58,7 @@ namespace RedTeam.Net
             return node;
         }
 
-        public WebNode NetworkLookup(uint address)
+        public WebNode NetworkLookup(uint address, ref int hops)
         {
             // try to find a region with a matching subnet
             var reg = _regions.FirstOrDefault(x =>
@@ -66,8 +66,11 @@ namespace RedTeam.Net
 
             // do a lookup in that area of the world.
             if (reg != null)
-                return reg.NetworkLookup(address);
-            
+            {
+                hops++;
+                return reg.NetworkLookup(address, ref hops);
+            }
+
             // The requested host doesn't exist.
             return null;
         }

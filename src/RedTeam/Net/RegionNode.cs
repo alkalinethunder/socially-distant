@@ -44,19 +44,20 @@ namespace RedTeam.Net
             _isps.Add(new IspNode(this, isp));
         }
 
-        public WebNode NetworkLookup(uint address)
+        public WebNode NetworkLookup(uint address, ref int hops)
         {
             // first try to find an ISP where the address is in its network.
-            var isp = _isps.First(x => (address & x.Isp.SubnetMask) == (x.Address & x.Isp.SubnetMask));
+            var isp = _isps.FirstOrDefault(x => (address & x.Isp.SubnetMask) == (x.Address & x.Isp.SubnetMask));
 
             // if we've found one, then let it do a network lookup.
             if (isp != null)
             {
-                return isp.NetworkLookup(address);
+                return isp.NetworkLookup(address, ref hops);
             }
             
             // Now it's time to let the game's master node do a lookup.
-            return _master.NetworkLookup(address);
+            hops++;
+            return _master.NetworkLookup(address, ref hops);
         }
     }
 }

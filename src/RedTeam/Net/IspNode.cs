@@ -44,7 +44,7 @@ namespace RedTeam.Net
             return _nets.First(x => x.Network.Id == net.Id);
         }
 
-        public WebNode NetworkLookup(uint address)
+        public WebNode NetworkLookup(uint address, ref int hops)
         {
             // Check the address to see if it's in our network.
             if ((address & _isp.SubnetMask) == (_isp.NetworkAddress & _isp.SubnetMask))
@@ -54,7 +54,8 @@ namespace RedTeam.Net
             }
             
             // Send it to the region to do a lookup.
-            return _region.NetworkLookup(address);
+            hops++;
+            return _region.NetworkLookup(address, ref hops);
         }
     }
 }

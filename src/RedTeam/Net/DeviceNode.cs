@@ -36,14 +36,15 @@ namespace RedTeam.Net
             return _net.DeviceLookup(address & ~Network.SubnetMask);
         }
 
-        public WebNode NetworkLookup(uint address)
+        public WebNode NetworkLookup(uint address, ref int hops)
         {
             // if the address matches our network, return our network.
             if (address == _net.Address)
                 return _net;
             
             // otherwise do a lookup with our ISP.
-            return _net.Isp.NetworkLookup(address);
+            hops++;
+            return _net.Isp.NetworkLookup(address, ref hops);
         }
     }
 }

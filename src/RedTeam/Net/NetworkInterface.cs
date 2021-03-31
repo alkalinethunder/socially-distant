@@ -26,12 +26,18 @@ namespace RedTeam.Net
         public uint NetworkAddress
             => _devNode.Network.SubnetAddress;
 
-        public WebNode MapAddressToNode(uint address)
+        public WebNode MapAddressToNode(uint address, out int hops)
         {
+            // we've gone nowhere!
+            hops = 0;
+            
             // Loop-back address (127.0.0.1) maps to ourself.
             if (address == NetworkHelpers.LoopbackAddress)
                 return this._devNode;
 
+            // We're about to leave this device and go to our LAN, that's one hop.
+            hops++;
+            
             // Is the specified address inside of our network?
             if ((address & this.SubnetMask) == this.NetworkAddress)
             {
@@ -42,7 +48,7 @@ namespace RedTeam.Net
             // Address isn't in our LAN, attempt a tier 3 lookup.
             else
             {
-                return _devNode.NetworkLookup(address);
+                return _devNode.NetworkLookup(address, ref hops);
             }
             
             
