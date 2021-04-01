@@ -9,6 +9,8 @@
         Web,
         WebSecure,
         Vpn,
-        RemoteDesktop
+        RemoteDesktop,
+        Chat,
+        GameServer
     }
 }

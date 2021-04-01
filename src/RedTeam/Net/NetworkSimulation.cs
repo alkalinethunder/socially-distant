@@ -86,6 +86,28 @@ namespace RedTeam.Net
 
         public bool TryMapHostToAddress(string host, out uint address)
             => _saveManager.TryMapHostToAddress(host, out address);
+
+        public IEnumerable<Hackable> GetHackables(Device device)
+        {
+            // TODO: generate new hackables if there are none.
+            foreach (var hackable in _saveManager.GetHackables(device))
+            {
+                yield return hackable;
+            }
+        }
+
+        public IEnumerable<Hackable> GetMappedHackables(Network network)
+        {
+            foreach (var mapping in network.PortMappings)
+            {
+                var hackable = _saveManager.GetHackable(mapping);
+                if (hackable != null)
+                    yield return hackable;
+            }
+        }
+
+        public void GeneratePortMappings(Network network)
+            => _saveManager.GeneratePortMappings(network);
         
         public int CalculateHops(WebNode source, WebNode dest)
         {

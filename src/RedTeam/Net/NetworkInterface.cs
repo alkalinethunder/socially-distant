@@ -1,4 +1,6 @@
-﻿using RedTeam.SaveData;
+﻿using System.Collections.Generic;
+using System.Linq;
+using RedTeam.SaveData;
 
 namespace RedTeam.Net
 {
@@ -28,6 +30,28 @@ namespace RedTeam.Net
 
         public bool DnsLookup(string host, out uint addr)
             => _simulation.TryMapHostToAddress(host, out addr);
+
+        public IEnumerable<PortScanResult> PerformPortScan(uint address, out int hops)
+        {
+            var node = MapAddressToNode(address, out hops);
+            if (node is DeviceNode device)
+            {
+                // local area network! this is ideal.
+                return _simulation.GetHackables(device.Device).Select(x => new PortScanResult(x, true));
+            }
+            else if (node is NetworkNode network)
+            {
+                // Generate port maps if that hasn't happened yet.
+                _simulation.GeneratePortMappings(network.Network);
+                
+                // Public network. These need to be hacked into first.
+                return _simulation.GetMappedHackables(network.Network).Select(x => new PortScanResult(x, false));
+            }
+            else
+            {
+                return null;
+            }
+        }
         
         public WebNode MapAddressToNode(uint address, out int hops)
         {

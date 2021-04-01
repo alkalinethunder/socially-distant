@@ -10,11 +10,11 @@ namespace RedTeam.SaveData
         public Guid InternetServiceProviderId;
         
         public string DisplayName;
-
+        public NetworkFlags NetworkFlags;
         public uint SubnetMask;
         public uint SubnetAddress;
         public uint PublicAddress;
-
+        public List<NetworkPortMapEntry> PortMappings = new();
         public NetworkType NetworkType;
     }
 }

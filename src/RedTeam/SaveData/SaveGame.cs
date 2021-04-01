@@ -13,5 +13,6 @@ namespace RedTeam.SaveData
         public List<RegionNetwork> Regions = new List<RegionNetwork>();
         public List<RegionLInk> RegionLinks = new();
         public List<DnsEntry> DnsEntries = new();
+        public List<Hackable> MasterHackableTable = new();
     }
 }

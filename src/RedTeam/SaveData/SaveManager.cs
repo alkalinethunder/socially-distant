@@ -101,6 +101,47 @@ namespace RedTeam.SaveData
             return new AgentController(this, agent);
         }
 
+        public Hackable GetHackable(NetworkPortMapEntry mapping)
+        {
+            ThrowIfNotLoaded();
+
+            return _currentGame.MasterHackableTable.FirstOrDefault(x => x.Id == mapping.HackableId);
+        }
+
+        private void GenerateDeviceHackables(Device device)
+        {
+            var hackableTypes = StaticGameDataRegistry.GetPossibleHackableTypes(device.DeviceType);
+
+            if (hackableTypes.Any())
+            {
+                foreach (var hackableType in hackableTypes)
+                {
+                    var hackable = new Hackable();
+                    hackable.Name = StaticGameDataRegistry.GetGenericHackableName(hackableType);
+                    hackable.Port = StaticGameDataRegistry.GetDefaultHackablePort(hackableType);
+                    hackable.Description = StaticGameDataRegistry.GetGenericHackableDescription(hackableType);
+                    hackable.Type = hackableType;
+
+                    hackable.DeviceId = device.Id;
+
+                    _currentGame.MasterHackableTable.Add(hackable);
+                }
+            }
+        }
+        
+        public IEnumerable<Hackable> GetHackables(Device device)
+        {
+            ThrowIfNotLoaded();
+
+            if (!device.DeviceFlags.HasBeenPortScanned)
+            {
+                GenerateDeviceHackables(device);
+                device.DeviceFlags.HasBeenPortScanned = true;
+            }
+            
+            return _currentGame.MasterHackableTable.Where(x => x.DeviceId == device.Id);
+        }
+        
         public Network GetDeviceNetwork(Device device)
         {
             ThrowIfNotLoaded();
@@ -250,6 +291,57 @@ namespace RedTeam.SaveData
                     RegionLinked?.Invoke(a, b);
                 }
             }
+        }
+
+        public void GeneratePortMappings(Network network)
+        {
+            ThrowIfNotLoaded();
+
+            // Don't generate mappings if we already have.
+            if (network.NetworkFlags.HasBeenPortScanned)
+                return;
+            
+            // So here's the literal *FUCKING* hell we need to do to get this to work.
+            //
+            // First we need to get all of the net's devices that have not had hackables
+            // generated for them.
+            var devicesNeedingHackables =
+                _currentGame.Devices.Where(x => x.Network == network.Id && !x.DeviceFlags.HasBeenPortScanned);
+            
+            // And IF THERE ARE ANY, they need to be generated.
+            foreach (var dev in devicesNeedingHackables)
+                GenerateDeviceHackables(dev);
+            
+            // So NOW, with THAT bullshit done, we gotta fucking get a list of all of those hackables.
+            //
+            // And. I mean. *All of them.*
+            var netHackables = _currentGame.MasterHackableTable.Where(x =>
+                _currentGame.Devices.Any(y => y.Id == x.DeviceId && y.Network == network.Id));
+            
+            // Jesus fuck that's a linq query I never wanna do again in my life.
+            //
+            // Anyway, with that list available to us...
+            //
+            // we now need to know what types of hackables should be exposed on this network.
+            var neededHackables = StaticGameDataRegistry.GetNetworkHackables(network.NetworkType);
+            
+            // And now we can generate mappings.
+            foreach (var h in neededHackables)
+            {
+                var hackable = netHackables.FirstOrDefault(x => x.Type == h);
+                if (hackable != null)
+                {
+                    var mapping = new NetworkPortMapEntry();
+
+                    mapping.Port = hackable.Port;
+                    mapping.HackableId = hackable.Id;
+
+                    network.PortMappings.Add(mapping);
+                }
+            }
+            
+            // And mark that hell as frozen over.
+            network.NetworkFlags.HasBeenPortScanned = true;
         }
         
         public InternetServiceProvider GetNetworkIsp(Network network)
