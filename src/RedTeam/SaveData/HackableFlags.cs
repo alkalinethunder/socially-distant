@@ -1,9 +1,9 @@
 ﻿namespace RedTeam.SaveData
 {
-    public struct HackableFlags
+    public class HackableFlags
     {
         public bool IsFirewalled;
-        public bool IsTraced;
+        public bool IsTraced = true;
         public bool IsHacked;
     }
 }

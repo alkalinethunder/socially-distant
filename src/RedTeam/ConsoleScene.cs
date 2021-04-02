@@ -4,7 +4,9 @@ using Thundershock.Gui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using RedTeam.Components;
 using RedTeam.Config;
+using RedTeam.Game;
 using RedTeam.IO;
 using RedTeam.Net;
 using RedTeam.SaveData;
@@ -27,9 +29,13 @@ namespace RedTeam
         private SaveManager _saveManager;
         private RedConfigManager _redConfig;
         private NetworkSimulation _netSimulation;
+        private TraceTimerComponent _tracer;
+        private RiskSystem _risk;
         
         protected override void OnLoad()
         {
+            _risk = App.GetComponent<RiskSystem>();
+            
             Camera = new Camera2D();
             
             _redConfig = App.GetComponent<RedConfigManager>();
@@ -58,6 +64,7 @@ namespace RedTeam
             _console.ColorPalette = _redConfig.GetPalette();
             
             _redConfig.ConfigUpdated += ApplyConfig;
+            _tracer = AddComponent<TraceTimerComponent>();
         }
 
         private void ApplyConfig(object? sender, EventArgs e)
@@ -204,6 +211,8 @@ namespace RedTeam
         
         protected override void OnUpdate(GameTime gameTime)
         {
+            _console.ColorPalette.PanicMode = _risk.IsBeingTraced;
+            
             if (!_isBooted)
             {
                 switch (_bootPhase)

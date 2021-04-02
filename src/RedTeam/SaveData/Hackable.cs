@@ -6,7 +6,7 @@ namespace RedTeam.SaveData
     {
         public Guid Id = Guid.NewGuid();
         public Guid DeviceId;
-        public HackableFlags HackableFlags;
+        public HackableFlags HackableFlags = new HackableFlags();
         public HackableType Type;
         public Difficulty Difficulty;
         public int Port;

@@ -108,10 +108,38 @@ namespace RedTeam.Config
             // palettes readme
             WriteReadme();
 
+            // load user palettes.
+            LoadUserPalettes();
+            
             // load initial config.
             LoadInitialConfig();
             
             base.OnLoad();
+        }
+
+        private void LoadUserPalettes()
+        {
+            foreach (var file in _fs.GetFiles("/palettes"))
+            {
+                try
+                {
+                    var json = _fs.ReadAllText(file);
+                    var fname = PathUtils.GetFileName(file);
+                    var palette = JsonSerializer.Deserialize<RedTermPalette>(json, new JsonSerializerOptions
+                    {
+                        IncludeFields = true
+                    });
+
+                    palette.id = fname;
+
+                    if (!_palettes.Any(x => x.name == palette.name))
+                        _palettes.Add(palette);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
         }
         
         private void WritePalette(string resourceName)

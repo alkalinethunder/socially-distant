@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace RedTeam
 {
@@ -14,6 +15,10 @@ namespace RedTeam
         public Color CompletionsHighlight { get; set; }
         public Color CompletionsHighlightText { get; set; }
         public Color CompletionsText { get; set; }
+
+        public bool PanicMode { get; set; }
+        
+        public Texture2D BackgroundImage { get; set; }
         
         public ColorPalette()
         {
@@ -37,12 +42,17 @@ namespace RedTeam
         
         public Color GetColor(ConsoleColor consoleColor)
         {
-            return _map[consoleColor];
+            var color = _map[consoleColor];
+
+            if (PanicMode)
+                color = Color.Lerp(color, Color.Red, 0.224f);
+            
+            return color;
         }
 
         public void SetColor(ConsoleColor consoleColor, Color color)
         {
-            _map[consoleColor] = new Color(color.R, color.G, color.B);
+            _map[consoleColor] = color;
         }
     }
 }

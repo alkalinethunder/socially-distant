@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Graphics;
 using Thundershock;
+using Thundershock.IO;
 
 namespace RedTeam.Config
 {
@@ -13,17 +16,47 @@ namespace RedTeam.Config
         public string description;
         public string author;
 
+        public RedTermBackground background = new RedTermBackground();
+        
         public RedTermColors colors = new RedTermColors();
         public RedTermCompletions completions = new RedTermCompletions();
         public RedTermCursor cursor = new RedTermCursor();
+
+        private Texture2D LoadImage(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return null;
+            
+            var pathParts = PathUtils.Split(path);
+            if (pathParts[0] == "USERDATA:")
+                pathParts[0] = ThundershockPlatform.LocalDataPath;
+
+            var realPath = Path.Combine(pathParts);
+
+            if (File.Exists(realPath))
+            {
+                try
+                {
+                    return Texture2D.FromFile(EntryPoint.CurrentApp.GraphicsDevice, realPath);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            return null;
+        }
         
         public ColorPalette ToColorPalette()
         {
             var palette = new ColorPalette();
 
+            palette.BackgroundImage = LoadImage(background.image);
+            
             Func<string, Microsoft.Xna.Framework.Color> html = ThundershockPlatform.HtmlColor;
             
-            palette.SetColor(ConsoleColor.Black, html(colors.black));
+            palette.SetColor(ConsoleColor.Black, html(colors.black) * this.background.opacity);
             palette.SetColor(ConsoleColor.DarkBlue, html(colors.darkBlue));
             palette.SetColor(ConsoleColor.DarkGreen, html(colors.darkGreen));
             palette.SetColor(ConsoleColor.DarkCyan, html(colors.darkCyan));
@@ -52,5 +85,11 @@ namespace RedTeam.Config
             
             return palette;
         }
+    }
+
+    public class RedTermBackground
+    {
+        public string image;
+        public float opacity = 1;
     }
 }

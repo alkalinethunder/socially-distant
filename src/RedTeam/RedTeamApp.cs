@@ -1,5 +1,6 @@
 ﻿using DocoptNet;
 using RedTeam.Config;
+using RedTeam.Game;
 using RedTeam.IO;
 using RedTeam.SaveData;
 using Thundershock;
@@ -22,6 +23,7 @@ namespace RedTeam
             Window.Title = "Michael VanOverbeek's RED TEAM";
             
             // register red team components
+            RegisterComponent<RiskSystem>();
             RegisterComponent<SaveManager>();
             RegisterComponent<RedConfigManager>();
         }

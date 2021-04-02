@@ -108,6 +108,11 @@ namespace RedTeam.Net
 
         public void GeneratePortMappings(Network network)
             => _saveManager.GeneratePortMappings(network);
+
+        public HackStartInfo StartHack(Hackable hackable)
+        {
+            return new HackStartInfo(_saveManager, hackable);
+        }
         
         public int CalculateHops(WebNode source, WebNode dest)
         {

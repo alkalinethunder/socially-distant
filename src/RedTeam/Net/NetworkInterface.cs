@@ -52,6 +52,45 @@ namespace RedTeam.Net
                 return null;
             }
         }
+
+        public bool TryGetHackable(uint address, ushort port, out int hops, out HackStartInfo startInfo)
+        {
+            var result = false;
+            hops = 0;
+            startInfo = null;
+
+            var node = MapAddressToNode(address, out hops);
+
+            if (node is DeviceNode device)
+            {
+                var hackables = _simulation.GetHackables(device.Device);
+
+                var matched = hackables.FirstOrDefault(x => x.Port == port);
+
+                if (matched != null)
+                {
+                    startInfo = _simulation.StartHack(matched);
+                    result = true;
+                }
+            }
+            else if (node is NetworkNode network)
+            {
+                var mappedHackables = _simulation.GetMappedHackables(network.Network);
+
+                var matched = mappedHackables.FirstOrDefault(x => x.Port == port);
+
+                if (matched != null)
+                {
+                    if (!matched.HackableFlags.IsFirewalled)
+                    {
+                        startInfo = _simulation.StartHack(matched);
+                        result = true;
+                    }
+                }
+            }
+            
+            return result;
+        }
         
         public WebNode MapAddressToNode(uint address, out int hops)
         {

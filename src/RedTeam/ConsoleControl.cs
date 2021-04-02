@@ -950,6 +950,10 @@ namespace RedTeam
                     var bg = elem.Background;
                     var fg = elem.Foreground;
 
+                    // Handle background images.
+                    if (bg.A < 255 && ColorPalette.BackgroundImage != null)
+                        bg = Color.Transparent;
+                    
                     // is this the cursor?
                     if (elem.IsCursor)
                     {
@@ -1023,8 +1027,11 @@ namespace RedTeam
 
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
         {
+            if (ColorPalette.BackgroundImage != null)
+                renderer.FillRectangle(BoundingBox, ColorPalette.BackgroundImage, Color.White);
+            
             renderer.FillRectangle(BoundingBox, GetColor(ConsoleColor.Black));
-
+            
             var continuePaint = true;
             var paintCompletionsThisTime = true;
             

@@ -67,6 +67,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Intro/Small.spritefont
 
+#begin Fonts/PanicTimer.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/PanicTimer.spritefont
+
 #begin Sounds/Intro/MichaelGlitch.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
