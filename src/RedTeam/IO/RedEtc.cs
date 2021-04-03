@@ -7,12 +7,12 @@ namespace RedTeam.IO
     public class RedEtc : Node
     {
         private Node _parent;
-        private AgentController _agent;
+        private Device _device;
 
-        public RedEtc(Node parent, AgentController agent)
+        public RedEtc(Node parent, Device device)
         {
             _parent = parent;
-            _agent = agent;
+            _device = device;
         }
 
         public override bool CanDelete => false;
@@ -27,7 +27,7 @@ namespace RedTeam.IO
         {
             get
             {
-                yield return new HostnameNode(this, _agent);
+                yield return new HostnameNode(this, _device);
             }
         }
         public override string Name => "etc";

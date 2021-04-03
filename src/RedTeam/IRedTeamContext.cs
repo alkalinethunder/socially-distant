@@ -14,5 +14,7 @@ namespace RedTeam
         string Shell { get; }
         string WindowManager { get; }
         string DesktopEnvironment { get; }
+
+        void ShutDown();
     }
 }

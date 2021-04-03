@@ -11,9 +11,9 @@ namespace RedTeam.IO
     public class HostnameNode : Node
     {
         private Node _parent;
-        private AgentController _agent;
+        private Device _agent;
 
-        public HostnameNode(Node parent, AgentController agent)
+        public HostnameNode(Node parent, Device agent)
         {
             _parent = parent;
             _agent = agent;

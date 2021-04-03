@@ -74,6 +74,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/PanicTimer.spritefont
 
+#begin Sounds/Hacking/Heartbleed.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Hacking/Heartbleed.mp3
+
 #begin Sounds/Intro/MichaelGlitch.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor
@@ -103,6 +109,18 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/Intro/Welcome.mp3
+
+#begin Sounds/Panic/OhFuck.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Panic/OhFuck.mp3
+
+#begin Sounds/Panic/PanicTimerWarning.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Panic/PanicTimerWarning.mp3
 
 #begin Sounds/Redsh/cmdNotFound.mp3
 /importer:Mp3Importer

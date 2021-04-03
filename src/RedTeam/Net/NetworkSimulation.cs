@@ -111,7 +111,7 @@ namespace RedTeam.Net
 
         public HackStartInfo StartHack(Hackable hackable)
         {
-            return new HackStartInfo(_saveManager, hackable);
+            return new HackStartInfo(this, _saveManager, hackable);
         }
         
         public int CalculateHops(WebNode source, WebNode dest)

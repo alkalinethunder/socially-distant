@@ -56,5 +56,7 @@ namespace RedTeam
                 return home;
             }
         }
+
+        public void ShutDown() => EntryPoint.CurrentApp.Exit();
     }
 }

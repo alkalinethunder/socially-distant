@@ -4,13 +4,17 @@ using Thundershock.IO;
 
 namespace RedTeam.IO
 {
-    public class RedRoot : Node
+    public class NpcRoot : Node
     {
-        private AgentController _agent;
+        private Device _device;
+        private string _username;
+        private SaveManager _saveManager;
 
-        public RedRoot(AgentController agent)
+        public NpcRoot(SaveManager saveManager, Device device, string username)
         {
-            _agent = agent;
+            _saveManager = saveManager;
+            _device = device;
+            _username = username;
         }
 
         public override bool CanRead => false;
@@ -27,8 +31,7 @@ namespace RedTeam.IO
             get
             {
                 yield return new DevFS(this);
-                yield return new RedEtc(this, _agent.Device);
-                yield return new HomesMount(this, _agent);
+                yield return new RedEtc(this, _device);
             }
         }
     }

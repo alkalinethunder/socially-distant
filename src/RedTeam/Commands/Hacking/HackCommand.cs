@@ -8,11 +8,17 @@ namespace RedTeam.Commands.Hacking
 {
     public abstract class HackCommand : Command
     {
+        private IPayload _payload;
         private string _host;
         private string _address;
         private int _hops;
         private HackStartInfo _hack;
-        
+
+        public HackStartInfo Hack => _hack;
+        public int Hops => _hops;
+        public string HostName => _host;
+        public string Address => _address;
+
         protected override void Main(string[] args)
         {
             if (args.Length < 2)
@@ -57,7 +63,43 @@ namespace RedTeam.Commands.Hacking
             }
         }
 
-        private void StartHack()
+        protected virtual void OnHackUpdate(float deltaTime)
+        {
+            
+        }
+
+        protected sealed override void OnUpdate(float deltaTime)
+        {
+            if (_hack == null || _hack.IsFinished)
+            {
+                Console.WriteLine(" * disconnected *");
+                Complete();
+            }
+            else
+            {
+                if (_payload != null)
+                {
+                    _payload.Update(deltaTime);
+                }
+                else
+                {
+                    OnHackUpdate(deltaTime);
+                }
+            }
+        }
+
+        protected abstract void StartHack();
+
+        protected void RejectAnythingBut(HackableType hackableType)
+        {
+            if (_hack.HackableType != hackableType)
+            {
+                Console.WriteLine(" * port rejected * ");
+                Complete();
+            }
+        }
+        
+        protected void CompleteHack<T>() where T : IPayload, new()
         {
             // So there are a few things we need to do before a hack command can run.
             //
@@ -98,8 +140,21 @@ namespace RedTeam.Commands.Hacking
                 // Start the timer.
                 EntryPoint.CurrentApp.GetComponent<RiskSystem>().SetTraceTimer(_hack, traceTime);
             }
+
+            // Mark the hackable as hacked.
+            _hack.SetHacked();
             
+            // Create the payload.
+            var payload = new T();
             
+            // Create a new context from the hackable.
+            var hackContext = _hack.CreateContext();
+            
+            // Bind it to the payload.
+            payload.Init(Console, hackContext);
+
+            // bind it to us lol.
+            _payload = payload;
         }
     }
 }

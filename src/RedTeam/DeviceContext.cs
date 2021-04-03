@@ -1,5 +1,6 @@
 ﻿using RedTeam.Net;
 using RedTeam.SaveData;
+using Thundershock;
 using Thundershock.IO;
 
 namespace RedTeam
@@ -35,5 +36,8 @@ namespace RedTeam
         public string Shell => "redsh";
         public string WindowManager => "redwm";
         public string DesktopEnvironment => "thundershock";
+
+        public void ShutDown()
+            => EntryPoint.CurrentApp.Exit();
     }
 }

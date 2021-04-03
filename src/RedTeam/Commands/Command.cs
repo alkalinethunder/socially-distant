@@ -17,6 +17,7 @@ namespace RedTeam.Commands
         private FileSystem _fs;
         private string[] _args;
         private string _workingDirectory;
+        private bool _disposeConsole;
         
         public abstract string Name { get; }
         public virtual string Description => string.Empty;
@@ -40,11 +41,12 @@ namespace RedTeam.Commands
             return PathUtils.Resolve(resolved);
         }
         
-        public void Run(string[] args, string work, FileSystem fs, IConsole console, IRedTeamContext ctx)
+        public void Run(string[] args, string work, FileSystem fs, IConsole console, IRedTeamContext ctx, bool disposeConsole = true)
         {
             if (_running)
                 throw new InvalidOperationException("Command has already been run.");
 
+            _disposeConsole = disposeConsole;
             _userContext = ctx ?? throw new ArgumentNullException(nameof(ctx));            
             _args = args ?? throw new ArgumentNullException(nameof(args));
             _workingDirectory = work ?? throw new ArgumentNullException(nameof(work));
@@ -75,7 +77,7 @@ namespace RedTeam.Commands
                 _console.WriteLine("&0");
 
                 // dispose of the console if that's necessary.
-                if (_console is IDisposable disposable)
+                if (_console is IDisposable disposable && _disposeConsole)
                 {
                     disposable.Dispose();
                 }
@@ -99,7 +101,17 @@ namespace RedTeam.Commands
                 }
                 catch (Exception ex)
                 {
-                    _console.WriteLine("{0}: error: {1}", Name, ex.Message);
+                    if (_console != null)
+                    {
+                        _console.WriteLine("{0}: error: {1}", Name, ex.Message);
+                    }
+                    else
+                    {
+                        EntryPoint.CurrentApp.Logger.Log(
+                            "Could not log command error to the user's screen because the game killed the console instance before we got here.",
+                            LogLevel.Error);
+                    }
+
                     EntryPoint.CurrentApp.Logger.LogException(ex, LogLevel.Warning);
                     Complete();
                 }

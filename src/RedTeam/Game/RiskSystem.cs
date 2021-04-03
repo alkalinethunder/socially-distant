@@ -16,7 +16,7 @@ namespace RedTeam.Game
         public double TraceTimeLeft => IsBeingTraced ? _traceTimers.OrderBy(x => x.TimeLeft).First().TimeLeft : 0;
 
         public event Action TraceRanOut;
-        
+        public event Action TraceStarted;
         public void SetTraceTimer(HackStartInfo hack, double traceTime)
         {
             var trace = new TraceTimer
@@ -26,6 +26,8 @@ namespace RedTeam.Game
             };
 
             _traceTimers.Add(trace);
+
+            TraceStarted?.Invoke();
         }
 
         protected override void OnUpdate(GameTime gameTime)
@@ -33,6 +35,15 @@ namespace RedTeam.Game
             for (var i = 0; i < _traceTimers.Count;i++)
             {
                 var timer = _traceTimers[i];
+                
+                // SUCCESSFUL HACKS
+                if (timer.Hack.IsFinished)
+                {
+                    _traceTimers.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+                
                 timer.TimeLeft -= gameTime.ElapsedGameTime.TotalSeconds;
                 if (timer.TimeLeft <= 0)
                 {
