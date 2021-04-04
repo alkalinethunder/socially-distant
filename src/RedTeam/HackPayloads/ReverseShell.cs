@@ -5,11 +5,13 @@ using System.Data;
 using System.Linq;
 using Microsoft.VisualBasic.FileIO;
 using RedTeam.Commands;
+using Thundershock.IO;
 
 namespace RedTeam.HackPayloads
 {
     public class ReverseShell : IPayload
     {
+        private IRedTeamContext _player;
         private List<Builtin> _builtins = new();
         private List<CommandInfo> _commands = new();
         private IRedTeamContext _ctx;
@@ -18,21 +20,68 @@ namespace RedTeam.HackPayloads
         private bool _executing;
         private Command _command;
         
-        public void Init(IConsole console, IRedTeamContext ctx)
+        public void Init(IConsole console, IRedTeamContext ctx, IRedTeamContext player)
         {
+            _player = player;
             _console = console;
             _ctx = ctx;
 
             RegisterBuiltin("exit", "Disconnect.", Exit);
-            
+            RegisterBuiltin("help", "Show the help text.", PrintHelp);
+            RegisterBuiltin("clear", "Clear the screen.", _console.Clear);
+            RegisterBuiltin("cd", "Change working directory", ChangeWorkingDirectory);
+
+            RegisterCommand<PrintWorkingDirectory>();
             RegisterCommand<Nmap>();
             RegisterCommand<Cat>();
             RegisterCommand<ListDirectory>();
             RegisterCommand<WhoAmI>();
-
+            RegisterCommand<IfConfig>();
+            RegisterCommand<Ping>();
+            RegisterCommand<WriteCommand>();
+            
             WritePrompt();
         }
 
+        private string ResolvePath(string path)
+        {
+            if (path.StartsWith(PathUtils.Home))
+            {
+                path = PathUtils.Combine(_ctx.HomeDirectory, path.Substring(PathUtils.Home.Length));
+            }
+            
+            if (!path.StartsWith(PathUtils.Separator))
+            {
+                path = PathUtils.Combine(_work, path);
+            }
+
+            var resolved = PathUtils.Resolve(path);
+            return resolved;
+        }
+        
+        private void ChangeWorkingDirectory(string name, string[] args)
+        {
+            if (args.Length < 1)
+            {
+                _console.WriteLine($"{name}: usage: {name} <path>");
+                return;
+            }
+
+            var path = args.First();
+
+            var resolved = ResolvePath(path);
+
+            if (_ctx.Vfs.DirectoryExists(resolved))
+            {
+                _work = resolved;
+            }
+            else
+            {
+                _console.WriteLine($"{name}: {path}: Directory not found.");
+            }
+        }
+
+        
         private void RegisterCommand<T>() where T : Command, new()
         {
             var cmd = new T();
@@ -178,6 +227,60 @@ namespace RedTeam.HackPayloads
             public string Name;
             public string Description;
             public Action<string, string[]> Action;
+        }
+        
+        private void PrintBuiltins()
+        {
+            _console.WriteLine("Commands:");
+            _console.WriteLine();
+
+            var longest = _builtins.Select(x => x.Name).OrderByDescending(x => x.Length).First().Length + 2;
+            
+            foreach (var cmd in _builtins.OrderBy(x=>x.Name))
+            {
+                _console.Write(" - #d{0}&0", cmd.Name);
+                if (!string.IsNullOrWhiteSpace(cmd.Description))
+                {
+                    _console.Write(":");
+                    for (var i = 0; i < longest - cmd.Name.Length; i++)
+                        _console.Write(" ");
+                    _console.Write("&w{0}&W", cmd.Description);
+                }
+
+                _console.WriteLine();
+            }
+        }
+        
+        private void PrintExternals()
+        {
+            _console.WriteLine("Programs:");
+            _console.WriteLine();
+
+            var longest = _commands.Select(x => x.Name).OrderByDescending(x => x.Length).First().Length + 2;
+            
+            foreach (var cmd in _commands.OrderBy(x=>x.Name))
+            {
+                _console.Write(" - #9{0}&0", cmd.Name);
+                if (!string.IsNullOrWhiteSpace(cmd.Description))
+                {
+                    _console.Write(":");
+                    for (var i = 0; i < longest - cmd.Name.Length; i++)
+                        _console.Write(" ");
+                    _console.Write("&w{0}&W", cmd.Description);
+                }
+
+                _console.WriteLine();
+            }
+        }
+
+        public void PrintHelp()
+        {
+            _console.WriteLine("COMMAND HELP");
+            _console.WriteLine("============");
+            _console.WriteLine();
+            PrintBuiltins();
+            _console.WriteLine();
+            PrintExternals();
         }
     }
 }

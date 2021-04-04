@@ -151,7 +151,7 @@ namespace RedTeam.Commands.Hacking
             var hackContext = _hack.CreateContext();
             
             // Bind it to the payload.
-            payload.Init(Console, hackContext);
+            payload.Init(Console, hackContext, Context);
 
             // bind it to us lol.
             _payload = payload;

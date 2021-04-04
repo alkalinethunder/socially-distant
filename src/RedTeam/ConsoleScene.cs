@@ -31,6 +31,7 @@ namespace RedTeam
         private NetworkSimulation _netSimulation;
         private TraceTimerComponent _tracer;
         private RiskSystem _risk;
+        private ModalManager _modalManager;
         
         protected override void OnLoad()
         {
@@ -65,6 +66,7 @@ namespace RedTeam
             
             _redConfig.ConfigUpdated += ApplyConfig;
             _tracer = AddComponent<TraceTimerComponent>();
+            _modalManager = AddComponent<ModalManager>();
         }
 
         private void ApplyConfig(object? sender, EventArgs e)
