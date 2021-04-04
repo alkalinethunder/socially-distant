@@ -9,28 +9,15 @@ using Thundershock.Gui.Elements;
 
 namespace RedTeam.Components
 {
-    public class ModalManager : SceneComponent
+    public class WindowManager : SceneComponent
     {
         private GuiSystem _gui;
-
-        private Texture2D _side;
-        private Texture2D _corner;
-        private Texture2D _bottom;
-        private Texture2D _outer;
-        private Texture2D _inner;
-        private Texture2D _tSide;
-        private Texture2D _title;
-        private Texture2D _info;
-        private SpriteFont _titleText;
-        private SpriteFont _infoText;
         
         protected override void OnLoad()
         {
             base.OnLoad();
             
             _gui = Scene.GetComponent<GuiSystem>();
-
-            ShowMessage("Attention!", "This game uses auto-save technology that doesn't work.");
         }
 
         private ModalDialog MakeInfoBox(string title, string message)
@@ -51,6 +38,15 @@ namespace RedTeam.Components
                 action?.Invoke();
                 m.Parent.Children.Remove(m);
             });
+        }
+
+        public Pane CreatePane(string title)
+        {
+            var content = new Panel();
+            var layout = new PaneLayout(this, title, content);
+            var pane = new Pane(layout, content);
+
+            return pane;
         }
     }
 }

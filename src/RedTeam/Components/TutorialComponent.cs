@@ -1,92 +1,39 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Thundershock.Gui;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Loader;
 using System.Text;
-using RedTeam.Components;
-using RedTeam.Config;
-using RedTeam.Game;
-using RedTeam.IO;
-using RedTeam.Net;
+using Microsoft.Xna.Framework;
 using RedTeam.SaveData;
 using Thundershock;
-using Thundershock.Rendering;
 
-namespace RedTeam
+namespace RedTeam.Components
 {
-    public class ConsoleScene : Scene
+    public class TutorialComponent : SceneComponent
     {
+        private SaveManager _saveManager;
+        private ConsoleControl _console;
+
+        #region SPAGHETTI
+
         private string _name;
         private string _username;
         private Queue<string> _queue = new Queue<string>();
         private bool _isBooted = false;
         private int _bootPhase;
         private double _timer;
-        private GuiSystem _guiSystem;
-        private ConsoleControl _console;
-        private Shell _shell;
-        private SaveManager _saveManager;
-        private RedConfigManager _redConfig;
-        private NetworkSimulation _netSimulation;
-        private TraceTimerComponent _tracer;
-        private RiskSystem _risk;
-        private ModalManager _modalManager;
+
+        #endregion
+
+        public event Action TutorialCompleted;
         
-        protected override void OnLoad()
+        public void Begin(SaveManager saveManager, ConsoleControl console)
         {
-            _risk = App.GetComponent<RiskSystem>();
-            
-            Camera = new Camera2D();
-            
-            _redConfig = App.GetComponent<RedConfigManager>();
-            _saveManager = App.GetComponent<SaveManager>();
-
-            _netSimulation = AddComponent<NetworkSimulation>();
-            
-            _guiSystem = AddComponent<GuiSystem>();
-            _console = new ConsoleControl();
-            _guiSystem.AddToViewport(_console);
-
-            _console.WriteLine(" * checking for redteam os container *");
-
-            if (_saveManager.IsSaveAvailable)
-            {
-                _saveManager.LoadGame();
-                StartShell();
-            }
-            else
-            {
-                _saveManager.NewGame();
-                _console.WriteLine(" * container image not found *");
-                _timer = 0.5;
-            }
-
-            _console.ColorPalette = _redConfig.GetPalette();
-            
-            _redConfig.ConfigUpdated += ApplyConfig;
-            _tracer = AddComponent<TraceTimerComponent>();
-            _modalManager = AddComponent<ModalManager>();
-        }
-
-        private void ApplyConfig(object? sender, EventArgs e)
-        {
-            _console.ColorPalette = _redConfig.GetPalette();
-        }
-
-        private void StartShell()
-        {
-            _isBooted = true;
-
-            var agent = _saveManager.GetPlayerAgent();
-            var nic = _netSimulation.GetNetworkInterface(agent.Device);
-            var ctx = new DeviceContext(agent, nic);
-            var fs = ctx.Vfs;
-            _shell = new Shell(_console, fs, ctx);
-            AddComponent(_shell);
+            _saveManager = saveManager;
+            _console = console;
         }
         
-        private void PrintIntro()
+                private void PrintIntro()
         {
             var resource = this.GetType().Assembly.GetManifestResourceStream("RedTeam.Resources.Intro.txt");
             
@@ -209,13 +156,15 @@ namespace RedTeam
             var pos = _saveManager.CreateDevice(macdoogles, "pos-terminal");
             
             _saveManager.SetPlayerInfo(id, dev);
+
+            TutorialCompleted?.Invoke();
         }
-        
+
         protected override void OnUpdate(GameTime gameTime)
         {
-            _console.ColorPalette.PanicMode = _risk.IsBeingTraced;
+            base.OnUpdate(gameTime);
             
-            if (!_isBooted)
+                        if (!_isBooted)
             {
                 switch (_bootPhase)
                 {
@@ -345,11 +294,11 @@ namespace RedTeam
                         {
                             _console.WriteLine(" * connected *");
                             CreateContainer();
-                            StartShell();
                         }
                         break;
                 }
             }
+
         }
     }
 }

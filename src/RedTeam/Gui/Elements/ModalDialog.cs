@@ -45,7 +45,7 @@ namespace RedTeam.Gui.Elements
         private Texture2D _cornerImage;
         private Stacker _buttonStacker = new();
         
-        public ModalDialog(ModalManager manager, string title, string message)
+        public ModalDialog(WindowManager manager, string title, string message)
         {
             _infoImage = manager.App.Content.Load<Texture2D>("Textures/InfoBox");
             _outerImage = manager.App.Content.Load<Texture2D>("WinDecorations/TopCornerOuter");
