@@ -153,6 +153,10 @@ namespace RedTeam.Gui.Elements
             _tiRight.WidthUnitRounding = _tiRight.Image.Width;
 
             Children.Add(_masterPanel);
+
+            _masterPanel.MaximumWidth = 900;
+
+            _messageText.WrapMode = TextWrapMode.WordWrap;
         }
 
         public void AddButton(string text, Action action)
