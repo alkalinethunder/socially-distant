@@ -365,7 +365,7 @@ namespace RedTeam
                 
                 // reset attributes
                 attrs = new Attributes();
-                attrs.Position = BoundingBox.Location.ToVector2();
+                attrs.Position = ContentRectangle.Location.ToVector2();
                 attrs.Background = ConsoleColor.Black;
                 attrs.Foreground = ConsoleColor.Gray;
                 
@@ -401,9 +401,9 @@ namespace RedTeam
             _height = _textHeight + _inputHeight;
             
             // Oh and let's figure out what the max scrollback is.
-            if (_height > BoundingBox.Height)
+            if (_height > ContentRectangle.Height)
             {
-                _scrollbackMax = _height - BoundingBox.Height;
+                _scrollbackMax = _height - ContentRectangle.Height;
             }
             else
             {
@@ -439,7 +439,7 @@ namespace RedTeam
         
         private void CreateTextElements(ref Attributes attrs, string rawText, List<TextElement> elements, out float elemHeight)
         {
-            var rect = BoundingBox; // Short hand for the terminal's bounding box. Needed for line wrapping.
+            var rect = ContentRectangle; // Short hand for the terminal's bounding box. Needed for line wrapping.
             var firstLine = true; // line wrapping: have we not wrapped any line yet?
             
             // Account for the scrollbar width so the scrollbar never renders over text.
@@ -928,17 +928,17 @@ namespace RedTeam
             
             // Account for scrollback.
             rect.Y -= (int)_scrollbackMax;
-            if (_height > BoundingBox.Height)
+            if (_height > ContentRectangle.Height)
             {
                 rect.Y += (int)_scrollback;
             }
 
             // only paint this element if it's above the bottom of the terminal bounds.
-            if (rect.Top <= BoundingBox.Bottom)
+            if (rect.Top <= ContentRectangle.Bottom)
             {
                 // If the element is above the terminal bounds then we'll instruct the OnPaint routine to stop
                 // painting elements. This is a major perf boost.
-                if (rect.Bottom <= BoundingBox.Top)
+                if (rect.Bottom <= ContentRectangle.Top)
                 {
                     continuePaint = false;
                 }

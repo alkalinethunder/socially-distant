@@ -120,6 +120,8 @@ namespace RedTeam
             // TODO: Multiple consoles.
             _consolesPane = _windowManager.CreatePane("TERMINAL");
             _consolesPane.Content.Add(_console);
+            _consolesPane.Padding = 15;
+            _console.Margin = 5;
             
             // add the console pane to the GUI.
             // TODO: actually not shitty layout.

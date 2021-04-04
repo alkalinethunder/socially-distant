@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Gui.Elements;
 using Thundershock;
+using Thundershock.Debugging;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 
@@ -18,6 +19,13 @@ namespace RedTeam.Components
             base.OnLoad();
             
             _gui = Scene.GetComponent<GuiSystem>();
+            
+            App.GetComponent<CheatManager>().AddCheat("infobox", Cheat_MakeInfoBox);
+        }
+
+        private void Cheat_MakeInfoBox(string[] args)
+        {
+            ShowMessage("Cheat Message", string.Join(" ", args));
         }
 
         private ModalDialog MakeInfoBox(string title, string message)
