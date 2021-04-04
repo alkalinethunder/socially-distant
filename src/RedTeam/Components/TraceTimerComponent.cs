@@ -4,8 +4,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Game;
+using RedTeam.Net;
 using Thundershock;
 using Thundershock.Components;
+using Thundershock.Debugging;
+using Thundershock.Input;
 
 namespace RedTeam.Components
 {
@@ -24,12 +27,13 @@ namespace RedTeam.Components
         private VorbisPlayer _glitchie;
         private bool _glitching = false;
         private int _glitchLevel = 0;
+        private VorbisPlayer _vorbisPlayer;
         
         protected override void OnLoad()
         {
             _fuck = App.Content.Load<SoundEffect>("Sounds/Panic/OhFuck");
             _tickTock = App.Content.Load<SoundEffect>("Sounds/Panic/PanicTimerWarning");
-            
+            _vorbisPlayer = Scene.AddComponent<VorbisPlayer>();
             _risk = App.GetComponent<RiskSystem>();
             _panicTimer = Scene.AddComponent<TextComponent>();
             _glitchie = Scene.AddComponent<VorbisPlayer>();
@@ -45,8 +49,24 @@ namespace RedTeam.Components
             _risk.TraceStarted += SetWarningTimer;
             _risk.TraceStarted += SetFuckTimer;
             
+            App.GetComponent<CheatManager>().AddCheat("ritchie", Ritchie);
             
             base.OnLoad();
+        }
+
+        private void Ritchie()
+        {
+            // clear all active traces.
+            _risk.ClearAllTraces();
+            
+            // Play the ritchie sound
+            _vorbisPlayer.OpenResource(this.GetType().Assembly, "RedTeam.Resources.Document1.ogg");
+            
+            // create a fake trace, lol.
+            _risk.SetTraceTimer(new HackStartInfo(null, null, null), _vorbisPlayer.Duration);
+            
+            // hahaha
+            App.GetComponent<InputManager>().EnableInput = false;
         }
 
         private void SetWarningTimer()

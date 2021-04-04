@@ -30,6 +30,9 @@ namespace RedTeam.Game
             TraceStarted?.Invoke();
         }
 
+        public void ClearAllTraces()
+            => _traceTimers.Clear();
+        
         protected override void OnUpdate(GameTime gameTime)
         {
             for (var i = 0; i < _traceTimers.Count;i++)

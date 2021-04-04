@@ -49,6 +49,8 @@
     <None Remove="Resources\Intro.txt" />
     <EmbeddedResource Include="Resources\Intro.txt" />
     <None Remove="Resources\glitchie.ogg" />
+    <None Remove="Resources\Document1.ogg" />
+    <EmbeddedResource Include="Resources\Document1.ogg" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
