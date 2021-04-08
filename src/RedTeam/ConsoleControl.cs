@@ -70,6 +70,8 @@ namespace RedTeam
 
         private List<TextElement> _elements = new List<TextElement>();
         private List<TextElement> _inputElements = new List<TextElement>();
+
+        public bool DrawBackgroundImage { get; set; } = true;
         
         public IAutoCompleteSource AutoCompleteSource { get; set; }
 
@@ -1027,7 +1029,11 @@ namespace RedTeam
 
         protected override void OnPaint(GameTime gameTime, GuiRenderer renderer)
         {
-            if (ColorPalette.BackgroundImage != null)
+            // It may be desirable for the game to not let us draw the background image specified in the
+            // redterm palette. If this is the case, we won't - and we'll let the game itself decide exactly
+            // how the background image is rendered. Some custom redwm layouts may not want to deal with
+            // drawing the wallpaper, and so in that case, we will.
+            if (ColorPalette.BackgroundImage != null && DrawBackgroundImage)
                 renderer.FillRectangle(BoundingBox, ColorPalette.BackgroundImage, Color.White);
             
             renderer.FillRectangle(BoundingBox, GetColor(ConsoleColor.Black));

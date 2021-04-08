@@ -13,6 +13,7 @@ using RedTeam.IO;
 using RedTeam.Net;
 using RedTeam.SaveData;
 using Thundershock;
+using Thundershock.Components;
 using Thundershock.Rendering;
 using Thundershock.Gui.Elements;
 
@@ -43,6 +44,7 @@ namespace RedTeam
 
         #region SCENE COMPONENTS
 
+        private Backdrop _backdrop; // easy wallpaper rendering :D
         private TutorialComponent _tutorial;
         private GuiSystem _guiSystem;
         private Shell _shell;
@@ -68,6 +70,9 @@ namespace RedTeam
             Camera.ViewportWidth = 1920;
             Camera.ViewportHeight = 1080;
             
+            // Background image
+            _backdrop = AddComponent<Backdrop>();
+            
             // Get references to frequently needed global thundershock modules.
             _risk = App.GetComponent<RiskSystem>();
             _redConfig = App.GetComponent<RedConfigManager>();
@@ -90,12 +95,14 @@ namespace RedTeam
             // Initially load the console theme and make sure it is
             // re-loaded when redconf changes.
             _console.ColorPalette = _redConfig.GetPalette();
+            _backdrop.Texture = _console.ColorPalette.BackgroundImage;
             _redConfig.ConfigUpdated += ApplyConfig;
         }
 
         private void ApplyConfig(object? sender, EventArgs e)
         {
             _console.ColorPalette = _redConfig.GetPalette();
+            _backdrop.Texture = _console.ColorPalette.BackgroundImage;
         }
 
         private void StartShell()
@@ -137,6 +144,7 @@ namespace RedTeam
 
             // redterm shell.
             _console = new ConsoleControl();
+            _console.DrawBackgroundImage = false; // this lets us draw the image ourselves.
             
             // Contracts panel.
             _contractPanel = _windowManager.CreatePane("CONTRACT");
