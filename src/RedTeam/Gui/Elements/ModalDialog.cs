@@ -24,7 +24,7 @@ namespace RedTeam.Gui.Elements
         private Picture _tiRight = new Picture();
         private Picture _toRight = new Picture();
         private TextBlock _titleText = new TextBlock();
-        private Panel _titlePanel = new Panel();
+        private Panel _titlePanel = new();
         private Picture _infoIcon = new Picture();
         private Stacker _contentMasterStacker = new Stacker();
         private Stacker _infoStacker = new Stacker();

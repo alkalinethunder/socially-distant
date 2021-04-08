@@ -14,6 +14,7 @@ using RedTeam.Net;
 using RedTeam.SaveData;
 using Thundershock;
 using Thundershock.Rendering;
+using Thundershock.Gui.Elements;
 
 namespace RedTeam
 {
@@ -28,9 +29,15 @@ namespace RedTeam
         #endregion
         
         #region GUI ELEMENTS
-        
+
+        private StatusPanel _mainStatus;
+        private Stacker _masterLayout;
+        private Stacker _sidebar = new();
+        private Stacker _slaveStacker = new();
         private ConsoleControl _console;
-        private Pane _consolesPane;
+        private Pane _contractPanel;
+        private TextBlock _contractObjName = new();
+        private TextBlock _contractDesc = new();
         
         #endregion
 
@@ -108,25 +115,73 @@ namespace RedTeam
         protected override void OnUpdate(GameTime gameTime)
         {
             _console.ColorPalette.PanicMode = _risk.IsBeingTraced;
-            
+
+            _mainStatus.FrameRate = $"{Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds)} fps";
+            if (_ctx != null)
+            {
+                _mainStatus.HostText = $"{_ctx.UserName}@{_ctx.HostName}";
+            }
+            else
+            {
+                _mainStatus.HostText = "root@localhost";
+            }
         }
 
         private void BuildGui()
         {
+            // Master layout.
+            _masterLayout = new Stacker();
+            
+            // Status panel.
+            _mainStatus = new StatusPanel(this);
+
             // redterm shell.
             _console = new ConsoleControl();
             
-            // Create the consoles pane.
-            // TODO: Multiple consoles.
-            _consolesPane = _windowManager.CreatePane("TERMINAL");
-            _consolesPane.Content.Add(_console);
-            _consolesPane.Padding = 15;
-            _console.Margin = 5;
+            // Contracts panel.
+            _contractPanel = _windowManager.CreatePane("CONTRACT");
             
-            // add the console pane to the GUI.
-            // TODO: actually not shitty layout.
-            _guiSystem.AddToViewport(_consolesPane);
-
+            // Add the status panel followed by window panels.
+            _masterLayout.Children.Add(_mainStatus);
+            _masterLayout.Children.Add(_slaveStacker);
+            
+            // slave stacker is horizontal
+            _slaveStacker.Direction = StackDirection.Horizontal;
+            
+            // sidebar has a minimum width.
+            _sidebar.FixedWidth = 300;
+            
+            // add the console and sidebar panels
+            _slaveStacker.Children.Add(_console);
+            _slaveStacker.Children.Add(_sidebar);
+            
+            // Sidebar elements.
+            _sidebar.Children.Add(_contractPanel);
+            
+            // fix the layout of the consoles window.
+            _console.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _slaveStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            // contracts info
+            _contractObjName.Text = "This is the CONTRACT PANE";
+            _contractDesc.Text =
+                "It's not yet implemented, but it will display information about the current Red Team Contract objective.";
+            _contractObjName.Color = Color.White;
+            _contractDesc.Color = Color.White;
+            _contractObjName.WrapMode = TextWrapMode.WordWrap;
+            _contractDesc.WrapMode = TextWrapMode.WordWrap;
+            
+            
+            var contractPanel = new Panel();
+            contractPanel.BackColor = Color.Black;
+            var contractStacker = new Stacker();
+            contractPanel.Children.Add(contractStacker);
+            contractStacker.Children.Add(_contractObjName);
+            contractStacker.Children.Add(_contractDesc);
+            _contractPanel.Content.Add(contractPanel);
+            
+            // Master layout gets added to the screen.
+            _guiSystem.AddToViewport(_masterLayout);
         }
 
         private void TheatricallyStartGame()
