@@ -21,7 +21,8 @@ namespace RedTeam.Config
         public RedTermColors colors = new RedTermColors();
         public RedTermCompletions completions = new RedTermCompletions();
         public RedTermCursor cursor = new RedTermCursor();
-
+        public WindowColors redwm = new WindowColors();
+        
         private Texture2D LoadImage(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -82,14 +83,11 @@ namespace RedTeam.Config
             palette.CompletionsText = html(completions.text);
             palette.CompletionsHighlight = html(completions.highlight);
             palette.CompletionsHighlightText = html(completions.textHighlight);
-            
+
+            palette.DefaultWindowColor = html(redwm.border);
+            palette.PanicWindowColor = html(redwm.panicBorder);
+
             return palette;
         }
-    }
-
-    public class RedTermBackground
-    {
-        public string image;
-        public float opacity = 1;
     }
 }

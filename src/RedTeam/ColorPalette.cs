@@ -9,6 +9,9 @@ namespace RedTeam
     {
         private Dictionary<ConsoleColor, Color> _map = new Dictionary<ConsoleColor, Color>();
 
+        public Color PanicWindowColor { get; set; }
+        public Color DefaultWindowColor { get; set; }
+        
         public Color CompletionsBackground { get; set; }
         public Color CursorColor { get; set; }
         public Color CursorForeground { get; set; }

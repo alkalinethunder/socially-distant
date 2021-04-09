@@ -19,6 +19,12 @@ namespace RedTeam.Gui.Elements
         private TextBlock _host = new();
         private TextBlock _fps = new();
 
+        public Color Color
+        {
+            get => _leftBG.Tint;
+            set => SetColors(value);
+        }
+        
         public string HostText
         {
             get => _host.Text;
@@ -74,6 +80,15 @@ namespace RedTeam.Gui.Elements
 
             _master.Direction = StackDirection.Horizontal;
             Children.Add(_master);
+        }
+
+        private void SetColors(Color color)
+        {
+            _leftBG.Tint = color;
+            _leftTransition.Tint = color;
+            _rightBG.Tint = color;
+            _rightTransition.Tint = color;
+            _bg.Tint = color;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Components;
 using Thundershock;
 using Thundershock.Gui;
@@ -26,6 +27,12 @@ namespace RedTeam.Gui.Elements
         private Picture _titleSide = new();
         private Picture _stripes = new();
         private Picture _tRight = new();
+
+        public Color Color
+        {
+            get => _left.Tint;
+            set => SetColors(value);
+        }
         
         public PaneLayout(WindowManager manager, string titleText, Panel content)
         {
@@ -98,6 +105,20 @@ namespace RedTeam.Gui.Elements
             _stripes.Tile = true;
             
             Children.Add(_master);
+        }
+
+        private void SetColors(Color color)
+        {
+            _left.Tint = color;
+            _right.Tint = color;
+            _titleSide.Tint = color;
+            _titlePicture.Tint = color;
+            _bottom.Tint = color;
+            _stripes.Tint = color;
+            _tLeft.Tint = color;
+            _tRight.Tint = color;
+            _bLeft.Tint = color;
+            _bRight.Tint = color;
         }
     }
 }

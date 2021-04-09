@@ -28,6 +28,8 @@ namespace RedTeam.Components
         private bool _glitching = false;
         private int _glitchLevel = 0;
         private VorbisPlayer _vorbisPlayer;
+
+        public event Action<double> PanicPulse;
         
         protected override void OnLoad()
         {
@@ -163,6 +165,8 @@ namespace RedTeam.Components
                     _tickTock.Play();
                     _pulse = 1;
                     SetWarningTimer();
+
+                    PanicPulse?.Invoke(_tickTock.Duration.TotalSeconds);
                 }
 
                 if (ts.TotalSeconds < _nextFuck)

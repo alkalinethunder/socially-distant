@@ -30,5 +30,9 @@
     "magenta": "#ff00ff",
     "yellow": "#ffff00",
     "white": "#ffffff"
+  },
+  "redwm": {
+    "panicBorder": "#f71b1b",
+    "border": "#00ffff"
   }
 }

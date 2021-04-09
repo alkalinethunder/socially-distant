@@ -63,6 +63,14 @@ namespace RedTeam
 
         #endregion
         
+        #region ANIMATION
+
+        private Color _sysColor;
+        private double _pulseLength;
+        private double _pulse;
+        
+        #endregion
+        
         protected override void OnLoad()
         {
             // Set up the camera.   
@@ -97,6 +105,15 @@ namespace RedTeam
             _console.ColorPalette = _redConfig.GetPalette();
             _backdrop.Texture = _console.ColorPalette.BackgroundImage;
             _redConfig.ConfigUpdated += ApplyConfig;
+            
+            // Pulse during panics.
+            _tracer.PanicPulse += PanicPulse;
+        }
+
+        private void PanicPulse(double time)
+        {
+            _pulseLength = time;
+            _pulse = _pulseLength;
         }
 
         private void ApplyConfig(object? sender, EventArgs e)
@@ -121,6 +138,22 @@ namespace RedTeam
         
         protected override void OnUpdate(GameTime gameTime)
         {
+            if (_pulseLength > 0)
+            {
+                var percent = MathHelper.Clamp((float) (_pulse / _pulseLength), 0, 1);
+                _sysColor = Color.Lerp(_console.ColorPalette.DefaultWindowColor,
+                    _console.ColorPalette.PanicWindowColor, percent);
+            }
+            else
+            {
+                _sysColor = _console.ColorPalette.DefaultWindowColor;
+            }
+
+            if (_pulse >= 0)
+            {
+                _pulse -= gameTime.ElapsedGameTime.TotalSeconds;
+            }
+            
             _console.ColorPalette.PanicMode = _risk.IsBeingTraced;
 
             _mainStatus.FrameRate = $"{Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds)} fps";
@@ -132,6 +165,9 @@ namespace RedTeam
             {
                 _mainStatus.HostText = "root@localhost";
             }
+
+            _mainStatus.Color = _sysColor;
+            _contractPanel.BorderColor = _sysColor;
         }
 
         private void BuildGui()
