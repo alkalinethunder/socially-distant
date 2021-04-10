@@ -4,5 +4,6 @@
     {
         public string RedTermPalette;
         public bool SkipIntro = false;
+        public bool BroadcasterMode = false;
     }
 }

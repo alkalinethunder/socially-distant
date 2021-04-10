@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using RedTeam.Config;
 using Thundershock.Components;
 using Thundershock.Input;
 using Thundershock;
@@ -11,6 +12,8 @@ namespace RedTeam
 {
     public class Intro : Scene
     {
+        private bool _hasInitialized = false;
+        private double _broadcasterDelay;
         private SoundEffect _welcomee;
         private SoundEffect _typingSound;
         private double _promptWait;
@@ -41,12 +44,29 @@ namespace RedTeam
         protected override void OnLoad()
         {
             Camera = new Camera2D();
+
+            if (App.GetComponent<RedConfigManager>().ActiveConfig.BroadcasterMode)
+                _broadcasterDelay = 7.5;
+            else
+                OnInit();
             
             _backdrop = AddComponent<Backdrop>();
+            
+            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
+
+            base.OnLoad();
+        }
+
+        private void OnInit()
+        {
+            if (_hasInitialized)
+                return;
+            
+            _hasInitialized = true;
+            
             _cursor = AddComponent<SolidRectangle>();
             _glitchPlayer = AddComponent<VorbisPlayer>();
 
-            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
             
             _welcomee = Game.Content.Load<SoundEffect>("Sounds/Intro/Welcome");
             _typingSound = Game.Content.Load<SoundEffect>("Sounds/Intro/Typing");
@@ -119,7 +139,7 @@ namespace RedTeam
             var input = App.GetComponent<InputManager>();
             input.KeyDown += HandleKeyDown;
             
-            base.OnLoad();
+
         }
 
         protected override void OnUnload()
@@ -181,6 +201,15 @@ namespace RedTeam
         
         protected override void OnUpdate(GameTime gameTime)
         {
+            if (_broadcasterDelay > 0)
+            {
+                _broadcasterDelay -= gameTime.ElapsedGameTime.TotalSeconds;
+                return;
+            }
+
+            if (!_hasInitialized)
+                OnInit();
+            
             if (_typeWait >= 0 && _cursorText == null)
                 _typeWait -= gameTime.ElapsedGameTime.TotalSeconds;
             
