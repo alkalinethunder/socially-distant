@@ -27,6 +27,9 @@ namespace RedTeam.ContentEditor
         private ConsoleControl _thundershockConsole = new();
 
         private StringList _dbSelector = new();
+
+        private CheckBox _checkTest = new();
+        private TextBlock _checkLabel = new();
         
         private Pane _dbs;
         private Pane _contentTypes;
@@ -90,6 +93,9 @@ namespace RedTeam.ContentEditor
             {
                 _dbSelector.AddItem($"Item {i + 1}");
             }
+
+            _editor.Content.Add(_checkTest);
+            _checkTest.Children.Add(_checkLabel);
             
             base.OnLoad();
         }
