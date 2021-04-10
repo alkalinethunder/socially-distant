@@ -25,6 +25,8 @@ namespace RedTeam.ContentEditor
         private Stacker _editorStacker = new();
 
         private ConsoleControl _thundershockConsole = new();
+
+        private StringList _dbSelector = new();
         
         private Pane _dbs;
         private Pane _contentTypes;
@@ -36,6 +38,10 @@ namespace RedTeam.ContentEditor
         protected override void OnLoad()
         {
             Camera = new Camera2D();
+
+            // Disable post-process effects.
+            Game.PostProcessSettings.EnableBloom = false;
+            Game.PostProcessSettings.EnableShadowMask = false;
 
             _gui = AddComponent<GuiSystem>();
             _wm = AddComponent<WindowManager>();
@@ -77,6 +83,13 @@ namespace RedTeam.ContentEditor
             
             // set up thundershock's console output
             SetupDebugLog();
+
+            _dbs.Content.Add(_dbSelector);
+
+            for (var i = 0; i < 10; i++)
+            {
+                _dbSelector.AddItem($"Item {i + 1}");
+            }
             
             base.OnLoad();
         }
