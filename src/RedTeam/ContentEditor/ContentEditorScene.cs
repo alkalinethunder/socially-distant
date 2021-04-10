@@ -8,6 +8,7 @@ using RedTeam.Gui.Elements;
 using Thundershock;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
+using Thundershock.Input;
 using Thundershock.Rendering;
 
 namespace RedTeam.ContentEditor
@@ -26,10 +27,9 @@ namespace RedTeam.ContentEditor
 
         private ConsoleControl _thundershockConsole = new();
 
-        private StringList _dbSelector = new();
-
-        private CheckBox _checkTest = new();
-        private TextBlock _checkLabel = new();
+        private Stacker _dbStacker = new();
+        private StringList _dbList = new();
+        private Button _newPackButton = new();
         
         private Pane _dbs;
         private Pane _contentTypes;
@@ -87,17 +87,25 @@ namespace RedTeam.ContentEditor
             // set up thundershock's console output
             SetupDebugLog();
 
-            _dbs.Content.Add(_dbSelector);
+            _dbs.Content.Add(_dbStacker);
 
-            for (var i = 0; i < 10; i++)
-            {
-                _dbSelector.AddItem($"Item {i + 1}");
-            }
+            _dbStacker.Children.Add(_newPackButton);
 
-            _editor.Content.Add(_checkTest);
-            _checkTest.Children.Add(_checkLabel);
+            var newText = new TextBlock();
+            newText.Text = "CREATE NEW";
+            _newPackButton.Children.Add(newText);
+
+            _dbStacker.Children.Add(_dbList);
+            _dbList.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            _newPackButton.MouseUp += HandleNewPackButton;
             
             base.OnLoad();
+        }
+
+        private void HandleNewPackButton(object? sender, MouseButtonEventArgs e)
+        {
+            _wm.ShowMessage("New Content Pack", "Please enter a name for your new RED TEAM Content Pack file.");
         }
 
         private void SetupDebugLog()

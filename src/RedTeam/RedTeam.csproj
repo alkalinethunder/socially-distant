@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
+    <PackageReference Include="LiteDB" Version="5.0.10" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>

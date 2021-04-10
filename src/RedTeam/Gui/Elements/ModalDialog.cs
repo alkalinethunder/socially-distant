@@ -44,6 +44,8 @@ namespace RedTeam.Gui.Elements
         private Texture2D _bottomImage;
         private Texture2D _cornerImage;
         private Stacker _buttonStacker = new();
+
+        private TextEntry _textEntry = new();
         
         public ModalDialog(WindowManager manager, string title, string message)
         {
@@ -75,10 +77,11 @@ namespace RedTeam.Gui.Elements
             _infoStacker.Direction = StackDirection.Horizontal;
 
             _contentMasterStacker.Children.Add(_infoStacker);
+            _contentMasterStacker.Children.Add(_textEntry);
             _contentMasterStacker.Children.Add(_buttonStacker);
             _infoStacker.Children.Add(_infoIcon);
             _infoStacker.Children.Add(_messageText);
-            
+
             _infoIcon.Image = _infoImage;
             
             _titleText.Text = title;
@@ -157,6 +160,9 @@ namespace RedTeam.Gui.Elements
             _masterPanel.MaximumWidth = 900;
 
             _messageText.WrapMode = TextWrapMode.WordWrap;
+
+            _textEntry.Font = _messageText.Font;
+            _textEntry.TextColor = Color.White;
         }
 
         public void AddButton(string text, Action action)
