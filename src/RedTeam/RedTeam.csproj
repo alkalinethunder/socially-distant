@@ -26,19 +26,12 @@
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
     <None Remove="Resources\NeoFetchTemplate.txt" />
-    <EmbeddedResource Include="Resources\NeoFetchTemplate.txt" />
     <None Remove="Resources\Cowsay.txt" />
-    <EmbeddedResource Include="Resources\Cowsay.txt" />
     <None Remove="Resources\Fortunes.txt" />
-    <EmbeddedResource Include="Resources\Fortunes.txt" />
     <None Remove="Resources\RedTermPalettes\default.json" />
-    <EmbeddedResource Include="Resources\RedTermPalettes\default.json" />
     <None Remove="Resources\RedTermPalettes\highContrast.json" />
-    <EmbeddedResource Include="Resources\RedTermPalettes\highContrast.json" />
     <None Remove="Resources\RedTermPalettes\light.json" />
-    <EmbeddedResource Include="Resources\RedTermPalettes\light.json" />
     <None Remove="Resources\RedTermPalettes\README.txt" />
-    <EmbeddedResource Include="Resources\RedTermPalettes\README.txt" />
     <None Remove="Resources\Audio\MichaelGlitch.ogg" />
     <EmbeddedResource Include="Resources\Audio\MichaelGlitch.ogg" />
     <None Remove="Resources\Audio\RedTeamGlitch.ogg" />
@@ -61,9 +54,11 @@
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
     <PackageReference Include="LiteDB" Version="5.0.10" />
+    <PackageReference Include="MimeTypeMap.Core" Version="1.0.0" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
     <ProjectReference Include="..\..\thundershock\src\Thundershock\Thundershock.csproj" />
   </ItemGroup>
 </Project>

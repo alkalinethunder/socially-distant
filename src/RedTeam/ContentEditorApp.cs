@@ -17,6 +17,9 @@ namespace RedTeam
         protected override void OnInit()
         {
             Window.Title = "Michael VanOverbeek's RED TEAM - Content Editor";
+
+            RegisterComponent<ContentManager>();
+            
             base.OnInit();
         }
 

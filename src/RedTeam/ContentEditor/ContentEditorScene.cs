@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Dynamic;
 using System.IO;
 using System.Text.Json;
@@ -17,7 +18,8 @@ namespace RedTeam.ContentEditor
     {
         private GuiSystem _gui;
         private WindowManager _wm;
-
+        private ContentManager _content;
+        
         #region GUI Elements
 
         private Stacker _master = new();
@@ -30,7 +32,7 @@ namespace RedTeam.ContentEditor
         private Stacker _dbStacker = new();
         private StringList _dbList = new();
         private Button _newPackButton = new();
-        
+        private TextEntryDialog _newDialog;
         private Pane _dbs;
         private Pane _contentTypes;
         private Pane _editor;
@@ -42,6 +44,8 @@ namespace RedTeam.ContentEditor
         {
             Camera = new Camera2D();
 
+            _content = App.GetComponent<ContentManager>();
+            
             // Disable post-process effects.
             Game.PostProcessSettings.EnableBloom = false;
             Game.PostProcessSettings.EnableShadowMask = false;
@@ -99,13 +103,42 @@ namespace RedTeam.ContentEditor
             _dbList.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             _newPackButton.MouseUp += HandleNewPackButton;
+
+            ListPacks();
             
             base.OnLoad();
         }
 
+        private void ListPacks()
+        {
+            _dbList.Clear();
+
+            foreach (var pack in _content.Packs)
+            {
+                _dbList.AddItem(pack.Id);
+            }
+        }
+        
         private void HandleNewPackButton(object? sender, MouseButtonEventArgs e)
         {
-            _wm.ShowMessage("New Content Pack", "Please enter a name for your new RED TEAM Content Pack file.");
+            if (_newDialog == null)
+            {
+                _newDialog = _wm.MakeTextPrompt("New Content Pack", "Please enter a name for your new RED TEAM Content Pack file.");
+                
+                _newDialog.TextEntered += CreateNewContentPack;
+                _newDialog.Cancelled += HandleNewDialogCancelled;
+            }
+        }
+
+        private void HandleNewDialogCancelled(object? sender, EventArgs e)
+        {
+            _newDialog = null;
+        }
+
+        private void CreateNewContentPack(string obj)
+        {
+            _content.CreatePack(obj);
+            ListPacks();
         }
 
         private void SetupDebugLog()

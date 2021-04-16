@@ -39,6 +39,7 @@ namespace RedTeam
         private Pane _contractPanel;
         private TextBlock _contractObjName = new();
         private TextBlock _contractDesc = new();
+        private Panel _windowArea = new();
         
         #endregion
 
@@ -70,6 +71,8 @@ namespace RedTeam
         private double _pulse;
         
         #endregion
+
+        public WindowManager WindowManager => _windowManager;
         
         protected override void OnLoad()
         {
@@ -187,7 +190,9 @@ namespace RedTeam
             
             // Add the status panel followed by window panels.
             _masterLayout.Children.Add(_mainStatus);
-            _masterLayout.Children.Add(_slaveStacker);
+            _masterLayout.Children.Add(_windowArea);
+
+            _windowArea.Children.Add(_slaveStacker);
             
             // slave stacker is horizontal
             _slaveStacker.Direction = StackDirection.Horizontal;
@@ -204,7 +209,7 @@ namespace RedTeam
             
             // fix the layout of the consoles window.
             _console.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _slaveStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _windowArea.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
             
             // contracts info
             _contractObjName.Text = "This is the CONTRACT PANE";
@@ -223,6 +228,8 @@ namespace RedTeam
             contractStacker.Children.Add(_contractObjName);
             contractStacker.Children.Add(_contractDesc);
             _contractPanel.Content.Add(contractPanel);
+
+            _windowManager.SetWindowLayerElement(_windowArea);
             
             // Master layout gets added to the screen.
             _guiSystem.AddToViewport(_masterLayout);
