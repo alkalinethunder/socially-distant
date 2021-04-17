@@ -4,7 +4,8 @@ using System.IO;
 using System.Runtime.Loader;
 using System.Text;
 using Microsoft.Xna.Framework;
-using RedTeam.SaveData;
+using RedTeam.Core;
+using RedTeam.Core.SaveData;
 using Thundershock;
 
 namespace RedTeam.Components

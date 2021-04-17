@@ -1,4 +1,5 @@
 ﻿using RedTeam.ContentEditor;
+using RedTeam.Core.ContentEditors;
 using Thundershock;
 using Thundershock.Gui;
 

@@ -1,8 +1,8 @@
 ﻿using DocoptNet;
-using RedTeam.Config;
-using RedTeam.Game;
-using RedTeam.IO;
-using RedTeam.SaveData;
+using RedTeam.Core.Config;
+using RedTeam.Core.Game;
+using RedTeam.Core.IO;
+using RedTeam.Core.SaveData;
 using Thundershock;
 
 namespace RedTeam

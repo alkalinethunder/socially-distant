@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using RedTeam.IO;
-using RedTeam.Net;
+using RedTeam.Core;
+using RedTeam.Core.Net;
 using Thundershock;
 using Thundershock.IO;
 

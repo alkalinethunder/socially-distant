@@ -1,5 +1,6 @@
-﻿using RedTeam.Net;
-using RedTeam.SaveData;
+﻿using RedTeam.Core;
+using RedTeam.Core.Net;
+using RedTeam.Core.SaveData;
 using Thundershock;
 using Thundershock.IO;
 

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using RedTeam.Config;
+using RedTeam.Core.Config;
 using Thundershock.Components;
 using Thundershock.Input;
 using Thundershock;
