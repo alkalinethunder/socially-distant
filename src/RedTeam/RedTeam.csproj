@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net5.0-windows</TargetFrameworks>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
     <Company>Michael VanOverbeek</Company>
@@ -53,12 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
-    <PackageReference Include="LiteDB" Version="5.0.10" />
     <PackageReference Include="MimeTypeMap.Core" Version="1.0.0" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
-    <ProjectReference Include="..\..\thundershock\src\Thundershock\Thundershock.csproj" />
   </ItemGroup>
 </Project>

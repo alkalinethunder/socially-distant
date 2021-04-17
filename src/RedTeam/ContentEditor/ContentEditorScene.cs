@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
+using Microsoft.Xna.Framework;
 using RedTeam.Components;
 using RedTeam.Config;
+using RedTeam.ContentEditors;
 using RedTeam.Gui.Elements;
 using Thundershock;
 using Thundershock.Gui;
@@ -19,9 +23,12 @@ namespace RedTeam.ContentEditor
         private GuiSystem _gui;
         private WindowManager _wm;
         private ContentManager _content;
+        private ContentPack _currentPack;
+        private List<Editor> _editors = new();
+        private Editor _currentEditor;
         
         #region GUI Elements
-
+        
         private Stacker _master = new();
         private Stacker _slave = new();
         private Stacker _inner = new();
@@ -33,6 +40,7 @@ namespace RedTeam.ContentEditor
         private StringList _dbList = new();
         private Button _newPackButton = new();
         private TextEntryDialog _newDialog;
+        private StringList _typeList = new();
         private Pane _dbs;
         private Pane _contentTypes;
         private Pane _editor;
@@ -106,7 +114,49 @@ namespace RedTeam.ContentEditor
 
             ListPacks();
             
+            _dbList.SelectedIndexChanged += DbListSelectedItemChanged;
+            
+            _contentTypes.Content.Add(_typeList);
+
+            LoadEditors();   
+            
+            _typeList.SelectedIndexChanged += TypeListOnSelectedIndexChanged;
+            
             base.OnLoad();
+        }
+
+        private void TypeListOnSelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_currentEditor != null)
+            {
+                _currentEditor.Unbind();
+                _currentEditor = null;
+            }
+
+            if (_typeList.SelectedIndex >= 0)
+            {
+                _currentEditor = _editors.First(x => x.Name == _typeList.SelectedItem);
+
+                _currentEditor.Bind(_editor, _currentPack);
+            }
+        }
+
+        private void LoadEditors()
+        {
+            foreach (var type in ThundershockPlatform.GetAllTypes<Editor>())
+            {
+                var editor = (Editor) Activator.CreateInstance(type, null);
+                
+                _editors.Add(editor);
+
+                _typeList.AddItem(editor.Name);
+            }
+        }
+        
+        private void DbListSelectedItemChanged(object? sender, EventArgs e)
+        {
+            if (_dbList.SelectedIndex >= 0)
+                SelectContentPack(_dbList.SelectedItem);
         }
 
         private void ListPacks()
@@ -139,6 +189,13 @@ namespace RedTeam.ContentEditor
         {
             _content.CreatePack(obj);
             ListPacks();
+            SelectContentPack(obj);
+        }
+
+        private void SelectContentPack(string packId)
+        {
+            _dbList.SelectedIndex = _dbList.IndexOf(packId);
+            _currentPack = _content.Packs.FirstOrDefault(x => x.Id == packId);
         }
 
         private void SetupDebugLog()
@@ -148,8 +205,8 @@ namespace RedTeam.ContentEditor
 
         private void LoadDefaultConsolePalette()
         {
-            var asm = this.GetType().Assembly;
-            var res = asm.GetManifestResourceStream("RedTeam.Resources.RedTermPalettes.default.json");
+            var asm = typeof(IRedTeamContext).Assembly;
+            var res = asm.GetManifestResourceStream("RedTeam.Core.Resources.RedTermPalettes.default.json");
             using var reader = new StreamReader(res);
 
             var json = reader.ReadToEnd();
@@ -160,6 +217,14 @@ namespace RedTeam.ContentEditor
             });
 
             _thundershockConsole.ColorPalette = obj.ToColorPalette();
+        }
+
+        protected override void OnUpdate(GameTime gameTime)
+        {
+            base.OnUpdate(gameTime);
+
+            _contentTypes.Visibility = _currentPack != null ? Visibility.Visible : Visibility.Hidden;
+            _editor.Visibility = _currentEditor != null ? Visibility.Visible : Visibility.Hidden;
         }
     }
 }
