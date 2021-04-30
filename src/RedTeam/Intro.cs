@@ -177,7 +177,7 @@ namespace RedTeam
         
         private void Done()
         {
-            App.LoadScene<RedTeamHackerScene>();
+            App.LoadScene<MainMenu>();
         }
 
         private void StartTyping(TextComponent text)
