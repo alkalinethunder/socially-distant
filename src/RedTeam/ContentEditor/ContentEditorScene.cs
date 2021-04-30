@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using RedTeam.Components;
@@ -148,11 +150,44 @@ namespace RedTeam.ContentEditor
         {
             foreach (var type in ThundershockPlatform.GetAllTypes<Editor>())
             {
-                var editor = (Editor) Activator.CreateInstance(type, null);
-                
-                _editors.Add(editor);
+                if (type.GetCustomAttributes(false).OfType<CustomEditorAttribute>().Any())
+                {
+                    var editor = (Editor) Activator.CreateInstance(type, null);
 
-                _typeList.AddItem(editor.Name);
+                    _editors.Add(editor);
+
+                    _typeList.AddItem(editor.Name);
+                }
+            }
+
+            foreach (var type in ThundershockPlatform.GetAllTypes<IContentData>())
+            {
+                var attr = type.GetCustomAttributes(false).OfType<EditableDataAttribute>().FirstOrDefault();
+
+                if (attr != null)
+                {
+                    var editorType = typeof(MultiDataEditor<>).MakeGenericType(new[] {type});
+
+                    var createMethod =
+                        Expression.Call(editorType, "Create", new[] {type}, Expression.Constant(attr.Name));
+
+                    var variable = Expression.Variable(typeof(Editor), "ins");
+
+                    var cast = Expression.Convert(createMethod, typeof(Editor));
+
+                    var assignment = Expression.Assign(variable, cast);
+
+                    var body = Expression.Block(typeof(Editor), new[] {variable}, assignment, variable);
+
+                    var lambda = Expression.Lambda<Func<Editor>>(body);
+
+                    var creator = lambda.Compile();
+
+                    var editor = creator();
+                    
+                    _editors.Add(editor);
+                    _typeList.AddItem(attr.Name);
+                }
             }
         }
         
