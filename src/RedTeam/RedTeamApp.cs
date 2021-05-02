@@ -1,5 +1,6 @@
 ﻿using DocoptNet;
 using RedTeam.Core.Config;
+using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Game;
 using RedTeam.Core.IO;
 using RedTeam.Core.SaveData;
@@ -26,6 +27,7 @@ namespace RedTeam
             RegisterComponent<RiskSystem>();
             RegisterComponent<SaveManager>();
             RegisterComponent<RedConfigManager>();
+            RegisterComponent<ContentManager>();
         }
 
         protected override void OnLoad()

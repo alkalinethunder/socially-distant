@@ -74,6 +74,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Intro/Small.spritefont
 
+#begin Fonts/MenuTitle.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MenuTitle.spritefont
+
 #begin Fonts/PanicTimer.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

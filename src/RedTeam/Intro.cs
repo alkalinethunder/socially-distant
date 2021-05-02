@@ -45,14 +45,15 @@ namespace RedTeam
         {
             Camera = new Camera2D();
 
+            _backdrop = AddComponent<Backdrop>();
+            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
+
             if (App.GetComponent<RedConfigManager>().ActiveConfig.BroadcasterMode)
                 _broadcasterDelay = 7.5;
             else
                 OnInit();
             
-            _backdrop = AddComponent<Backdrop>();
             
-            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
 
             base.OnLoad();
         }
