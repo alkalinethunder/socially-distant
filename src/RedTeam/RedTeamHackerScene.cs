@@ -240,18 +240,19 @@ namespace RedTeam
         private void TheatricallyStartGame()
         {
             _console.WriteLine(" * checking for redteam os container *");
-            if (_saveManager.IsSaveAvailable)
+            if (!_saveManager.IsLoaded)
             {
-                _saveManager.LoadGame();
-                StartShell();
+                _console.WriteLine(" * fuck *");
+                App.Logger.Log(
+                    "Whoa whoa whoa, you cannot just transition to the game UI without a save file loaded. Going back to main menu.");
+                App.LoadScene<MainMenu>();
             }
-            else
-            {
-                _saveManager.NewGame();
-                _console.WriteLine(" * container image not found *");
-                _tutorial.TutorialCompleted += StartShell;
-                _tutorial.Begin(_saveManager, _console);
-            }
+
+            _console.WriteLine(" * starting os... *");
+            
+            // tutorial init.
+            _tutorial.Begin(_saveManager, _console);
+            _tutorial.TutorialCompleted += StartShell;
         }
     }
 }

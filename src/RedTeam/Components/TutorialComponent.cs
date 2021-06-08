@@ -295,6 +295,7 @@ namespace RedTeam.Components
                         {
                             _console.WriteLine(" * connected *");
                             CreateContainer();
+                            _bootPhase++;
                         }
                         break;
                 }

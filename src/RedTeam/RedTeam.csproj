@@ -44,6 +44,10 @@
     <None Remove="Resources\glitchie.ogg" />
     <None Remove="Resources\Document1.ogg" />
     <EmbeddedResource Include="Resources\Document1.ogg" />
+    <None Remove="Resources\Career\Meta" />
+    <EmbeddedResource Include="Resources\Career\Meta" />
+    <None Remove="Resources\Career\GameData" />
+    <EmbeddedResource Include="Resources\Career\GameData" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

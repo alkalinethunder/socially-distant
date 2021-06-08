@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Core.Components;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
+using RedTeam.Core.SaveData;
 using Thundershock;
 using Thundershock.Components;
 using Thundershock.Gui;
@@ -53,7 +54,6 @@ namespace RedTeam
         private Stacker _packTextStacker = new();
         private TextBlock _packTitle = new();
         private TextBlock _packAuthor = new();
-
 
         protected override void OnLoad()
         {
@@ -123,6 +123,7 @@ namespace RedTeam
             base.OnLoad();
          
             _careerButton.MouseUp += CareerButtonOnMouseUp;
+            _careerButton.Enabled = _contentManager.HasCareerMode;
             _exitButton.MouseUp += ExitButtonOnMouseUp;
             _extensionsButton.MouseUp += ExtensionsButtonOnMouseUp;
 
@@ -173,6 +174,17 @@ namespace RedTeam
 
             _menuTitle.Padding = new Padding(0, 0, 0, 8);
             _packInfoStacker.Padding = new Padding(0, 0, 0, 8);
+            
+            _newButton.MouseUp += NewButtonOnMouseUp;
+        }
+
+        private void NewButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary && _pack != null) 
+            {
+                App.GetComponent<SaveManager>().NewGame(_pack);
+                App.LoadScene<RedTeamHackerScene>();
+            }
         }
 
         private void UpdateMenuScroller()
@@ -233,7 +245,7 @@ namespace RedTeam
         private void CareerButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             _state = MenuState.Play;
-            _pack = null;
+            _pack = _contentManager.CareerPack;
             UpdateMenuScroller();
         }
 
