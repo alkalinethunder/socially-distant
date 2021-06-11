@@ -43,7 +43,7 @@ namespace RedTeam.ContentEditor
 
         private Stacker _dbStacker = new();
         private StringList _dbList = new();
-        private Button _newPackButton = new();
+        private AdvancedButton _newPackAdvancedButton = new();
         private TextEntryDialog _newDialog;
         private StringList _typeList = new();
         private Pane _dbs;
@@ -106,16 +106,16 @@ namespace RedTeam.ContentEditor
 
             _dbs.Content.Add(_dbStacker);
 
-            _dbStacker.Children.Add(_newPackButton);
+            _dbStacker.Children.Add(_newPackAdvancedButton);
 
             var newText = new TextBlock();
             newText.Text = "CREATE NEW";
-            _newPackButton.Children.Add(newText);
+            _newPackAdvancedButton.Children.Add(newText);
 
             _dbStacker.Children.Add(_dbList);
             _dbList.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
-            _newPackButton.MouseUp += HandleNewPackButton;
+            _newPackAdvancedButton.MouseUp += HandleNewPackAdvancedButton;
 
             ListPacks();
             
@@ -207,7 +207,7 @@ namespace RedTeam.ContentEditor
             }
         }
         
-        private void HandleNewPackButton(object? sender, MouseButtonEventArgs e)
+        private void HandleNewPackAdvancedButton(object? sender, MouseButtonEventArgs e)
         {
             if (_newDialog == null)
             {

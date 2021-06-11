@@ -42,15 +42,15 @@ namespace RedTeam
         private Stacker _extensionsList = new();
         private Stacker _playStacker = new();
         private ScrollPanel _menuScroller = new();
-        private DetailedButton _careerButton = new();
-        private DetailedButton _loadButton = new();
-        private DetailedButton _newButton = new();
-        private DetailedButton _extensionsButton = new();
-        private DetailedButton _settingsButton = new();
-        private DetailedButton _continueButton = new();
-        private DetailedButton _contentManagerButton = new();
-        private DetailedButton _exitButton = new();
-        private DetailedButton _back = new();
+        private DetailedAdvancedButton _careerAdvancedButton = new();
+        private DetailedAdvancedButton _loadAdvancedButton = new();
+        private DetailedAdvancedButton _newAdvancedButton = new();
+        private DetailedAdvancedButton _extensionsAdvancedButton = new();
+        private DetailedAdvancedButton _settingsAdvancedButton = new();
+        private DetailedAdvancedButton _continueAdvancedButton = new();
+        private DetailedAdvancedButton _contentManagerAdvancedButton = new();
+        private DetailedAdvancedButton _exitAdvancedButton = new();
+        private DetailedAdvancedButton _back = new();
         private TextBlock _menuTitle = new();
         private Stacker _packInfoStacker = new();
         private Picture _packIcon = new();
@@ -97,40 +97,40 @@ namespace RedTeam
             _menuArea.MaximumHeight = 700;
             _menuArea.Margin = 45;
             
-            _menuStacker.Children.Add(_careerButton);
-            _menuStacker.Children.Add(_extensionsButton);
-            _menuStacker.Children.Add(_settingsButton);
-            _menuStacker.Children.Add(_contentManagerButton);
-            _menuStacker.Children.Add(_exitButton);
+            _menuStacker.Children.Add(_careerAdvancedButton);
+            _menuStacker.Children.Add(_extensionsAdvancedButton);
+            _menuStacker.Children.Add(_settingsAdvancedButton);
+            _menuStacker.Children.Add(_contentManagerAdvancedButton);
+            _menuStacker.Children.Add(_exitAdvancedButton);
             
-            _continueButton.Title = "CONTINUE";
-            _loadButton.Title = "LOG IN";
-            _newButton.Title = "NEW VM";
-            _careerButton.Title = "CAREER";
-            _extensionsButton.Title = "EXTENSIONS";
-            _contentManagerButton.Title = "CONTENT MANAGER";
-            _settingsButton.Title = "SYSTEM SETTINGS";
-            _exitButton.Title = "SHUT DOWN";
+            _continueAdvancedButton.Title = "CONTINUE";
+            _loadAdvancedButton.Title = "LOG IN";
+            _newAdvancedButton.Title = "NEW VM";
+            _careerAdvancedButton.Title = "CAREER";
+            _extensionsAdvancedButton.Title = "EXTENSIONS";
+            _contentManagerAdvancedButton.Title = "CONTENT MANAGER";
+            _settingsAdvancedButton.Title = "SYSTEM SETTINGS";
+            _exitAdvancedButton.Title = "SHUT DOWN";
 
-            _loadButton.Text = string.Empty;
-            _newButton.Text = string.Empty;
-            _continueButton.Text = "Last save name here";
-            _careerButton.Text = "Become a RED TEAM Agent.";
-            _extensionsButton.Text = "Launch an installed Content Pack.";
-            _contentManagerButton.Text = "View & manage currently available Content Packs and Mods.";
-            _settingsButton.Text = "";
-            _exitButton.Text = "";
+            _loadAdvancedButton.Text = string.Empty;
+            _newAdvancedButton.Text = string.Empty;
+            _continueAdvancedButton.Text = "Last save name here";
+            _careerAdvancedButton.Text = "Become a RED TEAM Agent.";
+            _extensionsAdvancedButton.Text = "Launch an installed Content Pack.";
+            _contentManagerAdvancedButton.Text = "View & manage currently available Content Packs and Mods.";
+            _settingsAdvancedButton.Text = "";
+            _exitAdvancedButton.Text = "";
 
             _menuStacker.MaximumWidth = _logo.Image.Width;
 
-            _continueButton.Enabled = false;
+            _continueAdvancedButton.Enabled = false;
             
             base.OnLoad();
          
-            _careerButton.MouseUp += CareerButtonOnMouseUp;
-            _careerButton.Enabled = _contentManager.HasCareerMode;
-            _exitButton.MouseUp += ExitButtonOnMouseUp;
-            _extensionsButton.MouseUp += ExtensionsButtonOnMouseUp;
+            _careerAdvancedButton.MouseUp += CareerAdvancedButtonOnMouseUp;
+            _careerAdvancedButton.Enabled = _contentManager.HasCareerMode;
+            _exitAdvancedButton.MouseUp += ExitAdvancedButtonOnMouseUp;
+            _extensionsAdvancedButton.MouseUp += ExtensionsAdvancedButtonOnMouseUp;
 
             _backdropOverlay.BackColor = Color.Black;
             _backdropOverlay.FixedWidth = _logo.Image.Width;
@@ -149,9 +149,9 @@ namespace RedTeam
             _menuTitle.Color = Color.Cyan;
             _menuTitle.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
 
-            _playStacker.Children.Add(_continueButton);
-            _playStacker.Children.Add(_newButton);
-            _playStacker.Children.Add(_loadButton);
+            _playStacker.Children.Add(_continueAdvancedButton);
+            _playStacker.Children.Add(_newAdvancedButton);
+            _playStacker.Children.Add(_loadAdvancedButton);
             
             UpdateMenuScroller();
 
@@ -180,12 +180,12 @@ namespace RedTeam
             _menuTitle.Padding = new Padding(0, 0, 0, 8);
             _packInfoStacker.Padding = new Padding(0, 0, 0, 8);
             
-            _newButton.MouseUp += NewButtonOnMouseUp;
+            _newAdvancedButton.MouseUp += NewAdvancedButtonOnMouseUp;
 
             _wm.AddToGuiRoot(_gui);
         }
 
-        private void NewButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void NewAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary && _pack != null) 
             {
@@ -242,21 +242,21 @@ namespace RedTeam
             UpdateMenuScroller();
         }
 
-        private void ExtensionsButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ExtensionsAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             ListExtensions();
             _state = MenuState.Extensions;
             UpdateMenuScroller();
         }
 
-        private void CareerButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void CareerAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             _state = MenuState.Play;
             _pack = _contentManager.CareerPack;
             UpdateMenuScroller();
         }
 
-        private void ExitButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ExitAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             App.Exit();
         }
@@ -271,7 +271,7 @@ namespace RedTeam
             {
                 foreach (var pack in packs)
                 {
-                    var btn = new DetailedButton();
+                    var btn = new DetailedAdvancedButton();
 
                     btn.Text = pack.Author;
                     btn.Title = pack.Name;
@@ -381,12 +381,15 @@ namespace RedTeam
             doNotShowAgain.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             var doneButton = new Button();
-            var doneText = new TextBlock();
-            doneText.Color = Color.White;
-            doneText.Text = "Close";
-            doneButton.Children.Add(doneText);
+            doneButton.Text = "Close";
             doneButton.MouseDown += (o, a) =>
             {
+                if (doNotShowAgain.IsChecked)
+                {
+                    _wm.ShowMessage("Settings Changed",
+                        "You've chosen to hide the What's New screen on startup. You can change this preference in System Settings.");
+                }
+                
                 pane.Parent.Children.Remove(pane);
             };
             buttonRow.Children.Add(doneButton);
