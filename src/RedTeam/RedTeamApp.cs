@@ -1,4 +1,5 @@
 ﻿using DocoptNet;
+using RedTeam.Connectivity;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Game;
@@ -14,6 +15,9 @@ namespace RedTeam
         {
             // Register the KmsgLogOutput now so that the user can see the thundershock log in /dev/kmsg.
             Logger.AddOutput(new KmsgLogOutput());
+            
+            // Announcement manager will pull community updates from aklnthndr.dev
+            RegisterComponent<AnnouncementManager>();
             
             base.OnPreInit();
         }

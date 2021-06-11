@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using RedTeam.Connectivity;
 using RedTeam.Core.Components;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
@@ -24,6 +26,7 @@ namespace RedTeam
             Play
         }
 
+        private AnnouncementManager _announcements;
         private Texture2D _mainIcon;
         private Panel _backdropOverlay = new();
         private ContentManager _contentManager;
@@ -54,13 +57,15 @@ namespace RedTeam
         private Stacker _packTextStacker = new();
         private TextBlock _packTitle = new();
         private TextBlock _packAuthor = new();
-
+        private bool _hasShownAnnouncement = false;
+        
         protected override void OnLoad()
         {
             Camera = new Camera2D();
 
-            _contentManager = App.GetComponent<ContentManager>();
+            _announcements = App.GetComponent<AnnouncementManager>();
             
+            _contentManager = App.GetComponent<ContentManager>();
             _backdrop = AddComponent<Backdrop>();
             _packBackdrop = AddComponent<Backdrop>();
             _gui = AddComponent<GuiSystem>();
@@ -176,6 +181,8 @@ namespace RedTeam
             _packInfoStacker.Padding = new Padding(0, 0, 0, 8);
             
             _newButton.MouseUp += NewButtonOnMouseUp;
+
+            _wm.AddToGuiRoot(_gui);
         }
 
         private void NewButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -294,6 +301,11 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
+            if (_announcements.IsReady && !_hasShownAnnouncement)
+            {
+                ShowAnnouncement(_announcements.Announcement);
+            }
+            
             switch (_state)
             {
                 case MenuState.MainMenu:
@@ -323,6 +335,33 @@ namespace RedTeam
                 _packBackdrop.Texture = null;
                 _backdropOverlay.Opacity = 0;
             }
+        }
+
+        private void ShowAnnouncement(Announcement announcement)
+        {
+            var pane = _wm.CreateFloatingPane("Announcement");
+
+            var panel = new Panel();
+            panel.BackColor = ThundershockPlatform.HtmlColor("#222222");
+            var stacker = new Stacker();
+            stacker.Padding = 15;
+            stacker.Margin = 15;
+            var title = new TextBlock();
+            title.Text = announcement.Title;
+            title.Color = Color.Cyan;
+            title.Font = _menuTitle.Font;
+            stacker.Children.Add(title);
+            var excerpt = new TextBlock();
+            excerpt.Color = Color.White;
+            excerpt.Text = announcement.Excerpt;
+            stacker.Children.Add(excerpt);
+            
+            panel.Children.Add(stacker);
+            pane.Content.Add(panel);
+            
+            pane.BorderColor = ThundershockPlatform.HtmlColor("#f71b1b");
+
+            _hasShownAnnouncement = true;
         }
     }
 }
