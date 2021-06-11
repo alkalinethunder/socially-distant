@@ -58,11 +58,15 @@ namespace RedTeam
         private TextBlock _packTitle = new();
         private TextBlock _packAuthor = new();
         private bool _hasShownAnnouncement = false;
+        private SaveManager _saveManager;
+        private SaveSlot[] _saves;
+        private bool _isAnyCorrupted;
         
         protected override void OnLoad()
         {
             Camera = new Camera2D();
 
+            _saveManager = App.GetComponent<SaveManager>();
             _announcements = App.GetComponent<AnnouncementManager>();
             
             _contentManager = App.GetComponent<ContentManager>();
@@ -230,6 +234,15 @@ namespace RedTeam
                         _menuTitle.Visibility = Visibility.Visible;
                         _menuTitle.Text = "Career";
                     }
+
+                    if (_isAnyCorrupted)
+                    {
+                        _wm.ShowMessage("Corruption Detected",
+                            "RED TEAM was unable to load some of the save games for " + _pack.Name +
+                            ". You may wish to investigate this in the Content Manager. In some cases, corrupt saves can be recovered.", OpenContentManager);
+                        
+                        _isAnyCorrupted = false;
+                    }
                     
                     break;
             }
@@ -253,6 +266,10 @@ namespace RedTeam
         {
             _state = MenuState.Play;
             _pack = _contentManager.CareerPack;
+
+            _saves = _saveManager.SaveDatabase.CareerSlots.ToArray();
+            _isAnyCorrupted = _saveManager.SaveDatabase.HasAnyCorruptData;
+            
             UpdateMenuScroller();
         }
 
@@ -405,6 +422,11 @@ namespace RedTeam
             pane.BorderColor = ThundershockPlatform.HtmlColor("#f71b1b");
 
             _hasShownAnnouncement = true;
+        }
+
+        private void OpenContentManager()
+        {
+            
         }
     }
 }

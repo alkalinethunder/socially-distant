@@ -28,10 +28,10 @@ namespace RedTeam
             Window.Title = "Michael VanOverbeek's RED TEAM";
             
             // register red team components
-            RegisterComponent<RiskSystem>();
-            RegisterComponent<SaveManager>();
-            RegisterComponent<RedConfigManager>();
             RegisterComponent<ContentManager>();
+            RegisterComponent<RedConfigManager>();
+            RegisterComponent<SaveManager>();
+            RegisterComponent<RiskSystem>();
         }
 
         protected override void OnLoad()
