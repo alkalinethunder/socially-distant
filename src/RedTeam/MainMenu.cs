@@ -355,6 +355,46 @@ namespace RedTeam
             excerpt.Color = Color.White;
             excerpt.Text = announcement.Excerpt;
             stacker.Children.Add(excerpt);
+
+            var doNotShowAgain = new CheckBox();
+            var doNotShowLabel = new TextBlock();
+            doNotShowLabel.Text = "Don't show what's new on startup";
+            doNotShowLabel.Color = Color.White;
+            doNotShowAgain.Children.Add(doNotShowLabel);
+
+            var readMoreLink = new TextBlock();
+            readMoreLink.Color = Color.Cyan;
+            readMoreLink.Text = "Read More";
+            readMoreLink.IsInteractable = true;
+            readMoreLink.MouseDown += (o, a) =>
+            {
+                if (a.Button == MouseButton.Primary)
+                {
+                    ThundershockPlatform.OpenFile(announcement.Link);
+                }
+            };
+            stacker.Children.Add(readMoreLink);
+            
+            var buttonRow = new Stacker();
+            buttonRow.Direction = StackDirection.Horizontal;
+            buttonRow.Children.Add(doNotShowAgain);
+            doNotShowAgain.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            var doneButton = new Button();
+            var doneText = new TextBlock();
+            doneText.Color = Color.White;
+            doneText.Text = "Close";
+            doneButton.Children.Add(doneText);
+            doneButton.MouseDown += (o, a) =>
+            {
+                pane.Parent.Children.Remove(pane);
+            };
+            buttonRow.Children.Add(doneButton);
+
+            doneButton.VerticalAlignment = VerticalAlignment.Center;
+            doNotShowAgain.VerticalAlignment = VerticalAlignment.Center;
+            
+            stacker.Children.Add(buttonRow);
             
             panel.Children.Add(stacker);
             pane.Content.Add(panel);
