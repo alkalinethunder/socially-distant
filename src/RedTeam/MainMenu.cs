@@ -202,12 +202,22 @@ namespace RedTeam
             _content.MouseUp += ContentOnMouseUp;
             _settings.MouseUp += SettingsOnMouseUp;
             _back.MouseUp += BackOnMouseUp;
+            _continue.MouseUp += ContinueOnMouseUp;
             
             // Update the UI state.
             UpdateMenuScroller();
 
             // Done
             base.OnLoad();
+        }
+
+        private void ContinueOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                _saveManager.LoadGame(_saves.First());
+                App.LoadScene<RedTeamHackerScene>();
+            }
         }
 
         private void SettingsOnMouseUp(object? sender, MouseButtonEventArgs e)

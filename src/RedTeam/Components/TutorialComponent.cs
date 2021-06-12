@@ -159,6 +159,8 @@ namespace RedTeam.Components
             
             _saveManager.SetPlayerInfo(id, dev);
 
+            _saveManager.Save();
+            
             TutorialCompleted?.Invoke();
         }
 

@@ -197,12 +197,25 @@ namespace RedTeam
                 i++;
             }
             
+            // Console Font Scale
+            _consoleFontSize.AddItem("Normal");
+            _consoleFontSize.AddItem("Medium");
+            _consoleFontSize.AddItem("Large");
+            _consoleFontSize.SelectedIndex = _redConfig.ActiveConfig.ConsoleFontSize;
+            
             // Bind resolution change event.
             _resolution.SelectedIndexChanged += ResolutionOnSelectedIndexChanged;
             _windowMode.CheckStateChanged += WindowModeOnCheckStateChanged;
             _bloom.CheckStateChanged += BloomOnCheckStateChanged;
             _shadowmask.CheckStateChanged += ShadowmaskOnCheckStateChanged;
             _vsync.CheckStateChanged += VsyncOnCheckStateChanged;
+            _consoleFontSize.SelectedIndexChanged += ConsoleFontSizeOnSelectedIndexChanged;
+        }
+
+        private void ConsoleFontSizeOnSelectedIndexChanged(Object sender, EventArgs e)
+        {
+            _redConfig.ActiveConfig.ConsoleFontSize = _consoleFontSize.SelectedIndex;
+            _redConfig.ApplyChanges();
         }
 
         private void VsyncOnCheckStateChanged(object? sender, EventArgs e)

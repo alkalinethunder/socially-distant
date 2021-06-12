@@ -104,6 +104,9 @@ namespace RedTeam
             // Build the GUI layout.
             BuildGui();
             
+            // reload console fonts
+            this.ReloadFonts();
+            
             // Theatrically load the game's save file.
             TheatricallyStartGame();
             
@@ -128,6 +131,11 @@ namespace RedTeam
             _console.ColorPalette = _redConfig.GetPalette();
             _backdrop.Texture = _console.ColorPalette.BackgroundImage;
 
+            this.ReloadFonts();
+        }
+
+        private void ReloadFonts()
+        {
             var consoleSize = _redConfig.ActiveConfig.ConsoleFontSize switch
             {
                 1 => "Medium",
