@@ -4,6 +4,7 @@ using Thundershock.Gui;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.Xna.Framework.Graphics;
 using Thundershock.IO;
 using RedTeam.Components;
 using RedTeam.Core;
@@ -126,6 +127,23 @@ namespace RedTeam
         {
             _console.ColorPalette = _redConfig.GetPalette();
             _backdrop.Texture = _console.ColorPalette.BackgroundImage;
+
+            var consoleSize = _redConfig.ActiveConfig.ConsoleFontSize switch
+            {
+                1 => "Medium",
+                2 => "Large",
+                _ => "Normal"
+            };
+
+            var r = App.Content.Load<SpriteFont>("Fonts/Terminal/" + consoleSize + "/Regular");
+            var b = App.Content.Load<SpriteFont>("Fonts/Terminal/" + consoleSize + "/Bold");
+            var bi = App.Content.Load<SpriteFont>("Fonts/Terminal/" + consoleSize + "/BoldItalic");
+            var i = App.Content.Load<SpriteFont>("Fonts/Terminal/" + consoleSize + "/Italic");
+
+            _console.Font = r;
+            _console.BoldFont = b;
+            _console.BoldItalicFont = bi;
+            _console.ItalicFont = i;
         }
 
         private void StartShell()
