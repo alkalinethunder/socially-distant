@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Pango;
 using RedTeam.Connectivity;
 using RedTeam.Core.Components;
 using RedTeam.Core.ContentEditors;
@@ -14,6 +16,7 @@ using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Input;
 using Thundershock.Rendering;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace RedTeam
 {
@@ -26,167 +29,201 @@ namespace RedTeam
             Play
         }
 
+        #region Global Components
+        
         private AnnouncementManager _announcements;
-        private Texture2D _mainIcon;
-        private Panel _backdropOverlay = new();
         private ContentManager _contentManager;
-        private InstalledContentPack _pack;
+        private SaveManager _saveManager;
+
+        #endregion
+        
+        #region Textures
+
+        private Texture2D _mainIcon;
+        
+        #endregion
+
+        #region Scene Components
+
+        private SettingsComponent _settingsComponent;
         private Backdrop _backdrop;
-        private Backdrop _packBackdrop;
         private GuiSystem _gui;
         private WindowManager _wm;
-        private MenuState _state;
+        private Backdrop _packBackdrop;
+        
+        #endregion
+        
+        #region UI
+
+        private Stacker _careerErrorStacker = new();
+        private TextBlock _careerErrorTitle = new();
+        private TextBlock _careerErrorMessage = new();
+        private Panel _backdropOverlay = new();
         private Stacker _menuArea = new();
         private Stacker _menuStacker = new();
         private Picture _logo = new();
         private Stacker _extensionsList = new();
         private Stacker _playStacker = new();
         private ScrollPanel _menuScroller = new();
-        private DetailedAdvancedButton _careerAdvancedButton = new();
-        private DetailedAdvancedButton _loadAdvancedButton = new();
-        private DetailedAdvancedButton _newAdvancedButton = new();
-        private DetailedAdvancedButton _extensionsAdvancedButton = new();
-        private DetailedAdvancedButton _settingsAdvancedButton = new();
-        private DetailedAdvancedButton _continueAdvancedButton = new();
-        private DetailedAdvancedButton _contentManagerAdvancedButton = new();
-        private DetailedAdvancedButton _exitAdvancedButton = new();
-        private DetailedAdvancedButton _back = new();
+        private IconButton _load = new();
+        private IconButton _new = new();
+        private Button _extensions = new();
+        private Button _settings = new();
+        private IconButton _continue = new();
+        private Button _content = new();
+        private Button _exit = new();
+        private Button _back = new();
         private TextBlock _menuTitle = new();
         private Stacker _packInfoStacker = new();
         private Picture _packIcon = new();
         private Stacker _packTextStacker = new();
         private TextBlock _packTitle = new();
         private TextBlock _packAuthor = new();
+        private Stacker _mainMenuStacker = new();
+        
+        #endregion
+        
+        #region State
+
+        private InstalledContentPack _pack;
+        private MenuState _state;
         private bool _hasShownAnnouncement = false;
-        private SaveManager _saveManager;
         private SaveSlot[] _saves;
         private bool _isAnyCorrupted;
+
+        #endregion
         
         protected override void OnLoad()
         {
+            // Camera setup.
             Camera = new Camera2D();
 
+            // Retrieve app component references.
             _saveManager = App.GetComponent<SaveManager>();
             _announcements = App.GetComponent<AnnouncementManager>();
-            
             _contentManager = App.GetComponent<ContentManager>();
+
+            // Add scene components.
             _backdrop = AddComponent<Backdrop>();
             _packBackdrop = AddComponent<Backdrop>();
             _gui = AddComponent<GuiSystem>();
             _wm = AddComponent<WindowManager>();
 
+            // Set the backdrop wallpaper.
             _backdrop.Texture = App.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
             
-            _gui.AddToViewport(_backdropOverlay);
+            // Add root UI elements.
             _gui.AddToViewport(_logo);
-            _gui.AddToViewport(_menuArea);
-            _gui.AddToViewport(_back);
+            _gui.AddToViewport(_backdropOverlay);
 
-            _menuArea.Children.Add(_menuTitle);
-            _menuArea.Children.Add(_packInfoStacker);
-            _menuArea.Children.Add(_menuScroller);
+            // Add the window manager layer.
+            _wm.AddToGuiRoot(_gui);
             
+            // Set up the layout of the game's logo.
+            // It sits near the top of the screen in the middle.
             _logo.Image = App.Content.Load<Texture2D>("Textures/RedTeamLogo/redteam_banner_128x");
             _logo.Properties.SetValue(FreePanel.AutoSizeProperty, true);
-            _logo.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.TopLeft);
-            _logo.Margin = 45;
-
-            _logo.MaximumWidth = _logo.Image.Width;
-            _mainIcon = _logo.Image;
+            _logo.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.TopSide);
+            _logo.HorizontalAlignment = HorizontalAlignment.Center;
+            _logo.Margin = 60;
             
-            _menuArea.Properties.SetValue(FreePanel.AutoSizeProperty, true);
-            _menuArea.Properties.SetValue(FreePanel.AlignmentProperty, new Vector2(0, 0.5f));
-            _menuArea.Properties.SetValue(FreePanel.AnchorProperty, new FreePanel.CanvasAnchor(0, 0.5f, 0, 0));
-            _menuArea.VerticalAlignment = VerticalAlignment.Center;
-            _menuArea.MaximumHeight = 700;
-            _menuArea.Margin = 45;
+            // Set up the menu area. It goes exactly in the center of the screen.
+            _backdropOverlay.Properties.SetValue(FreePanel.AutoSizeProperty, true);
+            _backdropOverlay.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.Center);
+            _backdropOverlay.Properties.SetValue(FreePanel.AlignmentProperty, new Vector2(0.5f, 0.5f));
+            _menuArea.Padding = 15;
             
-            _menuStacker.Children.Add(_careerAdvancedButton);
-            _menuStacker.Children.Add(_extensionsAdvancedButton);
-            _menuStacker.Children.Add(_settingsAdvancedButton);
-            _menuStacker.Children.Add(_contentManagerAdvancedButton);
-            _menuStacker.Children.Add(_exitAdvancedButton);
+            // The menu area goes in the backdrop overlay.
+            _backdropOverlay.Children.Add(_menuArea);
             
-            _continueAdvancedButton.Title = "CONTINUE";
-            _loadAdvancedButton.Title = "LOG IN";
-            _newAdvancedButton.Title = "NEW VM";
-            _careerAdvancedButton.Title = "CAREER";
-            _extensionsAdvancedButton.Title = "EXTENSIONS";
-            _contentManagerAdvancedButton.Title = "CONTENT MANAGER";
-            _settingsAdvancedButton.Title = "SYSTEM SETTINGS";
-            _exitAdvancedButton.Title = "SHUT DOWN";
-
-            _loadAdvancedButton.Text = string.Empty;
-            _newAdvancedButton.Text = string.Empty;
-            _continueAdvancedButton.Text = "Last save name here";
-            _careerAdvancedButton.Text = "Become a RED TEAM Agent.";
-            _extensionsAdvancedButton.Text = "Launch an installed Content Pack.";
-            _contentManagerAdvancedButton.Text = "View & manage currently available Content Packs and Mods.";
-            _settingsAdvancedButton.Text = "";
-            _exitAdvancedButton.Text = "";
-
-            _menuStacker.MaximumWidth = _logo.Image.Width;
-
-            _continueAdvancedButton.Enabled = false;
-            
-            base.OnLoad();
-         
-            _careerAdvancedButton.MouseUp += CareerAdvancedButtonOnMouseUp;
-            _careerAdvancedButton.Enabled = _contentManager.HasCareerMode;
-            _exitAdvancedButton.MouseUp += ExitAdvancedButtonOnMouseUp;
-            _extensionsAdvancedButton.MouseUp += ExtensionsAdvancedButtonOnMouseUp;
-
-            _backdropOverlay.BackColor = Color.Black;
-            _backdropOverlay.FixedWidth = _logo.Image.Width;
-            _backdropOverlay.Margin = 45;
-            _backdropOverlay.HorizontalAlignment = HorizontalAlignment.Left;
-
-            _back.Title = "Back";
-            _back.Margin = 45;
-            _back.VerticalAlignment = VerticalAlignment.Bottom;
-            _back.HorizontalAlignment = HorizontalAlignment.Left;
-            _back.Text = string.Empty;
-            _back.MouseUp += BackOnMouseUp;
-
-            _menuScroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-
+            // Set up the menu title.
+            _menuTitle.TextAlign = TextAlign.Center;
             _menuTitle.Color = Color.Cyan;
             _menuTitle.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
-
-            _playStacker.Children.Add(_continueAdvancedButton);
-            _playStacker.Children.Add(_newAdvancedButton);
-            _playStacker.Children.Add(_loadAdvancedButton);
+            _menuArea.Children.Add(_menuTitle);
             
+            // Set up the pack info area.
+            _menuArea.Children.Add(_packInfoStacker);
+            
+            // The menu scroller is simple.
+            _menuArea.Children.Add(_menuScroller);
+            
+            // Set up the back button.
+            _back.Text = "Back";
+            _back.HorizontalAlignment = HorizontalAlignment.Center;
+            _menuArea.Children.Add(_back);
+            
+            // Set up the career error message.
+            // This only shows in modder's mode, where there is no career.
+            _careerErrorMessage.Text =
+                "This version of RED TEAM does not have a Career mode. Career mode is only available in official releases of the game." +
+                Environment.NewLine + Environment.NewLine +
+                "You are free to play Custom Stories or make your own in this build.";
+            _careerErrorTitle.Text = "* no career mode *";
+            _careerErrorTitle.Color = Color.Red;
+            _careerErrorMessage.Color = Color.White;
+            _careerErrorTitle.TextAlign = TextAlign.Center;
+            _careerErrorMessage.TextAlign = TextAlign.Center;
+            _careerErrorStacker.Children.Add(_careerErrorTitle);
+            _careerErrorStacker.Children.Add(_careerErrorMessage);
+            _careerErrorTitle.Font = App.Content.Load<SpriteFont>("Fonts/ButtonDescription");
+            _careerErrorMessage.Font = App.Content.Load<SpriteFont>("Fonts/Console/Regular");
+            
+            // Set up the Play menu.
+            _playStacker.Children.Add(_continue);
+            _playStacker.Children.Add(_new);
+            _playStacker.Children.Add(_load);
+            _playStacker.Direction = StackDirection.Horizontal;
+            _playStacker.HorizontalAlignment = HorizontalAlignment.Center;
+            
+            // Set up the new, load and continue buttons.
+            _new.Text = "New OS";
+            _continue.Text = "Boot Last OS";
+            _load.Text = "Other OS";
+
+            // Set up the secondary menu. This is where you find extensions, settings, etc.
+            _menuStacker.Children.Add(_extensions);
+            _menuStacker.Children.Add(_content);
+            _menuStacker.Children.Add(_settings);
+            _menuStacker.Children.Add(_exit);
+            _menuStacker.HorizontalAlignment = HorizontalAlignment.Center;
+            _menuStacker.Direction = StackDirection.Horizontal;
+            
+            // Set up the secondary menu buttons.
+            _exit.Text = "Shut Down";
+            _settings.Text = "Options";
+            _content.Text = "Content Manager";
+            _extensions.Text = "More Stories";
+            
+            // Bind events.
+            _new.MouseUp += NewAdvancedButtonOnMouseUp;
+            _extensions.MouseUp += ExtensionsAdvancedButtonOnMouseUp;
+            _exit.MouseUp += ExitAdvancedButtonOnMouseUp;
+            _content.MouseUp += ContentOnMouseUp;
+            _settings.MouseUp += SettingsOnMouseUp;
+            _back.MouseUp += BackOnMouseUp;
+            
+            // Update the UI state.
             UpdateMenuScroller();
 
-            _packInfoStacker.Direction = StackDirection.Horizontal;
+            // Done
+            base.OnLoad();
+        }
 
-            _packInfoStacker.Children.Add(_packIcon);
-            _packInfoStacker.Children.Add(_packTextStacker);
-            _packTextStacker.Children.Add(_packTitle);
-            _packTextStacker.Children.Add(_packAuthor);
+        private void SettingsOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                OpenSettings();
+            }
+        }
 
-            _packTitle.Font = _menuTitle.Font;
-            _packTitle.Color = Color.Cyan;
-            _packTitle.WrapMode = TextWrapMode.WordWrap;
-            _packAuthor.Color = ThundershockPlatform.HtmlColor("#999999");
-            _packAuthor.WrapMode = TextWrapMode.WordWrap;
-            _packAuthor.Font = App.Content.Load<SpriteFont>("Fonts/ButtonDescription");
-
-            _packIcon.Padding = 2;
-            _packTextStacker.Padding = 2;
-            _packInfoStacker.Margin = 3;
-            _packIcon.FixedWidth = 64;
-            _packIcon.FixedHeight = 64;
-            _packIcon.VerticalAlignment = VerticalAlignment.Center;
-            _packTextStacker.VerticalAlignment = VerticalAlignment.Center;
-
-            _menuTitle.Padding = new Padding(0, 0, 0, 8);
-            _packInfoStacker.Padding = new Padding(0, 0, 0, 8);
-            
-            _newAdvancedButton.MouseUp += NewAdvancedButtonOnMouseUp;
-
-            _wm.AddToGuiRoot(_gui);
+        private void ContentOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                OpenContentManager();
+            }
         }
 
         private void NewAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -198,15 +235,46 @@ namespace RedTeam
             }
         }
 
+        private void SetupCareerSaves()
+        {
+            _pack = _contentManager.CareerPack;
+            _isAnyCorrupted = _saveManager.SaveDatabase.HasAnyCorruptData;
+            _saves = _saveManager.SaveDatabase.CareerSlots.ToArray();
+
+            UpdatePlayMenu();
+        }
+
+        private void UpdatePlayMenu()
+        {
+            _continue.Visibility = _saves.Any() ? Visibility.Visible : Visibility.Collapsed;
+            _load.Visibility = _saves.Length > 1 ? Visibility.Visible : Visibility.Collapsed;
+
+        }
+        
         private void UpdateMenuScroller()
         {
             _menuScroller.Children.Clear();
-
+            _isAnyCorrupted = false;
+            _saves = null;
+            _mainMenuStacker.Children.Clear();
+            
             switch (_state)
             {
                 case MenuState.MainMenu:
                     _menuTitle.Text = "Main menu";
-                    _menuScroller.Children.Add(_menuStacker);
+                    _menuScroller.Children.Add(_mainMenuStacker);
+                    
+                    if (_contentManager.HasCareerMode)
+                    {
+                        SetupCareerSaves();
+                        _mainMenuStacker.Children.Add(_playStacker);
+                    }
+                    else
+                    {
+                        _mainMenuStacker.Children.Add(_careerErrorStacker);
+                    }
+
+                    _mainMenuStacker.Children.Add(_menuStacker);
                     _menuTitle.Visibility = Visibility.Visible;
                     _packInfoStacker.Visibility = Visibility.Collapsed;
                     break;
@@ -261,18 +329,7 @@ namespace RedTeam
             _state = MenuState.Extensions;
             UpdateMenuScroller();
         }
-
-        private void CareerAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
-        {
-            _state = MenuState.Play;
-            _pack = _contentManager.CareerPack;
-
-            _saves = _saveManager.SaveDatabase.CareerSlots.ToArray();
-            _isAnyCorrupted = _saveManager.SaveDatabase.HasAnyCorruptData;
-            
-            UpdateMenuScroller();
-        }
-
+        
         private void ExitAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             App.Exit();
@@ -345,12 +402,12 @@ namespace RedTeam
             if (_pack != null)
             {
                 _packBackdrop.Texture = _pack.Backdrop;
-                _backdropOverlay.Opacity = 0.75f;
+                _backdropOverlay.BackColor = Color.Black * 0.75f;
             }
             else
             {
                 _packBackdrop.Texture = null;
-                _backdropOverlay.Opacity = 0;
+                _backdropOverlay.BackColor = Color.Transparent;
             }
         }
 
@@ -427,6 +484,12 @@ namespace RedTeam
         private void OpenContentManager()
         {
             
+        }
+
+        private void OpenSettings()
+        {
+            if (_settingsComponent == null)
+                _settingsComponent = AddComponent<SettingsComponent>();
         }
     }
 }

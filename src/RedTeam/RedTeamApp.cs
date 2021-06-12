@@ -43,7 +43,7 @@ namespace RedTeam
             if (GetComponent<RedConfigManager>().ActiveConfig.SkipIntro)
             {
                 // Skip straight to the console scene.
-                LoadScene<RedTeamHackerScene>();
+                LoadScene<MainMenu>();
             }
             else
             {
