@@ -18,6 +18,7 @@ using Thundershock;
 using Thundershock.Components;
 using Thundershock.Rendering;
 using Thundershock.Gui.Elements;
+using Thundershock.Gui.Elements.Console;
 
 namespace RedTeam
 {

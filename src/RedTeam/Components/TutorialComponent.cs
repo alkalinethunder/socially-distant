@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using RedTeam.Core;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Gui.Elements.Console;
 
 namespace RedTeam.Components
 {

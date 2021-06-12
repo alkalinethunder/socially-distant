@@ -18,6 +18,7 @@ using RedTeam.Gui.Elements;
 using Thundershock;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
+using Thundershock.Gui.Elements.Console;
 using Thundershock.Input;
 using Thundershock.Rendering;
 
