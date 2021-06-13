@@ -52,6 +52,8 @@
     <EmbeddedResource Include="Resources\Career\GameData" />
     <EmbeddedResource Remove="Content\bin\**" />
     <EmbeddedResource Remove="Content\obj\**" />
+    <None Remove="Resources\kmsg.log" />
+    <EmbeddedResource Include="Resources\kmsg.log" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Remove="Content\bin\**" />
@@ -66,10 +68,10 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Content\bin\**" />
     <Compile Remove="Content\obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
   </ItemGroup>
 </Project>

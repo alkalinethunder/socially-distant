@@ -15,7 +15,7 @@ namespace RedTeam.Gui.Elements
         private Picture _leftTransition = new();
         private Picture _rightTransition = new();
         private Picture _bg = new();
-        private RedTeamHackerScene _desktop;
+        private BootScreen _desktop;
         private TextBlock _host = new();
         private TextBlock _fps = new();
 
@@ -37,7 +37,7 @@ namespace RedTeam.Gui.Elements
             set => _fps.Text = value;
         }
         
-        public StatusPanel(RedTeamHackerScene desktop)
+        public StatusPanel(BootScreen desktop)
         {
             _desktop = desktop;
 

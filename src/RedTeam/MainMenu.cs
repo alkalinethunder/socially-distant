@@ -216,7 +216,7 @@ namespace RedTeam
             if (e.Button == MouseButton.Primary)
             {
                 _saveManager.LoadGame(_saves.First());
-                App.LoadScene<RedTeamHackerScene>();
+                App.LoadScene<BootScreen>();
             }
         }
 
@@ -241,7 +241,7 @@ namespace RedTeam
             if (e.Button == MouseButton.Primary && _pack != null) 
             {
                 App.GetComponent<SaveManager>().NewGame(_pack);
-                App.LoadScene<RedTeamHackerScene>();
+                App.LoadScene<BootScreen>();
             }
         }
 
