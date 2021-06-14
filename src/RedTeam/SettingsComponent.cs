@@ -67,6 +67,9 @@ namespace RedTeam
 
             _settingsPane = _wm.CreateFloatingPane("System Settings");
 
+            _settingsPane.FixedWidth = 720;
+            _settingsPane.FixedHeight = 500;
+            
             _bg.BackColor = ThundershockPlatform.HtmlColor("#222222");
 
             // General layout tree.
