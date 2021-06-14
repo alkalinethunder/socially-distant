@@ -56,7 +56,13 @@ namespace RedTeam
 
         // About UI
         private Stacker _aboutStacker = new();
-        
+        private Picture _redteamLogo = new();
+        private TextBlock _redteamDescription = new();
+        private Button _openLocalData = new();
+        private Button _openWebsite = new();
+        private Button _github = new();
+        private CheckBox _enableWhatsNew = new();
+        private TextBlock _whatsNewLabel = new();
         
         protected override void OnLoad()
         {
@@ -112,6 +118,9 @@ namespace RedTeam
             
             // Build the Graphics UI.
             BuildGraphicsUI();
+            
+            // Build the about screen.
+            BuildAboutScreen();
             
             _close.MouseUp += CloseOnMouseUp;
             
@@ -231,6 +240,82 @@ namespace RedTeam
             _consoleFontSize.SelectedIndexChanged += ConsoleFontSizeOnSelectedIndexChanged;
         }
 
+        private void BuildAboutScreen()
+        {
+            // Images.
+            _redteamLogo.Image = App.Content.Load<Texture2D>("Textures/RedTeamLogo/redteam_banner_128x");
+            
+            // Text
+            _redteamDescription.Text =
+                "Red Team is a semi-realistic hacking game. Developed by Michael VanOverbeek. Powered by the Thundershock Engine. Logo design courtesy of Logan Lowe."
+                + Environment.NewLine
+                + Environment.NewLine
+                + "This game uses open-source software. For more information, see Credits.";
+            _openLocalData.Text = "Open User Data Folder";
+            _openWebsite.Text = "Open Website";
+            _github.Text = "Source Code";
+            _whatsNewLabel.Text = "Show the What's New screen on startup";
+            
+            // Alignments.
+            _redteamLogo.HorizontalAlignment = HorizontalAlignment.Center;
+            _openLocalData.HorizontalAlignment = HorizontalAlignment.Center;
+            _openWebsite.HorizontalAlignment = HorizontalAlignment.Center;
+            _github.HorizontalAlignment = HorizontalAlignment.Center;
+            _enableWhatsNew.HorizontalAlignment = HorizontalAlignment.Center;
+            
+            // Text alignment
+            _redteamDescription.TextAlign = TextAlign.Center;
+            
+            // Padding
+            _redteamLogo.Padding = 5;
+            _redteamDescription.Padding = new Padding(5, 0, 5, 10);
+            _openLocalData.Padding = 2;
+            _openWebsite.Padding = 2;
+            _github.Padding = 2;
+            _enableWhatsNew.Padding = 6;
+            
+            // GUI tree.
+            _enableWhatsNew.Children.Add(_whatsNewLabel);
+            _aboutStacker.Children.Add(_redteamLogo);
+            _aboutStacker.Children.Add(_redteamDescription);
+            _aboutStacker.Children.Add(_openLocalData);
+            _aboutStacker.Children.Add(_openWebsite);
+            _aboutStacker.Children.Add(_github);
+            _aboutStacker.Children.Add(_enableWhatsNew);
+
+            _openLocalData.MouseUp += (o, a) =>
+            {
+                if (a.Button == MouseButton.Primary)
+                {
+                    ThundershockPlatform.OpenFile(ThundershockPlatform.LocalDataPath);
+                }
+            };
+            
+            _openWebsite.MouseUp += (o, a) =>
+            {
+                if (a.Button == MouseButton.Primary)
+                {
+                    ThundershockPlatform.OpenFile("https://aklnthndr.dev/");
+                }
+            };
+            
+            _github.MouseUp += (o, a) =>
+            {
+                if (a.Button == MouseButton.Primary)
+                {
+                    ThundershockPlatform.OpenFile("https://github.com/redteam-os");
+                }
+            };
+
+            _enableWhatsNew.IsChecked = _redConfig.ActiveConfig.ShowWhatsNew;
+            
+            _enableWhatsNew.CheckStateChanged += (o, a) =>
+            {
+                _redConfig.ActiveConfig.ShowWhatsNew = _enableWhatsNew.IsChecked;
+                _redConfig.ApplyChanges();
+            };
+        }
+        
         private void ConsoleFontSizeOnSelectedIndexChanged(Object sender, EventArgs e)
         {
             _redConfig.ActiveConfig.ConsoleFontSize = _consoleFontSize.SelectedIndex;

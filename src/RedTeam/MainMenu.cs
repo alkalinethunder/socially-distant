@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Pango;
 using RedTeam.Connectivity;
 using RedTeam.Core.Components;
+using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
@@ -387,7 +388,14 @@ namespace RedTeam
 
             if (_announcements.IsReady && !_hasShownAnnouncement)
             {
-                ShowAnnouncement(_announcements.Announcement);
+                if (App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
+                {
+                    ShowAnnouncement(_announcements.Announcement);
+                }
+                else
+                {
+                    _hasShownAnnouncement = true;
+                }
             }
             
             switch (_state)
@@ -470,6 +478,8 @@ namespace RedTeam
             {
                 if (doNotShowAgain.IsChecked)
                 {
+                    App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
+                    App.GetComponent<RedConfigManager>().ApplyChanges();
                     _wm.ShowMessage("Settings Changed",
                         "You've chosen to hide the What's New screen on startup. You can change this preference in System Settings.");
                 }
