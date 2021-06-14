@@ -86,8 +86,8 @@ namespace RedTeam
             _buttonList.Direction = StackDirection.Horizontal;
             
             // The splitter and main settings area both fill available space.
-            _splitter.Properties.SetValue(Stacker.FillProperty, true);
-            _mainScroller.Properties.SetValue(Stacker.FillProperty, true);
+            _splitter.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _mainScroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             // Padding
             _masterStacker.Padding = 10;
@@ -105,7 +105,7 @@ namespace RedTeam
             
             // Make the restore button fill available space but align it to the left.
             _restoreDefaults.HorizontalAlignment = HorizontalAlignment.Left;
-            _restoreDefaults.Properties.SetValue(Stacker.FillProperty, true);
+            _restoreDefaults.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             // Set up settings categories.
             UpdateCategories();
