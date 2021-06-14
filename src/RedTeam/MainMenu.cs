@@ -498,8 +498,8 @@ namespace RedTeam
 
         private void OpenSettings()
         {
-            if (_settingsComponent == null)
-                _settingsComponent = AddComponent<SettingsComponent>();
+            if (!HasComponent<SettingsComponent>())
+                AddComponent<SettingsComponent>();
         }
     }
 }
