@@ -110,7 +110,23 @@ namespace RedTeam
             // Build the Graphics UI.
             BuildGraphicsUI();
             
+            _close.MouseUp += CloseOnMouseUp;
+            
             base.OnLoad();
+        }
+
+        protected override void OnUnload()
+        {
+            _settingsPane.Parent.Children.Remove(_settingsPane);
+            base.OnUnload();
+        }
+
+        private void CloseOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                Scene.RemoveComponent(this);
+            }
         }
 
         private void BuildGraphicsUI()
