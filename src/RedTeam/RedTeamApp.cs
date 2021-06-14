@@ -11,7 +11,7 @@ using Thundershock.Gui;
 
 namespace RedTeam
 {
-    public class RedTeamApp : App
+    public class RedTeamApp : GameApp
     {
         protected override void OnPreInit()
         {

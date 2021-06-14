@@ -5,7 +5,7 @@ using Thundershock.Gui;
 
 namespace RedTeam
 {
-    public class ContentEditorApp : App
+    public class ContentEditorApp : GameApp
     {
         protected override void OnPreInit()
         {
