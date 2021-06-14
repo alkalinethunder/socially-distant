@@ -5,7 +5,9 @@ using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Game;
 using RedTeam.Core.IO;
 using RedTeam.Core.SaveData;
+using RedTeam.Gui.Styles;
 using Thundershock;
+using Thundershock.Gui;
 
 namespace RedTeam
 {
@@ -13,6 +15,10 @@ namespace RedTeam
     {
         protected override void OnPreInit()
         {
+            // We use the GUI system A LOT, so rather than having to set the game style on each scene
+            // we'll do it now.
+            GuiSystem.SetDefaultStyle<HackerStyle>();
+            
             // Register the KmsgLogOutput now so that the user can see the thundershock log in /dev/kmsg.
             Logger.AddOutput(new KmsgLogOutput());
             
