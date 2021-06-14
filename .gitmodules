@@ -1,0 +1,3 @@
+[submodule "redteam-core"]
+	path = redteam-core
+	url = https://github.com/redteam-os/redteam-core
