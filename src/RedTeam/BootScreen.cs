@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework;
 using Thundershock.Gui;
 using System.IO;
 using GLib;
+using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Components;
 using Thundershock.Gui.Elements;
 using Thundershock.Rendering;
 using Thundershock.Gui.Elements.Console;
@@ -27,6 +29,8 @@ namespace RedTeam
 
         #region SCENE COMPONENTS
 
+        private TextureComponent _logo1;
+        private TextureComponent _logo2;
         private GuiSystem _guiSystem;
         private WindowManager _winManager;
         private OobeComponent _oobe;
@@ -43,6 +47,8 @@ namespace RedTeam
         private string _username;
         private string _hostname;
         private string _password;
+        private int _gbootState;
+        private double _gbootTime;
         
         #endregion
 
@@ -52,7 +58,8 @@ namespace RedTeam
         private TextBlock _statusHeader = new();
         private ProgressBar _progress = new();
         private ConsoleControl _console = new();
-
+        private ProgressBar _bootProgress = new();
+        
         #endregion
 
         #region WINDOWS
@@ -75,12 +82,31 @@ namespace RedTeam
             _guiSystem = AddComponent<GuiSystem>();
             _winManager = AddComponent<WindowManager>();
             _oobe = AddComponent<OobeComponent>();
+            _logo1 = AddComponent<TextureComponent>();
+            _logo2 = AddComponent<TextureComponent>();
             
+            // Logo textures.
+            _logo1.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_1");
+            _logo2.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_2");
+            
+            // Logo sizes.
+            _logo1.Size = _logo1.Texture.Bounds.Size.ToVector2() / 2;
+            _logo2.Size = _logo2.Texture.Bounds.Size.ToVector2() / 2;
+
             // Set up the GUI.
             _master.Children.Add(_statusHeader);
             _master.Children.Add(_progress);
             _master.Children.Add(_console);
             _guiSystem.AddToViewport(_master);
+            _guiSystem.AddToViewport(_bootProgress);
+            
+            // Boot progress bar setup.
+            _bootProgress.Properties.SetValue(FreePanel.AutoSizeProperty, true);
+            _bootProgress.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.Center);
+            _bootProgress.Properties.SetValue(FreePanel.PositionProperty, new Vector2(0, 96));
+            _bootProgress.Properties.SetValue(FreePanel.AlignmentProperty, new Vector2(0.5f, 0.5f));
+            _bootProgress.FixedWidth = 192;
+            
             
             // Let redconf set the proper console fonts.
             _redConf.SetConsoleFonts(_console);
@@ -103,6 +129,10 @@ namespace RedTeam
 
         protected override void OnUpdate(GameTime gameTime)
         {
+            _logo1.Color = Color.Transparent;
+            _logo2.Color = Color.Transparent;
+            _bootProgress.Opacity = 0;
+            
             switch (_bootState)
             {
                 case 0:
@@ -404,6 +434,51 @@ namespace RedTeam
         private void GraphicalBootUpdate(GameTime gameTime)
         {
             _master.Visibility = Visibility.Collapsed;
+
+            _gbootTime += gameTime.ElapsedGameTime.TotalSeconds;
+            
+            switch (_gbootState)
+            {
+                case 0:
+                    if (_gbootTime >= 1)
+                    {
+                        _gbootTime = 0;
+                        _gbootState++;
+                    }
+                    break;
+                case 1:
+                    _bootProgress.Opacity = (float) (_gbootTime / 0.5f);
+
+                    var halfWidth = ViewportBounds.Width / 2;
+
+                    _logo1.Color = Color.White * _bootProgress.Opacity;
+                    _logo2.Color = _logo1.Color;
+
+                    _logo1.Position = new Vector2(-(halfWidth * _bootProgress.Opacity), 0);
+                    _logo2.Position = new Vector2(-_logo1.Position.X, 0);
+
+                    if (_gbootTime >= 0.5)
+                    {
+                        _gbootTime = 0;
+                        _gbootState++;
+                        _logo1.Position = Vector2.Zero;
+                        _logo2.Position = Vector2.Zero;
+                    }
+                    
+                    break;
+                case 2:
+                    _logo1.Color = Color.White;
+                    _logo2.Color = Color.White;
+                    _bootProgress.Opacity = 1;
+
+                    _bootProgress.Value = (float) (_gbootTime / 3);
+                    if (_gbootTime >= 3)
+                    {
+                        App.LoadScene<Workspace>();
+                    }
+                    
+                    break;
+            }
         }
         
         private void KernelBootUpdate(GameTime gameTime)
