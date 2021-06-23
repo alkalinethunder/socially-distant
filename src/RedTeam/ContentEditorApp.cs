@@ -5,7 +5,7 @@ using Thundershock.Gui;
 
 namespace RedTeam
 {
-    public class ContentEditorApp : GameApp
+    public class ContentEditorApp : NewGameAppBase
     {
         protected override void OnPreInit()
         {
@@ -13,7 +13,7 @@ namespace RedTeam
             var econsole = RegisterComponent<EditorConsole>();
             Logger.AddOutput(econsole);
 
-            base.OnPreInit();
+            base.OnPostInit();
         }
 
         protected override void OnInit()

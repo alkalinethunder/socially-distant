@@ -1,18 +1,17 @@
 using System;
-using Microsoft.Xna.Framework;
 using RedTeam.Core;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
-using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.Net;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Components;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Gui.Elements.Console;
-using Thundershock.Input;
+using Thundershock.Core.Input;
 using Thundershock.Rendering;
 
 namespace RedTeam
@@ -30,7 +29,6 @@ namespace RedTeam
         #region SCENE COMPONENTS
 
         private Backdrop _backdrop;
-        private GuiSystem _guiSystem;
         private WindowManager _windowManager;
         private NetworkSimulation _network;
         private Shell _shell;
@@ -56,24 +54,29 @@ namespace RedTeam
         
         #region STATE
 
+        private TimeSpan _uptime;
+        private TimeSpan _frameTime;
         private IRedTeamContext _context;
         private ColorPalette _palette;
         
         #endregion
 
+        #region PROPERTIES
+
+        public TimeSpan Uptime => _uptime;
+        public TimeSpan FrameTime => _frameTime;
+
+        #endregion
+        
         protected override void OnLoad()
         {
-            // Camera setup.
-            Camera = new Camera2D();
-            
             // Grab app references.
-            _saveManager = App.GetComponent<SaveManager>();
-            _content = App.GetComponent<ContentManager>();
-            _redConf = App.GetComponent<RedConfigManager>();
+            _saveManager = Game.GetComponent<SaveManager>();
+            _content = Game.GetComponent<ContentManager>();
+            _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add scene components.
             _backdrop = AddComponent<Backdrop>();
-            _guiSystem = AddComponent<GuiSystem>();
             _windowManager = AddComponent<WindowManager>();
             _network = AddComponent<NetworkSimulation>();
             
@@ -93,7 +96,7 @@ namespace RedTeam
             StartShell();
             
             // Link the Window Manager with the GUI.
-            _windowManager.AddToGuiRoot(_guiSystem);
+            _windowManager.AddToGuiRoot(Gui);
 
             // Bind to configuration reloads.
             _redConf.ConfigUpdated += RedConfOnConfigUpdated;
@@ -115,9 +118,17 @@ namespace RedTeam
 
         protected override void OnUpdate(GameTime gameTime)
         {
+            _frameTime = gameTime.ElapsedGameTime;
+            _uptime = gameTime.TotalGameTime;
+            
             _playerInfo.Text =
                 $"{_context.UserName}@{_context.HostName} ({NetworkHelpers.ToIPv4String(_context.Network.LocalAddress)})";
             base.OnUpdate(gameTime);
+
+            // TODO: Somehow get Thundershock to do this. Maybe there's a way to set up
+            // the shell with the ECS somehow? I mean it's not an entity, more of a system,
+            // but hmmm.
+            _shell.Update(gameTime);
         }
 
         private void RedConfOnConfigUpdated(object? sender, EventArgs e)
@@ -140,7 +151,8 @@ namespace RedTeam
         {
             var sh = new Shell(_console, _context.Vfs, _context);
             _shell = sh;
-            AddComponent(_shell);
+
+            _shell.BootUp();
             
             _shell.RegisterBuiltin("save", "Save the current game.", TrySave);
         }
@@ -155,7 +167,7 @@ namespace RedTeam
             var nic = _network.GetNetworkInterface(agent.Device);
 
             // Create the player's Red Team Context.
-            var ctx = new DeviceContext(agent, nic);
+            var ctx = new DeviceContext(this, agent, nic);
             
             // Store the context.
             _context = ctx;
@@ -200,7 +212,7 @@ namespace RedTeam
             _master.Children.Add(_statusBG);
             _master.Children.Add(_workspaceStacker);
             _bgOverlay.Children.Add(_master);
-            _guiSystem.AddToViewport(_bgOverlay);
+            Gui.AddToViewport(_bgOverlay);
         }
 
         private void StyleGui()

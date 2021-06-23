@@ -1,13 +1,11 @@
-using Gtk;
-using Microsoft.Xna.Framework;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
-using Thundershock.Input;
-using Button = Thundershock.Gui.Elements.Button;
+using Thundershock.Core.Input;
 
 namespace RedTeam
 {
@@ -70,8 +68,8 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            _saveManager = App.GetComponent<SaveManager>();
-            _contentManager = App.GetComponent<ContentManager>();
+            _saveManager = Scene.Game.GetComponent<SaveManager>();
+            _contentManager = Scene.Game.GetComponent<ContentManager>();
 
             base.OnLoad();
         }

@@ -11,14 +11,13 @@ using Thundershock.Gui;
 
 namespace RedTeam
 {
-    public class RedTeamApp : GameApp
+    public class RedTeamApp : NewGameAppBase
     {
         protected override void OnPreInit()
         {
-            // We use the GUI system A LOT, so rather than having to set the game style on each scene
-            // we'll do it now.
+            // Use our own UI skin for the UI
             GuiSystem.SetDefaultStyle<HackerStyle>();
-            
+
             // Register the KmsgLogOutput now so that the user can see the thundershock log in /dev/kmsg.
             Logger.AddOutput(new KmsgLogOutput());
             
@@ -30,14 +29,10 @@ namespace RedTeam
 
         protected override void OnInit()
         {
-            // Window Title
-            Window.Title = "Michael VanOverbeek's RED TEAM";
-            
             // register red team components
             RegisterComponent<ContentManager>();
             RegisterComponent<RedConfigManager>();
             RegisterComponent<SaveManager>();
-            RegisterComponent<RiskSystem>();
         }
 
         protected override void OnLoad()

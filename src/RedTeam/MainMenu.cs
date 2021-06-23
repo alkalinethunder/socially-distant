@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Pango;
+using System.Numerics;
 using RedTeam.Connectivity;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
@@ -12,12 +8,13 @@ using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Core;
+using Thundershock.Core.Rendering;
 using Thundershock.Components;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
-using Thundershock.Input;
+using Thundershock.Core.Input;
 using Thundershock.Rendering;
-using Color = Microsoft.Xna.Framework.Color;
 
 namespace RedTeam
 {
@@ -48,7 +45,6 @@ namespace RedTeam
 
         private SettingsComponent _settingsComponent;
         private Backdrop _backdrop;
-        private GuiSystem _gui;
         private WindowManager _wm;
         private Backdrop _packBackdrop;
         
@@ -96,33 +92,25 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            // Camera setup.
-            Camera = new Camera2D();
-
             // Retrieve app component references.
-            _saveManager = App.GetComponent<SaveManager>();
-            _announcements = App.GetComponent<AnnouncementManager>();
-            _contentManager = App.GetComponent<ContentManager>();
+            _saveManager = Game.GetComponent<SaveManager>();
+            _announcements = Game.GetComponent<AnnouncementManager>();
+            _contentManager = Game.GetComponent<ContentManager>();
 
             // Add scene components.
             _backdrop = AddComponent<Backdrop>();
             _packBackdrop = AddComponent<Backdrop>();
-            _gui = AddComponent<GuiSystem>();
             _wm = AddComponent<WindowManager>();
-
-            // Set the backdrop wallpaper.
-            _backdrop.Texture = App.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
             
             // Add root UI elements.
-            _gui.AddToViewport(_logo);
-            _gui.AddToViewport(_backdropOverlay);
+            Gui.AddToViewport(_logo);
+            Gui.AddToViewport(_backdropOverlay);
 
             // Add the window manager layer.
-            _wm.AddToGuiRoot(_gui);
+            _wm.AddToGuiRoot(Gui);
             
             // Set up the layout of the game's logo.
             // It sits near the top of the screen in the middle.
-            _logo.Image = App.Content.Load<Texture2D>("Textures/RedTeamLogo/redteam_banner_128x");
             _logo.Properties.SetValue(FreePanel.AutoSizeProperty, true);
             _logo.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.TopSide);
             _logo.HorizontalAlignment = HorizontalAlignment.Center;
@@ -140,7 +128,6 @@ namespace RedTeam
             // Set up the menu title.
             _menuTitle.TextAlign = TextAlign.Center;
             _menuTitle.Color = Color.Cyan;
-            _menuTitle.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
             _menuArea.Children.Add(_menuTitle);
             
             // Set up the pack info area.
@@ -167,8 +154,6 @@ namespace RedTeam
             _careerErrorMessage.TextAlign = TextAlign.Center;
             _careerErrorStacker.Children.Add(_careerErrorTitle);
             _careerErrorStacker.Children.Add(_careerErrorMessage);
-            _careerErrorTitle.Font = App.Content.Load<SpriteFont>("Fonts/ButtonDescription");
-            _careerErrorMessage.Font = App.Content.Load<SpriteFont>("Fonts/Console/Regular");
             
             // Set up the Play menu.
             _playStacker.Children.Add(_continue);
@@ -217,7 +202,7 @@ namespace RedTeam
             if (e.Button == MouseButton.Primary)
             {
                 _saveManager.LoadGame(_saves.First());
-                App.LoadScene<BootScreen>();
+                this.GoToScene<BootScreen>();
             }
         }
 
@@ -241,8 +226,8 @@ namespace RedTeam
         {
             if (e.Button == MouseButton.Primary && _pack != null) 
             {
-                App.GetComponent<SaveManager>().NewGame(_pack);
-                App.LoadScene<BootScreen>();
+                Game.GetComponent<SaveManager>().NewGame(_pack);
+                this.GoToScene<BootScreen>();
             }
         }
 
@@ -343,7 +328,7 @@ namespace RedTeam
         
         private void ExitAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
-            App.Exit();
+            Game.Exit();
         }
 
         private void ListExtensions()
@@ -388,7 +373,7 @@ namespace RedTeam
 
             if (_announcements.IsReady && !_hasShownAnnouncement)
             {
-                if (App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
+                if (Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
                 {
                     ShowAnnouncement(_announcements.Announcement);
                 }
@@ -478,8 +463,8 @@ namespace RedTeam
             {
                 if (doNotShowAgain.IsChecked)
                 {
-                    App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
-                    App.GetComponent<RedConfigManager>().ApplyChanges();
+                    Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
+                    Game.GetComponent<RedConfigManager>().ApplyChanges();
                     _wm.ShowMessage("Settings Changed",
                         "You've chosen to hide the What's New screen on startup. You can change this preference in System Settings.");
                 }

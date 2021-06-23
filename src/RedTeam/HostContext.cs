@@ -3,6 +3,7 @@ using System.IO;
 using RedTeam.Core;
 using RedTeam.Core.Net;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.IO;
 
 namespace RedTeam
@@ -11,6 +12,12 @@ namespace RedTeam
     {
         private FileSystem _vfs;
 
+        public bool IsGraphical => false;
+        public TimeSpan FrameTime => TimeSpan.Zero;
+        public TimeSpan Uptime => TimeSpan.Zero;
+        public int ScreenWidth => 0;
+        public int ScreenHeight => 0;
+        
         public NetworkInterface Network => null;
         public FileSystem Vfs
         {

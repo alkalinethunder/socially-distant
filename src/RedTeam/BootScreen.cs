@@ -1,9 +1,9 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Thundershock.Gui;
+using System.Numerics;
 using System.IO;
-using GLib;
-using Microsoft.Xna.Framework.Graphics;
+using Thundershock.Core;
+using Thundershock.Gui;
+using Thundershock.Core.Rendering;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
@@ -31,7 +31,6 @@ namespace RedTeam
 
         private TextureComponent _logo1;
         private TextureComponent _logo2;
-        private GuiSystem _guiSystem;
         private WindowManager _winManager;
         private OobeComponent _oobe;
         
@@ -70,35 +69,23 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            // Camera setup.
-            Camera = new Camera2D();
-            
             // Grab app references.
-            _contentManager = App.GetComponent<ContentManager>();
-            _saveManager = App.GetComponent<SaveManager>();
-            _redConf = App.GetComponent<RedConfigManager>();
+            _contentManager = Game.GetComponent<ContentManager>();
+            _saveManager = Game.GetComponent<SaveManager>();
+            _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add the gui system to the scene.
-            _guiSystem = AddComponent<GuiSystem>();
             _winManager = AddComponent<WindowManager>();
             _oobe = AddComponent<OobeComponent>();
             _logo1 = AddComponent<TextureComponent>();
             _logo2 = AddComponent<TextureComponent>();
             
-            // Logo textures.
-            _logo1.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_1");
-            _logo2.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_2");
-            
-            // Logo sizes.
-            _logo1.Size = _logo1.Texture.Bounds.Size.ToVector2() / 2;
-            _logo2.Size = _logo2.Texture.Bounds.Size.ToVector2() / 2;
-
             // Set up the GUI.
             _master.Children.Add(_statusHeader);
             _master.Children.Add(_progress);
             _master.Children.Add(_console);
-            _guiSystem.AddToViewport(_master);
-            _guiSystem.AddToViewport(_bootProgress);
+            Gui.AddToViewport(_master);
+            Gui.AddToViewport(_bootProgress);
             
             // Boot progress bar setup.
             _bootProgress.Properties.SetValue(FreePanel.AutoSizeProperty, true);
@@ -122,7 +109,7 @@ namespace RedTeam
             // Prepare the kmsg text.
             this.LoadKernelMessages();
             
-            _winManager.AddToGuiRoot(_guiSystem);
+            _winManager.AddToGuiRoot(Gui);
 
             base.OnLoad();
         }
@@ -474,7 +461,7 @@ namespace RedTeam
                     _bootProgress.Value = (float) (_gbootTime / 3);
                     if (_gbootTime >= 3)
                     {
-                        App.LoadScene<Workspace>();
+                        this.GoToScene<Workspace>();
                     }
                     
                     break;

@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.Gui.Elements;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Config;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
-using Thundershock.Input;
+using Thundershock.Core.Input;
 
 namespace RedTeam
 {
@@ -66,8 +65,8 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            _config = App.GetComponent<ConfigurationManager>();
-            _redConfig = App.GetComponent<RedConfigManager>();
+            _config = Scene.Game.GetComponent<ConfigurationManager>();
+            _redConfig = Scene.Game.GetComponent<RedConfigManager>();
 
             _wm = Scene.GetComponent<WindowManager>();
 
@@ -150,11 +149,7 @@ namespace RedTeam
             displayHeader.Text = "Display";
             ppHeader.Text = "Effects";
             guiHeader.Text = "User Interface";
-
-            displayHeader.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
-            ppHeader.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
-            guiHeader.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
-
+            
             displayHeader.Color = Color.Cyan;
             ppHeader.Color = Color.Cyan;
             guiHeader.Color = Color.Cyan;
@@ -213,7 +208,7 @@ namespace RedTeam
             _bloom.IsChecked = _config.ActiveConfig.Effects.Bloom;
             _shadowmask.IsChecked = _config.ActiveConfig.Effects.ShadowMask;
 
-            var i = 0;
+            /* var i = 0;
             foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes
                 .OrderByDescending(x => x.Width * x.Height).Select(x => $"{x.Width}x{x.Height}").Distinct())
             {
@@ -223,7 +218,7 @@ namespace RedTeam
                     _resolution.SelectedIndex = i;
                 }
                 i++;
-            }
+            } */
             
             // Console Font Scale
             _consoleFontSize.AddItem("Normal");
@@ -242,9 +237,6 @@ namespace RedTeam
 
         private void BuildAboutScreen()
         {
-            // Images.
-            _redteamLogo.Image = App.Content.Load<Texture2D>("Textures/RedTeamLogo/redteam_banner_128x");
-            
             // Text
             _redteamDescription.Text =
                 "Red Team is a semi-realistic hacking game. Developed by Michael VanOverbeek. Powered by the Thundershock Engine. Logo design courtesy of Logan Lowe."
@@ -362,7 +354,6 @@ namespace RedTeam
 
             var basicHeader = new TextBlock();
             basicHeader.Text = "Settings";
-            basicHeader.Font = App.Content.Load<SpriteFont>("Fonts/ButtonDescription");
             basicHeader.Color = Color.Cyan;
             _sidebar.Children.Add(basicHeader);
 

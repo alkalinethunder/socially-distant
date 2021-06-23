@@ -1,7 +1,9 @@
-﻿using RedTeam.Core;
+﻿using System;
+using RedTeam.Core;
 using RedTeam.Core.Net;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.IO;
 
 namespace RedTeam
@@ -11,13 +13,22 @@ namespace RedTeam
         private FileSystem _vfs;
         private AgentController _agent;
         private NetworkInterface _nic;
-
-        public DeviceContext(AgentController agent, NetworkInterface nic)
+        private Workspace _workspace;
+        
+        public bool IsGraphical => true;
+        
+        public DeviceContext(Workspace workspace, AgentController agent, NetworkInterface nic)
         {
+            _workspace = workspace;
             _agent = agent;
             _nic = nic;
         }
 
+        public TimeSpan Uptime => _workspace.Uptime;
+        public TimeSpan FrameTime => _workspace.FrameTime;
+        public int ScreenWidth => (int) _workspace.Screen.Width;
+        public int ScreenHeight => (int) _workspace.Screen.Height;
+        
         public NetworkInterface Network => _nic;
 
         public FileSystem Vfs

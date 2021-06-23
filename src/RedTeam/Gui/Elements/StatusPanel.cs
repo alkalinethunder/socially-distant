@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Thundershock.Core;
+using Thundershock.Core.Rendering;
 using Thundershock.Gui.Elements;
 
 namespace RedTeam.Gui.Elements
@@ -40,26 +40,9 @@ namespace RedTeam.Gui.Elements
         public StatusPanel(BootScreen desktop)
         {
             _desktop = desktop;
-
-            var font = _desktop.App.Content.Load<SpriteFont>("Fonts/Console/Regular");
-            var side = _desktop.App.Content.Load<Texture2D>("Textures/Panel/InfoBG");
-            var transition = _desktop.App.Content.Load<Texture2D>("Textures/Panel/InfoTransition");
-            var bg = _desktop.App.Content.Load<Texture2D>("Textures/Panel/BG");
-
-            _fps.Font = font;
-            _host.Font = font;
             
             _fps.Color = Color.Black;
             _host.Color = Color.Black;
-            
-            _bg.Image = bg;
-            _leftBG.Image = side;
-            _rightBG.Image = side;
-            _rightTransition.Image = transition;
-            _leftTransition.Image = transition;
-
-            _rightTransition.SpriteEffects = SpriteEffects.FlipHorizontally;
-            _rightBG.SpriteEffects = SpriteEffects.FlipHorizontally;
             
             _leftSide.Children.Add(_leftBG);
             _rightSide.Children.Add(_rightBG);
