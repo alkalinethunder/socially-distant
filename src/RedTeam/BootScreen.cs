@@ -100,7 +100,7 @@ namespace RedTeam
             
             // Style the GUI
             _statusHeader.Font = _console.Font;
-            _statusHeader.Color = Color.White;
+            _statusHeader.ForeColor = Color.White;
             _statusHeader.Visibility = Visibility.Collapsed;
             _progress.Visibility = Visibility.Collapsed;
             _progress.Padding = new Padding(0, 5, 0, 10);

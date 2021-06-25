@@ -150,9 +150,9 @@ namespace RedTeam
             ppHeader.Text = "Effects";
             guiHeader.Text = "User Interface";
             
-            displayHeader.Color = Color.Cyan;
-            ppHeader.Color = Color.Cyan;
-            guiHeader.Color = Color.Cyan;
+            displayHeader.ForeColor = Color.Cyan;
+            ppHeader.ForeColor = Color.Cyan;
+            guiHeader.ForeColor = Color.Cyan;
 
             _resolution.Title = "Screen Resolution";
             _windowMode.Title = "Fullscreen";
@@ -208,17 +208,18 @@ namespace RedTeam
             _bloom.IsChecked = _config.ActiveConfig.Effects.Bloom;
             _shadowmask.IsChecked = _config.ActiveConfig.Effects.ShadowMask;
 
-            /* var i = 0;
-            foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes
-                .OrderByDescending(x => x.Width * x.Height).Select(x => $"{x.Width}x{x.Height}").Distinct())
+            var i = 0;
+            var current = $"{_config.GetDisplayMode().Width}x{_config.GetDisplayMode().Height}";
+            foreach (var displayMode in _config.GetAvailableDisplayModes()
+                .Select(x=>$"{x.Width}x{x.Height}"))
             {
                 _resolution.AddItem(displayMode);
-                if (displayMode == $"{_config.GetDisplayMode().Width}x{_config.GetDisplayMode().Height}")
+                if (displayMode == current)
                 {
                     _resolution.SelectedIndex = i;
                 }
                 i++;
-            } */
+            }
             
             // Console Font Scale
             _consoleFontSize.AddItem("Normal");
@@ -354,7 +355,7 @@ namespace RedTeam
 
             var basicHeader = new TextBlock();
             basicHeader.Text = "Settings";
-            basicHeader.Color = Color.Cyan;
+            basicHeader.ForeColor = Color.Cyan;
             _sidebar.Children.Add(basicHeader);
 
             basicHeader.Padding = new Padding(0, 0, 0, 7);

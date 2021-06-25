@@ -137,23 +137,23 @@ namespace RedTeam
         
         private void BuildGui()
         {
-            _usernameError.Color = Color.Red;
-            _passwdError.Color = Color.Red;
-            _hostnameError.Color = Color.Red;
+            _usernameError.ForeColor = Color.Red;
+            _passwdError.ForeColor = Color.Red;
+            _hostnameError.ForeColor = Color.Red;
 
-            _usernameLabel.Color = Color.White;
-            _passwdLabel.Color = Color.White;
-            _hostnameLabel.Color = Color.White;
+            _usernameLabel.ForeColor = Color.White;
+            _passwdLabel.ForeColor = Color.White;
+            _hostnameLabel.ForeColor = Color.White;
 
             _usernameLabel.Text = "Username: ";
             _passwdLabel.Text = "Password: ";
             _hostnameLabel.Text = "Hostname: ";
             
-            _title.Color = Color.Cyan;
-            _description.Color = Color.White;
+            _title.ForeColor = Color.Cyan;
+            _description.ForeColor = Color.White;
             
             _agreeText.Text = "I agree to the Terms and Conditions outlined above.";
-            _agreeText.Color = Color.White;
+            _agreeText.ForeColor = Color.White;
             
             _back.Padding = 2;
             _next.Padding = 2;

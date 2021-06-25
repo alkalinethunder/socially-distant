@@ -4,7 +4,7 @@ using Thundershock.Gui.Elements;
 
 namespace RedTeam.Gui.Elements
 {
-    public class StatusPanel : Element
+    public class StatusPanel : LayoutElement
     {
         private Stacker _master = new();
         private Panel _leftSide = new();
@@ -41,8 +41,8 @@ namespace RedTeam.Gui.Elements
         {
             _desktop = desktop;
             
-            _fps.Color = Color.Black;
-            _host.Color = Color.Black;
+            _fps.ForeColor = Color.Black;
+            _host.ForeColor = Color.Black;
             
             _leftSide.Children.Add(_leftBG);
             _rightSide.Children.Add(_rightBG);

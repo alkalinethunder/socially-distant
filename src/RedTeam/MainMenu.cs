@@ -127,7 +127,7 @@ namespace RedTeam
             
             // Set up the menu title.
             _menuTitle.TextAlign = TextAlign.Center;
-            _menuTitle.Color = Color.Cyan;
+            _menuTitle.ForeColor = Color.Cyan;
             _menuArea.Children.Add(_menuTitle);
             
             // Set up the pack info area.
@@ -148,8 +148,8 @@ namespace RedTeam
                 Environment.NewLine + Environment.NewLine +
                 "You are free to play Custom Stories or make your own in this build.";
             _careerErrorTitle.Text = "* no career mode *";
-            _careerErrorTitle.Color = Color.Red;
-            _careerErrorMessage.Color = Color.White;
+            _careerErrorTitle.ForeColor = Color.Red;
+            _careerErrorMessage.ForeColor = Color.White;
             _careerErrorTitle.TextAlign = TextAlign.Center;
             _careerErrorMessage.TextAlign = TextAlign.Center;
             _careerErrorStacker.Children.Add(_careerErrorTitle);
@@ -362,7 +362,7 @@ namespace RedTeam
                 var text = new TextBlock();
                 text.Text = "There are no Content Packs to show here.";
                 text.WrapMode = TextWrapMode.WordWrap;
-                text.Color = Color.Cyan;
+                text.ForeColor = Color.Cyan;
                 _extensionsList.Children.Add(text);
             }
         }
@@ -425,22 +425,22 @@ namespace RedTeam
             stacker.Margin = 15;
             var title = new TextBlock();
             title.Text = announcement.Title;
-            title.Color = Color.Cyan;
+            title.ForeColor = Color.Cyan;
             title.Font = _menuTitle.Font;
             stacker.Children.Add(title);
             var excerpt = new TextBlock();
-            excerpt.Color = Color.White;
+            excerpt.ForeColor = Color.White;
             excerpt.Text = announcement.Excerpt;
             stacker.Children.Add(excerpt);
 
             var doNotShowAgain = new CheckBox();
             var doNotShowLabel = new TextBlock();
             doNotShowLabel.Text = "Don't show what's new on startup";
-            doNotShowLabel.Color = Color.White;
+            doNotShowLabel.ForeColor = Color.White;
             doNotShowAgain.Children.Add(doNotShowLabel);
 
             var readMoreLink = new TextBlock();
-            readMoreLink.Color = Color.Cyan;
+            readMoreLink.ForeColor = Color.Cyan;
             readMoreLink.Text = "Read More";
             readMoreLink.IsInteractable = true;
             readMoreLink.MouseDown += (o, a) =>
