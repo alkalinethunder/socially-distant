@@ -54,9 +54,10 @@
     <EmbeddedResource Remove="Content\bin\**" />
     <EmbeddedResource Remove="Content\obj\**" />
     <None Remove="Resources\kmsg.log" />
-    <EmbeddedResource Include="Resources\kmsg.log" />
     <None Remove="Resources\Bgm\Intro.ogg" />
     <EmbeddedResource Include="Resources\Bgm\Intro.ogg" />
+    <None Remove="Resources\kmsg.txt" />
+    <EmbeddedResource Include="Resources\kmsg.txt" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Remove="Content\bin\**" />

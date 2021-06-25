@@ -522,7 +522,7 @@ namespace RedTeam
         private void LoadKernelMessages()
         {
             var asm = this.GetType().Assembly;
-            using var resource = asm.GetManifestResourceStream("RedTeam.Resources.kmsg.log");
+            using var resource = asm.GetManifestResourceStream("RedTeam.Resources.kmsg.txt");
 
             var text = string.Empty;
             
