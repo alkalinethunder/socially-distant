@@ -2,7 +2,6 @@
 using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Input;
-using Thundershock.Gui;
 using Thundershock.Rendering;
 
 namespace RedTeam

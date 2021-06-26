@@ -3,6 +3,7 @@ using System.Linq;
 using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.Gui.Elements;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Config;
@@ -20,9 +21,8 @@ namespace RedTeam
         private BasicSettingsCategory _currentCategory;
         private string _modCategoryName = string.Empty;
         
-        private Pane _settingsPane;
+        private WindowFrame _settingsPane;
         private WindowManager _wm;
-        private Panel _bg = new();
         private Stacker _masterStacker = new();
         private Stacker _buttonList = new();
         private Stacker _splitter = new();
@@ -75,17 +75,14 @@ namespace RedTeam
             _settingsPane.FixedWidth = 720;
             _settingsPane.FixedHeight = 500;
             
-            _bg.BackColor = ThundershockPlatform.HtmlColor("#222222");
-
             // General layout tree.
             _sidebarScroller.Children.Add(_sidebar);
             _splitter.Children.Add(_sidebarScroller);
             _splitter.Children.Add(_mainScroller);
             _masterStacker.Children.Add(_splitter);
             _masterStacker.Children.Add(_buttonList);
-            _bg.Children.Add(_masterStacker);
-            _settingsPane.Content.Add(_bg);
-            
+            _settingsPane.Content.Add(_masterStacker);
+
             // Button list and splitter are both horizontal stackers.
             _splitter.Direction = StackDirection.Horizontal;
             _buttonList.Direction = StackDirection.Horizontal;

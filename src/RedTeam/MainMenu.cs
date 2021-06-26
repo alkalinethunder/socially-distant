@@ -418,8 +418,6 @@ namespace RedTeam
         {
             var pane = _wm.CreateFloatingPane("Announcement");
 
-            var panel = new Panel();
-            panel.BackColor = ThundershockPlatform.HtmlColor("#222222");
             var stacker = new Stacker();
             stacker.Padding = 15;
             stacker.Margin = 15;
@@ -478,10 +476,7 @@ namespace RedTeam
             
             stacker.Children.Add(buttonRow);
             
-            panel.Children.Add(stacker);
-            pane.Content.Add(panel);
-            
-            pane.BorderColor = ThundershockPlatform.HtmlColor("#f71b1b");
+            pane.Content.Add(stacker);
 
             _hasShownAnnouncement = true;
         }

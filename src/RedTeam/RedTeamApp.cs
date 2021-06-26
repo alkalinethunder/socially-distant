@@ -1,11 +1,13 @@
 ﻿using DocoptNet;
 using RedTeam.Connectivity;
+using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Game;
 using RedTeam.Core.IO;
 using RedTeam.Core.SaveData;
 using RedTeam.Gui.Styles;
+using RedTeam.Windowing;
 using Thundershock;
 using Thundershock.Gui;
 
@@ -15,6 +17,9 @@ namespace RedTeam
     {
         protected override void OnPreInit()
         {
+            // Global window theme.
+            WindowManager.SetGlobalTheme<WhiteCarbonTheme>();
+            
             // Use our own UI skin for the UI
             GuiSystem.SetDefaultStyle<HackerStyle>();
 

@@ -28,52 +28,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
-    <None Remove="Resources\NeoFetchTemplate.txt" />
-    <None Remove="Resources\Cowsay.txt" />
-    <None Remove="Resources\Fortunes.txt" />
-    <None Remove="Resources\RedTermPalettes\default.json" />
-    <None Remove="Resources\RedTermPalettes\highContrast.json" />
-    <None Remove="Resources\RedTermPalettes\light.json" />
-    <None Remove="Resources\RedTermPalettes\README.txt" />
-    <None Remove="Resources\Audio\MichaelGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\MichaelGlitch.ogg" />
-    <None Remove="Resources\Audio\RedTeamGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\RedTeamGlitch.ogg" />
-    <None Remove="Resources\Audio\ThundershockGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\ThundershockGlitch.ogg" />
-    <None Remove="Resources\TestAudio.ogg" />
-    <None Remove="Resources\Intro.txt" />
-    <EmbeddedResource Include="Resources\Intro.txt" />
-    <None Remove="Resources\glitchie.ogg" />
-    <None Remove="Resources\Document1.ogg" />
-    <EmbeddedResource Include="Resources\Document1.ogg" />
-    <None Remove="Resources\Career\Meta" />
-    <EmbeddedResource Include="Resources\Career\Meta" />
-    <None Remove="Resources\Career\GameData" />
-    <EmbeddedResource Include="Resources\Career\GameData" />
-    <EmbeddedResource Remove="Content\bin\**" />
-    <EmbeddedResource Remove="Content\obj\**" />
-    <None Remove="Resources\kmsg.log" />
-    <None Remove="Resources\Bgm\Intro.ogg" />
-    <EmbeddedResource Include="Resources\Bgm\Intro.ogg" />
-    <None Remove="Resources\kmsg.txt" />
-    <EmbeddedResource Include="Resources\kmsg.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Remove="Content\bin\**" />
-    <MonoGameContentReference Remove="Content\obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
+    <EmbeddedResource Include="Resources\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
     <PackageReference Include="MimeTypeMap.Core" Version="1.0.0" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Content\bin\**" />
-    <Compile Remove="Content\obj\**" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />

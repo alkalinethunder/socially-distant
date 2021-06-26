@@ -1,6 +1,7 @@
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Gui;
@@ -20,7 +21,7 @@ namespace RedTeam
 
         #region WINDOWS
 
-        private Pane _oobeWindow;
+        private WindowFrame _oobeWindow;
 
         #endregion
 
@@ -81,7 +82,7 @@ namespace RedTeam
             base.OnUpdate(gameTime);
         }
 
-        public void InitExperience(Pane oobePane)
+        public void InitExperience(WindowFrame oobePane)
         {
             _oobeWindow = oobePane;
 

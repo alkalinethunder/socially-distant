@@ -9,6 +9,7 @@ using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Components;
 using Thundershock.Gui.Elements;
@@ -63,7 +64,7 @@ namespace RedTeam
 
         #region WINDOWS
 
-        private Pane _oobeWindow;
+        private WindowFrame _oobeWindow;
 
         #endregion
         
