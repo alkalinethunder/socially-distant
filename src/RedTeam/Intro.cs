@@ -1,4 +1,5 @@
 ﻿using Thundershock;
+using Thundershock.Audio;
 using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Input;
@@ -14,6 +15,8 @@ namespace RedTeam
         private Transform2D _thundershockTransform = new();
         private TextComponent _thundershock = new();
 
+        private Song _song;
+        
         private string _targetText = string.Empty;
         private int _cursorPos = 0;
         private int _state;
@@ -23,6 +26,10 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
+            _song = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Document1.ogg");
+
+            MusicPlayer.PlaySong(_song);
+            
             var camera = SpawnObject();
             camera.Name = "Scene Camera";
             
