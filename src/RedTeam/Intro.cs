@@ -1,4 +1,5 @@
-﻿using Thundershock;
+﻿using System.Numerics;
+using Thundershock;
 using Thundershock.Audio;
 using Thundershock.Components;
 using Thundershock.Core;
@@ -15,6 +16,9 @@ namespace RedTeam
         private Transform2D _thundershockTransform = new();
         private TextComponent _thundershock = new();
 
+        private TextComponent _powerMeter = new();
+        private Transform2D _powerTransform = new();
+        
         private Song _song;
         
         private string _targetText = string.Empty;
@@ -26,9 +30,11 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            _song = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Document1.ogg");
+            _powerTransform.Position.Y = -200;
 
-            MusicPlayer.PlaySong(_song);
+            var powerEntry = SpawnObject();
+            powerEntry.AddComponent(_powerTransform);
+            powerEntry.AddComponent(_powerMeter);
             
             var camera = SpawnObject();
             camera.Name = "Scene Camera";
@@ -42,7 +48,7 @@ namespace RedTeam
 
             tsEntity.AddComponent(_thundershockTransform);
             tsEntity.AddComponent(_thundershock);
-
+            
             _thundershock.Text = string.Empty;
             _targetText = "Thundershock Engine";
             
@@ -59,6 +65,8 @@ namespace RedTeam
 
         protected override void OnUpdate(GameTime gameTime)
         {
+            _powerMeter.Text = MusicPlayer.Power.ToString();
+            
             if (_state == 0)
             {
                 _typeStartDelay -= gameTime.ElapsedGameTime.TotalSeconds;
