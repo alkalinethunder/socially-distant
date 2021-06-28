@@ -4,105 +4,139 @@ using Thundershock.Audio;
 using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Input;
+using Thundershock.Core.Rendering;
 using Thundershock.Rendering;
 
 namespace RedTeam
 {
     public class Intro : Scene
     {
-        private Transform _cameraTransform = new();
-        private CameraComponent _cameraSettings = new();
+        #region Resources
 
-        private Transform2D _thundershockTransform = new();
-        private TextComponent _thundershock = new();
+        private Font _atFont;
+        private Texture2D _atCircle;
+        private string _at = "Alkaline Thunder";
+        private Color _atColor = ThundershockPlatform.HtmlColor("#0376bd");
 
-        private TextComponent _powerMeter = new();
-        private Transform2D _powerTransform = new();
-        
-        private Song _song;
-        
-        private string _targetText = string.Empty;
-        private int _cursorPos = 0;
-        private int _state;
-        private double _typeDelay = 0.05;
-        private double _typeStartDelay = 2;
-        private double _typeEndDelay = 3;
-        
+        #endregion
+
+        #region State
+
+        private int _state = 0;
+        private float _atFade = 0;
+        private double _atTime = 0;
+
+        #endregion
+
+        #region Components
+
+        private TextComponent _atText = new();
+        private Sprite _atLogoSprite = new();
+        private Transform2D _atSpriteTransform = new();
+        private Transform2D _atTextTransform = new();
+
+        #endregion
+
         protected override void OnLoad()
         {
-            _powerTransform.Position.Y = -200;
+            _atFont = Font.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.AlkalineThunder.ttf");
+            _atFont.Size = 38;
 
-            var powerEntry = SpawnObject();
-            powerEntry.AddComponent(_powerTransform);
-            powerEntry.AddComponent(_powerMeter);
+            _atCircle = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Brand.atcomputercircle.png");
+
+            var atTextEntity = SpawnObject();
+            var atSpriteEntity = SpawnObject();
             
-            var camera = SpawnObject();
-            camera.Name = "Scene Camera";
+            atTextEntity.AddComponent(_atTextTransform);
+            atTextEntity.AddComponent(_atText);
             
-            camera.AddComponent(_cameraTransform);
-            camera.AddComponent(_cameraSettings);
+            atSpriteEntity.AddComponent(_atSpriteTransform);
+            atSpriteEntity.AddComponent(_atLogoSprite);
 
-            _cameraSettings.ProjectionType = CameraProjectionType.Orthographic;
+            _atLogoSprite.Texture = _atCircle;
+            _atText.Font = _atFont;
 
-            var tsEntity = SpawnObject();
+            _atText.Text = _at;
 
-            tsEntity.AddComponent(_thundershockTransform);
-            tsEntity.AddComponent(_thundershock);
+            _atText.Font.Size = (int)(_atLogoSprite.Size.Y - (_atLogoSprite.Size.Y / 4));
+
+            _atTextTransform.Position.X += (_atLogoSprite.Size.X / 2) + 3;
             
-            _thundershock.Text = string.Empty;
-            _targetText = "Thundershock Engine";
-            
-            InputSystem.KeyUp += InputSystemOnKeyUp;
-        }
+            PrimaryCamera.GetComponent<Transform>().Scale = Vector3.One * 312;
 
-        private void InputSystemOnKeyUp(object? sender, KeyEventArgs e)
-        {
-            if (e.Key == Keys.Enter)
-            {
-                GoToScene<MainMenu>();
-            }
+            var measure = _atFont.MeasureString(_at).X;
+            _atSpriteTransform.Position.X -= (measure / 2) + 3;
+
+            base.OnLoad();
         }
 
         protected override void OnUpdate(GameTime gameTime)
         {
-            _powerMeter.Text = MusicPlayer.Power.ToString();
-            
-            if (_state == 0)
+            switch (_state)
             {
-                _typeStartDelay -= gameTime.ElapsedGameTime.TotalSeconds;
-                if (_typeStartDelay <= 0)
-                {
-                    _state++;
-                }
-            }
-            else if (_state == 1)
-            {
-                _typeDelay -= gameTime.ElapsedGameTime.TotalSeconds;
-                if (_typeDelay <= 0)
-                {
-                    _typeDelay = 0.05;
-                    _cursorPos++;
-
-                    _thundershock.Text = _targetText.Substring(0, _cursorPos);
+                case 0:
+                    PrimaryCameraSettings.BackgroundColor = Color.Black;
                     
-                    if (_cursorPos >= _targetText.Length)
+                    _atText.Color = Color.Transparent;
+                    _atLogoSprite.Color = Color.Transparent;
+                    
+                    _atTime += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (_atTime >= 1)
                     {
                         _state++;
+                        _atTime = 0;
                     }
-                }
-            }
-            else if (_state == 2)
-            {
-                _typeEndDelay -= gameTime.ElapsedGameTime.TotalSeconds;
-                if (_typeEndDelay <= 0)
-                {
-                    _thundershock.Color = Color.Red;
-                    _state++;
-                }
+                    break;
+                case 1:
+                    _atText.Color = Color.Transparent;
+                    _atLogoSprite.Color = Color.White * _atFade;
+
+                    _atFade = MathHelper.Clamp(_atFade + (float) gameTime.ElapsedGameTime.TotalSeconds * 4, 0, 1);
+                    if (_atFade >= 1)
+                    {
+                        _atFade = 0;
+                        _state++;
+                        _atLogoSprite.Color = Color.White;
+                    }
+                    
+                    break;
+                case 2:
+                    _atTime += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (_atTime >= 1)
+                    {
+                        _atTime = 0;
+                        _state++;
+                    }
+
+                    break;
+                case 3:
+                    PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.White, _atColor, _atFade);
+                    _atText.Color = Color.White * _atFade;
+                    
+                    _atFade = MathHelper.Clamp(_atFade + (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
+                    if (_atFade >= 1)
+                    {
+                        _atFade = 0;
+                        _state++;
+                        _atText.Color = Color.White;
+                        PrimaryCameraSettings.BackgroundColor = _atColor;
+                    }
+
+                    break;
+                case 4:
+                    PrimaryCameraSettings.BloomIntensity += (float) gameTime.ElapsedGameTime.TotalSeconds;
+                    PrimaryCameraSettings.BloomBlurAmount += (float) gameTime.ElapsedGameTime.TotalSeconds;
+
+                    var scale = PrimaryCamera.GetComponent<Transform>().Scale;
+                    scale.X -= (float) gameTime.ElapsedGameTime.TotalSeconds * 8;
+                    scale.Y = scale.X;
+                    PrimaryCamera.GetComponent<Transform>().Scale = scale;
+                    break;
             }
             
             base.OnUpdate(gameTime);
         }
-        
     }
 }
