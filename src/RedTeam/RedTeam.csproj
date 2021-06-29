@@ -38,4 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Fonts\Console" />
+  </ItemGroup>
 </Project>

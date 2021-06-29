@@ -8,6 +8,7 @@ using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
 using Thundershock;
+using Thundershock.Audio;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Components;
@@ -20,6 +21,13 @@ namespace RedTeam
 {
     public class MainMenu : Scene
     {
+        private static bool _isFirstDisplay = false;
+
+        public static void ArmFirstDisplay()
+        {
+            _isFirstDisplay = true;
+        }
+        
         public enum MenuState
         {
             MainMenu,
@@ -82,6 +90,7 @@ namespace RedTeam
         
         #region State
 
+        private float _fade;
         private InstalledContentPack _pack;
         private MenuState _state;
         private bool _hasShownAnnouncement = false;
@@ -92,6 +101,23 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
+            // If this was the first time the menu's been shown (we just got loaded in by
+            // the game splash) then we don't need to start menu music but we do need to
+            // fade the UI in from white.
+            if (_isFirstDisplay)
+            {
+                PrimaryCameraSettings.BackgroundColor = Color.White;
+                _fade = 1;
+            }
+            else
+            {
+                var music = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Bgm.Menu.ogg");
+                MusicPlayer.PlaySong(music);
+            }
+
+            // Dis-arm the "first display of main menu" state
+            _isFirstDisplay = false;
+            
             // Retrieve app component references.
             _saveManager = Game.GetComponent<SaveManager>();
             _announcements = Game.GetComponent<AnnouncementManager>();
@@ -371,6 +397,12 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
+            if (_fade >= 0)
+            {
+                _fade = MathHelper.Clamp(_fade - (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
+                PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.Black, Color.White, _fade);
+            }
+            
             if (_announcements.IsReady && !_hasShownAnnouncement)
             {
                 if (Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
