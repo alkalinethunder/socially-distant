@@ -1,28 +1,33 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Pango;
+using System.Numerics;
 using RedTeam.Connectivity;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
+using Thundershock.Audio;
+using Thundershock.Core;
+using Thundershock.Core.Rendering;
 using Thundershock.Components;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
-using Thundershock.Input;
+using Thundershock.Core.Input;
 using Thundershock.Rendering;
-using Color = Microsoft.Xna.Framework.Color;
 
 namespace RedTeam
 {
     public class MainMenu : Scene
     {
+        private static bool _isFirstDisplay = false;
+
+        public static void ArmFirstDisplay()
+        {
+            _isFirstDisplay = true;
+        }
+        
         public enum MenuState
         {
             MainMenu,
@@ -46,16 +51,16 @@ namespace RedTeam
 
         #region Scene Components
 
-        private SettingsComponent _settingsComponent;
-        private Backdrop _backdrop;
-        private GuiSystem _gui;
+        private SettingsWindow _settingsWindow;
         private WindowManager _wm;
-        private Backdrop _packBackdrop;
         
         #endregion
         
         #region UI
 
+        private Picture _mainBackdrop = new();
+        private Picture _packBackdrop = new();
+        private Panel _fadePanel = new();
         private Stacker _careerErrorStacker = new();
         private TextBlock _careerErrorTitle = new();
         private TextBlock _careerErrorMessage = new();
@@ -86,6 +91,7 @@ namespace RedTeam
         
         #region State
 
+        private float _fade;
         private InstalledContentPack _pack;
         private MenuState _state;
         private bool _hasShownAnnouncement = false;
@@ -96,33 +102,39 @@ namespace RedTeam
         
         protected override void OnLoad()
         {
-            // Camera setup.
-            Camera = new Camera2D();
+            // If this was the first time the menu's been shown (we just got loaded in by
+            // the game splash) then we don't need to start menu music but we do need to
+            // fade the UI in from white.
+            if (_isFirstDisplay)
+            {
+                PrimaryCameraSettings.BackgroundColor = Color.White;
+                _fade = 1;
+            }
+            else
+            {
+                var music = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Bgm.Menu.ogg");
+                MusicPlayer.PlaySong(music);
+            }
 
+            // Dis-arm the "first display of main menu" state
+            _isFirstDisplay = false;
+            
             // Retrieve app component references.
-            _saveManager = App.GetComponent<SaveManager>();
-            _announcements = App.GetComponent<AnnouncementManager>();
-            _contentManager = App.GetComponent<ContentManager>();
+            _saveManager = Game.GetComponent<SaveManager>();
+            _announcements = Game.GetComponent<AnnouncementManager>();
+            _contentManager = Game.GetComponent<ContentManager>();
 
-            // Add scene components.
-            _backdrop = AddComponent<Backdrop>();
-            _packBackdrop = AddComponent<Backdrop>();
-            _gui = AddComponent<GuiSystem>();
-            _wm = AddComponent<WindowManager>();
-
-            // Set the backdrop wallpaper.
-            _backdrop.Texture = App.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
-            
             // Add root UI elements.
-            _gui.AddToViewport(_logo);
-            _gui.AddToViewport(_backdropOverlay);
-
-            // Add the window manager layer.
-            _wm.AddToGuiRoot(_gui);
+            Gui.AddToViewport(_mainBackdrop);
+            Gui.AddToViewport(_packBackdrop);
+            Gui.AddToViewport(_logo);
+            Gui.AddToViewport(_backdropOverlay);
             
+            // Add scene components.
+            _wm = RegisterSystem<WindowManager>();
+
             // Set up the layout of the game's logo.
             // It sits near the top of the screen in the middle.
-            _logo.Image = App.Content.Load<Texture2D>("Textures/RedTeamLogo/redteam_banner_128x");
             _logo.Properties.SetValue(FreePanel.AutoSizeProperty, true);
             _logo.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.TopSide);
             _logo.HorizontalAlignment = HorizontalAlignment.Center;
@@ -139,8 +151,7 @@ namespace RedTeam
             
             // Set up the menu title.
             _menuTitle.TextAlign = TextAlign.Center;
-            _menuTitle.Color = Color.Cyan;
-            _menuTitle.Font = App.Content.Load<SpriteFont>("Fonts/MenuTitle");
+            _menuTitle.ForeColor = Color.Cyan;
             _menuArea.Children.Add(_menuTitle);
             
             // Set up the pack info area.
@@ -161,14 +172,12 @@ namespace RedTeam
                 Environment.NewLine + Environment.NewLine +
                 "You are free to play Custom Stories or make your own in this build.";
             _careerErrorTitle.Text = "* no career mode *";
-            _careerErrorTitle.Color = Color.Red;
-            _careerErrorMessage.Color = Color.White;
+            _careerErrorTitle.ForeColor = Color.Red;
+            _careerErrorMessage.ForeColor = Color.White;
             _careerErrorTitle.TextAlign = TextAlign.Center;
             _careerErrorMessage.TextAlign = TextAlign.Center;
             _careerErrorStacker.Children.Add(_careerErrorTitle);
             _careerErrorStacker.Children.Add(_careerErrorMessage);
-            _careerErrorTitle.Font = App.Content.Load<SpriteFont>("Fonts/ButtonDescription");
-            _careerErrorMessage.Font = App.Content.Load<SpriteFont>("Fonts/Console/Regular");
             
             // Set up the Play menu.
             _playStacker.Children.Add(_continue);
@@ -210,6 +219,13 @@ namespace RedTeam
 
             // Done
             base.OnLoad();
+            
+            // load the default menu backdrop
+            _mainBackdrop.Image = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.DesktopBackgroundImage2.png");
+            
+            // Add the fade panel.
+            Gui.AddToViewport(_fadePanel);
         }
 
         private void ContinueOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -217,7 +233,7 @@ namespace RedTeam
             if (e.Button == MouseButton.Primary)
             {
                 _saveManager.LoadGame(_saves.First());
-                App.LoadScene<BootScreen>();
+                this.GoToScene<BootScreen>();
             }
         }
 
@@ -241,8 +257,8 @@ namespace RedTeam
         {
             if (e.Button == MouseButton.Primary && _pack != null) 
             {
-                App.GetComponent<SaveManager>().NewGame(_pack);
-                App.LoadScene<BootScreen>();
+                Game.GetComponent<SaveManager>().NewGame(_pack);
+                this.GoToScene<BootScreen>();
             }
         }
 
@@ -343,7 +359,7 @@ namespace RedTeam
         
         private void ExitAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
-            App.Exit();
+            Game.Exit();
         }
 
         private void ListExtensions()
@@ -377,7 +393,7 @@ namespace RedTeam
                 var text = new TextBlock();
                 text.Text = "There are no Content Packs to show here.";
                 text.WrapMode = TextWrapMode.WordWrap;
-                text.Color = Color.Cyan;
+                text.ForeColor = Color.Cyan;
                 _extensionsList.Children.Add(text);
             }
         }
@@ -386,9 +402,15 @@ namespace RedTeam
         {
             base.OnUpdate(gameTime);
 
+            if (_fade >= 0)
+            {
+                _fade = MathHelper.Clamp(_fade - (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
+                _fadePanel.BackColor = Color.Lerp(Color.Transparent, Color.White, _fade);
+            }
+            
             if (_announcements.IsReady && !_hasShownAnnouncement)
             {
-                if (App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
+                if (Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
                 {
                     ShowAnnouncement(_announcements.Announcement);
                 }
@@ -419,12 +441,12 @@ namespace RedTeam
 
             if (_pack != null)
             {
-                _packBackdrop.Texture = _pack.Backdrop;
+                _packBackdrop.Image = _pack.Backdrop;
                 _backdropOverlay.BackColor = Color.Black * 0.75f;
             }
             else
             {
-                _packBackdrop.Texture = null;
+                _packBackdrop.Image = null;
                 _backdropOverlay.BackColor = Color.Transparent;
             }
         }
@@ -433,29 +455,27 @@ namespace RedTeam
         {
             var pane = _wm.CreateFloatingPane("Announcement");
 
-            var panel = new Panel();
-            panel.BackColor = ThundershockPlatform.HtmlColor("#222222");
             var stacker = new Stacker();
             stacker.Padding = 15;
             stacker.Margin = 15;
             var title = new TextBlock();
             title.Text = announcement.Title;
-            title.Color = Color.Cyan;
+            title.ForeColor = Color.Cyan;
             title.Font = _menuTitle.Font;
             stacker.Children.Add(title);
             var excerpt = new TextBlock();
-            excerpt.Color = Color.White;
+            excerpt.ForeColor = Color.White;
             excerpt.Text = announcement.Excerpt;
             stacker.Children.Add(excerpt);
 
             var doNotShowAgain = new CheckBox();
             var doNotShowLabel = new TextBlock();
             doNotShowLabel.Text = "Don't show what's new on startup";
-            doNotShowLabel.Color = Color.White;
+            doNotShowLabel.ForeColor = Color.White;
             doNotShowAgain.Children.Add(doNotShowLabel);
 
             var readMoreLink = new TextBlock();
-            readMoreLink.Color = Color.Cyan;
+            readMoreLink.ForeColor = Color.Cyan;
             readMoreLink.Text = "Read More";
             readMoreLink.IsInteractable = true;
             readMoreLink.MouseDown += (o, a) =>
@@ -478,8 +498,8 @@ namespace RedTeam
             {
                 if (doNotShowAgain.IsChecked)
                 {
-                    App.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
-                    App.GetComponent<RedConfigManager>().ApplyChanges();
+                    Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
+                    Game.GetComponent<RedConfigManager>().ApplyChanges();
                     _wm.ShowMessage("Settings Changed",
                         "You've chosen to hide the What's New screen on startup. You can change this preference in System Settings.");
                 }
@@ -493,10 +513,7 @@ namespace RedTeam
             
             stacker.Children.Add(buttonRow);
             
-            panel.Children.Add(stacker);
-            pane.Content.Add(panel);
-            
-            pane.BorderColor = ThundershockPlatform.HtmlColor("#f71b1b");
+            pane.Content.Add(stacker);
 
             _hasShownAnnouncement = true;
         }
@@ -508,8 +525,16 @@ namespace RedTeam
 
         private void OpenSettings()
         {
-            if (!HasComponent<SettingsComponent>())
-                AddComponent<SettingsComponent>();
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = _wm.OpenWindow<SettingsWindow>();
+                _settingsWindow.WindowClosed += SettingsWindowOnWindowClosed;
+            }
+        }
+
+        private void SettingsWindowOnWindowClosed(object? sender, EventArgs e)
+        {
+            _settingsWindow = null;
         }
     }
 }

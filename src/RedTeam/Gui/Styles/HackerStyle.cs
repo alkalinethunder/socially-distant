@@ -1,6 +1,6 @@
 using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using System.Numerics;
+using Thundershock.Core;
 using Thundershock;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
@@ -10,12 +10,12 @@ namespace RedTeam.Gui.Styles
 {
     public class HackerStyle : GuiStyle
     {
-        private SpriteFont _paragraph;
+        private Font _paragraph;
         
         // Color palette...
         private Color _bg = ThundershockPlatform.HtmlColor("#222222");
         private Color _bgInset = Color.Black;
-        private Color _cyan = ThundershockPlatform.HtmlColor("#00ffff");
+        private Color _amber = ThundershockPlatform.HtmlColor("#ffbf00");
         private Color _peace = ThundershockPlatform.HtmlColor("#1baaf7");
         private Color _danger = ThundershockPlatform.HtmlColor("#ff0000");
         private Color _dangerBright = ThundershockPlatform.HtmlColor("#f71b1b");
@@ -23,21 +23,18 @@ namespace RedTeam.Gui.Styles
         private Color _text = ThundershockPlatform.HtmlColor("#eeeeee");
         private Color _textBright = Color.White;
 
-        public override SpriteFont StringListFont => DefaultFont;
+        public override Font StringListFont => DefaultFont;
         public override int ProgressBarHeight => 5;
 
-        public override SpriteFont DefaultFont => _paragraph;
+        public override Font DefaultFont => _paragraph;
         public override int CheckSize => 12;
         public override int TextCursorWidth => 1;
         public override Color DefaultForeground => _text;
-        public override SpriteFont ButtonFont => _paragraph;
+        public override Font ButtonFont => _paragraph;
 
         protected override void OnLoad()
         {
-            // Load fonts in.
-            _paragraph = Gui.App.Content.Load<SpriteFont>("Fonts/Console/Regular");
-            
-            
+            _paragraph = Font.GetDefaultFont(this.Gui.Graphics);
             base.OnLoad();
         }
 
@@ -122,7 +119,7 @@ namespace RedTeam.Gui.Styles
             var color = Color.Black;
 
             if (button.IsActive)
-                color = (button.ButtonActiveColor ?? StyleColor.Default).GetColor(_cyan);
+                color = (button.ButtonActiveColor ?? StyleColor.Default).GetColor(_amber);
             else
                 color = (button.ButtonColor ?? StyleColor.Default).GetColor(_dangerBright);
 
@@ -150,7 +147,7 @@ namespace RedTeam.Gui.Styles
             else if (isHovered)
                 DrawSelectionBox(renderer, bounds, SelectionStyle.ItemHover);
 
-            renderer.DrawString(StringListFont, text, bounds.Location.ToVector2(), _textBright);
+            renderer.DrawString(StringListFont, text, bounds.Location, _textBright);
         }
     }
 }

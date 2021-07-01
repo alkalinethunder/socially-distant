@@ -1,370 +1,288 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using RedTeam.Core.Config;
-using Thundershock.Components;
-using Thundershock.Input;
+﻿using System.Numerics;
 using Thundershock;
+using Thundershock.Audio;
+using Thundershock.Components;
+using Thundershock.Core;
+using Thundershock.Core.Audio;
+using Thundershock.Core.Input;
+using Thundershock.Core.Rendering;
 using Thundershock.Rendering;
 
 namespace RedTeam
 {
     public class Intro : Scene
     {
-        private bool _hasInitialized = false;
-        private double _broadcasterDelay;
-        private SoundEffect _welcomee;
-        private SoundEffect _typingSound;
-        private double _promptWait;
-        private double _promptTime;
-        private VorbisPlayer _glitchPlayer;
-        private bool _animDone;
-        private SoundEffectInstance _typingSoundInstance;
-        private double _typeWait = 1;
-        private int _animState = 0;
-        private const double _blinkTime = 0.1;
-        private double _blink;
-        private int _typePos;
-        private string _type;
-        private bool _blinkOn = true;
-        private Vector2 _typeMeasure;
-        private Vector2 _typeLocation;        
-        private TextComponent _cursorText;
-        private bool _glitching = false;
-        private TextComponent _poweredBy;
-        private TextComponent _thundershock;
-        private TextComponent _michael;
-        private TextComponent _presents;
-        private TextComponent _redTeam;
-        private TextComponent _prompt;
-        private Backdrop _backdrop;
-        private SolidRectangle _cursor;
+        #region Resources
+
+        private Song _mmTheme;
+        private Sound _typeSound;
+        private Font _tsFont;
+        private Font _pbFont;
+        private Font _atFont;
+        private Song _introBG;
+        private Texture2D _atCircle;
+        private string _at = "Alkaline Thunder";
+        private string _ts = "Thundershock Engine";
+        private string _pb = "Powered by";
+        private Color _atColor = ThundershockPlatform.HtmlColor("#0376bd");
+
+        #endregion
+
+        #region State
+
+        private int _state = 0;
+        private float _atFade = 0;
+        private double _atTime = 0;
+        private TextComponent _typer;
+        private double _typeLength;
+        private double _typeTime;
+        private string _textToType;
         
+        #endregion
+
+        #region Audio
+
+        private Sound _glitch1;
+
+        #endregion
+
+        #region Components
+
+        private Transform2D _poweredByTransform = new();
+        private Transform2D _tsTransform = new();
+        private TextComponent _poweredBy = new TextComponent();
+        private TextComponent _tsText = new();
+        private TextComponent _atText = new();
+        private Sprite _atLogoSprite = new();
+        private Transform2D _atSpriteTransform = new();
+        private Transform2D _atTextTransform = new();
+
+        
+        
+        #endregion
+
         protected override void OnLoad()
         {
-            Camera = new Camera2D();
-
-            _backdrop = AddComponent<Backdrop>();
-            _backdrop.Texture = Game.Content.Load<Texture2D>("Backgrounds/DesktopBackgroundImage2");
-
-            if (App.GetComponent<RedConfigManager>().ActiveConfig.BroadcasterMode)
-                _broadcasterDelay = 7.5;
-            else
-                OnInit();
+            // This scene works a lot better in perspective mode.
+            PrimaryCameraSettings.ProjectionType = CameraProjectionType.Perspective;
             
+            _introBG = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Bgm.Intro.ogg");
+            _glitch1 = Sound.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Audio.ThundershockGlitch.ogg");
+            _typeSound = Sound.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Audio.Typing.ogg");
+            _mmTheme = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Bgm.Menu.ogg");
             
+            MusicPlayer.PlaySong(_introBG);
+            
+            _atFont = Font.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.AlkalineThunder.ttf");
+            _atFont.Size = 38;
+
+            _atCircle = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Brand.atcomputercircle.png");
+
+            var atTextEntity = SpawnObject();
+            var atSpriteEntity = SpawnObject();
+            var tsEntity = SpawnObject();
+            var pbEntity = SpawnObject();
+            
+            tsEntity.AddComponent(_tsTransform);
+            pbEntity.AddComponent(_poweredByTransform);
+            
+            tsEntity.AddComponent(_tsText);
+            pbEntity.AddComponent(_poweredBy);
+            
+            atTextEntity.AddComponent(_atTextTransform);
+            atTextEntity.AddComponent(_atText);
+            
+            atSpriteEntity.AddComponent(_atSpriteTransform);
+            atSpriteEntity.AddComponent(_atLogoSprite);
+
+            _atLogoSprite.Texture = _atCircle;
+            _atText.Font = _atFont;
+
+            _atText.Text = _at;
+
+            _atText.Font.Size = (int)(_atLogoSprite.Size.Y - (_atLogoSprite.Size.Y / 4));
+
+            _atTextTransform.Position.X += (_atLogoSprite.Size.X / 2) + 3;
+            
+            PrimaryCamera.GetComponent<Transform>().Scale = Vector3.One * 312;
+
+            var measure = _atFont.MeasureString(_at).X;
+            _atSpriteTransform.Position.X -= (measure / 2) + 3;
+
+            _poweredBy.Text = _pb;
+            _tsText.Text = _ts;
+
+            _tsFont = Font.FromResource(Game.Graphics, this.GetType().Assembly, "RedTeam.Resources.Fonts.Console.Bold.ttf");
+            _pbFont = Font.FromResource(Game.Graphics, this.GetType().Assembly, "RedTeam.Resources.Fonts.Console.Regular.ttf");
+
+            _tsText.Font = _tsFont;
+            _poweredBy.Font = _pbFont;
+
+            _tsFont.Size = 20;
+            _pbFont.Size = 12;
+
+            var tsMeasure = _tsFont.MeasureString(_ts);
+            
+            _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2);
+            _poweredByTransform.Position.Y -= (tsMeasure.Y / 2);
+            
+            _tsTransform.Position.Y += _pbFont.LineHeight / 2;
+            _tsText.Pivot = new Vector2(0, 0.5f);
+            _poweredBy.Pivot = _tsText.Pivot;
+            _tsTransform.Position.X -= tsMeasure.X / 2;
+            _poweredByTransform.Position.X = _tsTransform.Position.X;
 
             base.OnLoad();
         }
 
-        private void OnInit()
-        {
-            if (_hasInitialized)
-                return;
-            
-            _hasInitialized = true;
-            
-            _cursor = AddComponent<SolidRectangle>();
-            _glitchPlayer = AddComponent<VorbisPlayer>();
-
-            
-            _welcomee = Game.Content.Load<SoundEffect>("Sounds/Intro/Welcome");
-            _typingSound = Game.Content.Load<SoundEffect>("Sounds/Intro/Typing");
-            _typingSoundInstance = _typingSound.CreateInstance();
-
-            _typingSoundInstance.IsLooped = true;
-            
-            var big = Game.Content.Load<SpriteFont>("Fonts/Intro/Big");
-            var small = Game.Content.Load<SpriteFont>("Fonts/Intro/Small");
-
-            _prompt = AddComponent<TextComponent>();
-            _redTeam = AddComponent<TextComponent>();
-            _presents = AddComponent<TextComponent>();
-            _michael = AddComponent<TextComponent>();
-            _poweredBy = AddComponent<TextComponent>();
-            _thundershock = AddComponent<TextComponent>();
-
-            _redTeam.Font = big;
-            _michael.Font = big;
-            _thundershock.Font = big;
-
-            _prompt.Font = small;
-            _poweredBy.Font = small;
-            _presents.Font = small;
-
-            _prompt.Text = "press any key to continue . . .";
-            _poweredBy.Text = "powered by";
-            _presents.Text = "presents";
-
-            _thundershock.Text = "thundershock engine";
-            _redTeam.Text = "RED TEAM";
-            _michael.Text = "Michael VanOverbeek";
-
-            _redTeam.Color = ThundershockPlatform.HtmlColor("#f71b1b");
-
-            _michael.Color = ThundershockPlatform.HtmlColor("#1baaf7");
-            _thundershock.Color = Color.Green;
-
-            _prompt.Visible = false;
-            _thundershock.Visible = false;
-            _redTeam.Visible = false;
-            _presents.Visible = false;
-            _poweredBy.Visible = false;
-            
-            _presents.Visible = true;
-
-            _prompt.Origin = new Vector2(0.5f, 0.75f);
-            
-            var pos = _michael.Position;
-            var size = _michael.TextMeasure;
-
-            pos.X -= size.X / 2;
-            pos.Y += size.Y / 2;
-            
-            _presents.Position = pos;
-            _presents.Pivpt = new Vector2(0, 0.5f);
-            _presents.Visible = false;
-            
-            StartGlitchEffect("RedTeam.Resources.Audio.MichaelGlitch.ogg");
-
-            pos = _thundershock.Position;
-            size = _thundershock.TextMeasure;
-
-            pos.X -= size.X * _thundershock.Pivpt.X;
-            pos.Y -= size.Y * _thundershock.Pivpt.Y;
-
-            _poweredBy.Position = pos;
-            _poweredBy.Pivpt = new Vector2(0, 0.5f);
-
-            var input = App.GetComponent<InputManager>();
-            input.KeyDown += HandleKeyDown;
-            
-
-        }
-
-        protected override void OnUnload()
-        {
-            var input = App.GetComponent<InputManager>();
-            input.KeyDown -= HandleKeyDown;
-
-            _typingSoundInstance?.Dispose();
-
-            Game.PostProcessSettings.EnableGlitch = false;
-            Game.PostProcessSettings.GlitchIntensity = 0;
-            Game.PostProcessSettings.GlitchSkew = 0;
-            
-            base.OnUnload();
-        }
-
-        private void HandleKeyDown(object? sender, KeyEventArgs e)
-        {
-            if (_animDone)
-            {
-                StartGlitchEffect("RedTeam.Resources.Audio.MichaelGlitch.ogg");
-                _animState++;
-            }
-            else
-            {
-                Done();
-            }
-        }
-
-        private void StartGlitchEffect(string resource)
-        {
-            _glitchPlayer.OpenResource(this.GetType().Assembly, resource);
-            _glitching = true;
-        }
-        
-        private void Done()
-        {
-            App.LoadScene<MainMenu>();
-        }
-
-        private void StartTyping(TextComponent text)
-        {
-            _typingSoundInstance.Play();
-            _cursorText = text;
-            _typeMeasure = text.TextMeasure;
-            _typeLocation = text.Position;
-            _typePos = 0;
-            _type = _cursorText.Text;
-            _cursorText.Text = string.Empty;
-        }
-
-        private void StopTyping()
-        {
-            _cursorText = null;
-            _type = null;
-            _typePos = 0;
-            _typingSoundInstance.Stop();
-        }
-        
         protected override void OnUpdate(GameTime gameTime)
         {
-            if (_broadcasterDelay > 0)
-            {
-                _broadcasterDelay -= gameTime.ElapsedGameTime.TotalSeconds;
-                return;
-            }
-
-            if (!_hasInitialized)
-                OnInit();
-            
-            if (_typeWait >= 0 && _cursorText == null)
-                _typeWait -= gameTime.ElapsedGameTime.TotalSeconds;
-            
-            if (_glitching)
-            {
-                var pow = _glitchPlayer.Power;
-
-                Game.PostProcessSettings.EnableGlitch = true;
-                Game.PostProcessSettings.GlitchIntensity = pow;
-                Game.PostProcessSettings.GlitchSkew = pow / 8;
-                
-                if (!_glitchPlayer.IsPlaying)
-                {
-                    _glitching = false;
-                }
-            }
-            else
-            {
-                Game.PostProcessSettings.EnableGlitch = false;
-                Game.PostProcessSettings.GlitchIntensity = 0;
-                Game.PostProcessSettings.GlitchSkew = 0;
-            }
-
-            _blink += gameTime.ElapsedGameTime.TotalSeconds;
-            if (_blink >= _blinkTime)
-            {
-                _blinkOn = !_blinkOn;
-                _blink = 0;
-                _typePos++;
-                if (_type != null && _typePos > _type.Length)
-                {
-                    StopTyping();
-                }
-            }
-            
-            if (_cursorText != null)
-            {
-                _cursorText.Text = _type.Substring(0, _typePos);
-                _cursorText.Position = _typeLocation - _typeMeasure * _cursorText.Pivpt;
-                _cursorText.Position += _cursorText.TextMeasure * _cursorText.Pivpt;
-                var m = _cursorText.Font.MeasureString("#");
-                
-                _cursor.Visible = _blinkOn;
-                _cursor.Color = _cursorText.Color;
-
-                _cursor.Size = m;
-
-                _cursor.Origin = _cursorText.Origin;
-                _cursor.Pivot = _cursorText.Pivpt;
-
-                var pos = _cursorText.Position;
-
-                pos.X += _cursorText.TextMeasure.X / 2;
-                pos.X += m.X / 2;
-                
-                _cursor.Position = pos;
-            }
-            else
-            {
-                _cursor.Visible = (_typeWait > 0);
-            }
-
-            switch (_animState)
+            switch (_state)
             {
                 case 0:
-                    if (!_glitching)
+                    _tsText.Color = Color.Transparent;
+                    _poweredBy.Color = Color.Transparent;
+                    
+                    PrimaryCameraSettings.BackgroundColor = Color.Black;
+                    
+                    _atText.Color = Color.Transparent;
+                    _atLogoSprite.Color = Color.Transparent;
+                    
+                    _atTime += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (_atTime >= 1)
                     {
-                        _presents.Visible = true;
-                        StartTyping(_presents);
-                        _animState++;
-                        _typeWait = 1;
+                        _state++;
+                        _atTime = 0;
                     }
                     break;
                 case 1:
-                    if (_cursorText == null)
+                    _atText.Color = Color.Transparent;
+                    _atLogoSprite.Color = Color.White * _atFade;
+
+                    _atFade = MathHelper.Clamp(_atFade + (float) gameTime.ElapsedGameTime.TotalSeconds * 4, 0, 1);
+                    if (_atFade >= 1)
                     {
-                        if (_typeWait <= 0)
-                        {
-                            _poweredBy.Visible = false;
-                            _thundershock.Visible = false;
-                            StartGlitchEffect("RedTeam.Resources.Audio.ThundershockGlitch.ogg");
-                            _animState++;
-                        }
+                        _atFade = 0;
+                        _state++;
+                        _atLogoSprite.Color = Color.White;
                     }
+                    
                     break;
                 case 2:
-                    if (!_glitching)
+                    _atTime += gameTime.ElapsedGameTime.TotalSeconds;
+                    if (_atTime >= 1)
                     {
-                        _michael.Visible = false;
-                        _presents.Visible = false;
-                        _animState++;
-                        _poweredBy.Visible = true;
-                        StartTyping(_poweredBy);
+                        _atTime = 0;
+                        _state++;
                     }
+
                     break;
                 case 3:
-                    if (_cursorText == null)
+                    PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.White, _atColor, _atFade);
+                    _atText.Color = Color.White * _atFade;
+                    
+                    _atFade = MathHelper.Clamp(_atFade + (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
+                    if (_atFade >= 1)
                     {
-                        _typeWait = 1;
-                        _thundershock.Visible = true;
-                        StartTyping(_thundershock);
-                        _animState++;
+                        _atFade = 0;
+                        _state++;
+                        _atText.Color = Color.White;
+                        PrimaryCameraSettings.BackgroundColor = _atColor;
                     }
+
                     break;
                 case 4:
-                    if (_cursorText == null)
+                    var scale = PrimaryCamera.GetComponent<Transform>().Scale;
+                    scale.X -= (float) gameTime.ElapsedGameTime.TotalSeconds * 8;
+                    scale.Y = scale.X;
+                    PrimaryCamera.GetComponent<Transform>().Scale = scale;
+
+                    _atTime += gameTime.ElapsedGameTime.TotalSeconds;
+                    
+                    if (_atTime >= 4)
                     {
-                        if (_typeWait <= 0)
-                        {
-                            StartGlitchEffect("RedTeam.Resources.Audio.RedTeamGlitch.ogg");
-                            _animState++;
-                        }
+                        _atTime = 0;
+                        _state++;
+                        _glitch1.Play();
                     }
+                    
                     break;
                 case 5:
-                    if (!_glitching)
+                    // TODO: glitch effect
+                    if (_glitch1.State != AudioState.Playing)
                     {
-                        _poweredBy.Visible = false;
-                        _thundershock.Visible = false;
-                        _redTeam.Visible = true;
-                        StartTyping(_redTeam);
-                        _animState++;
+                        _state++;
+                        PrimaryCameraSettings.BackgroundColor = Color.Black;
+                        _atLogoSprite.Color = Color.Transparent;
+                        _atText.Color = Color.Transparent;
+                        _poweredBy.Color = Color.Red;
+                        StartTyping(_tsText, _ts, Color.Red);
                     }
                     break;
                 case 6:
-                    if (_cursorText == null)
+                    if (_typer == null)
                     {
-                        _welcomee.Play();
-                        _animState++;
-                        _prompt.Visible = true;
-                        _promptWait = _welcomee.Duration.TotalSeconds;
-                        _promptTime = 0;
+                        _atFade = 0;
+                        _state++;
+                        MusicPlayer.PlaySong(_mmTheme, 8);
                     }
-
                     break;
                 case 7:
-                    var percent = (float) (_promptTime / _promptWait);
-                    var alpha = MathHelper.Clamp(percent, 0, 1);
-                    _prompt.Color = new Color(_prompt.Color, alpha);
-                    _promptTime += gameTime.ElapsedGameTime.TotalSeconds;
-                    if (_promptTime >= _promptWait)
+                    _atFade += (float) gameTime.ElapsedGameTime.TotalSeconds / 8;
+                    _atFade = MathHelper.Clamp(_atFade, 0, 1);
+
+                    if (_atFade >= 0.5f)
                     {
-                        _animState++;
-                        _animDone = true;
-                    }
-                    break;
-                case 9:
-                    if (!_glitching)
-                    {
-                        Done();
+                        var realFade = (_atFade - 0.5f) * 2;
+                        
+                        _tsText.Color = Color.Red * (1 - realFade);
+                        _poweredBy.Color = _tsText.Color;
+
+                        PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.Black, Color.White, realFade);
                     }
 
+                    if (_atFade >= 1)
+                    {
+                        MainMenu.ArmFirstDisplay();
+                        GoToScene<MainMenu>();
+                    }
+                    
                     break;
             }
+
+            if (_typer != null)
+            {
+                _typeTime += gameTime.ElapsedGameTime.TotalSeconds;
+                if (_typeTime >= _typeLength)
+                {
+                    _typer.Text = _textToType;
+                    _typer = null;
+                    _typeTime = 0;
+                    _typeLength = 0;
+                }
+                else
+                {
+                    var percentage = (float) (_typeTime / _typeLength);
+                    var i = (int) (_textToType.Length * percentage);
+                    _typer.Text = _textToType.Substring(0, i);
+                }
+            }
+            
+            base.OnUpdate(gameTime);
+        }
+
+        private void StartTyping(TextComponent component, string text, Color color)
+        {
+            _textToType = text;
+            _typer = component;
+            _typeTime = 0;
+            _typeLength = _typeSound.Length.TotalSeconds;
+
+            _typer.Text = string.Empty;
+            _typer.Color = color;
+            _typeSound.Play();
         }
     }
 }

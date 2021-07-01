@@ -10,13 +10,14 @@
     <Deterministic>false</Deterministic>
     <OutputType>WinExe</OutputType>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Icon.ico" />
@@ -27,40 +28,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
-    <None Remove="Resources\NeoFetchTemplate.txt" />
-    <None Remove="Resources\Cowsay.txt" />
-    <None Remove="Resources\Fortunes.txt" />
-    <None Remove="Resources\RedTermPalettes\default.json" />
-    <None Remove="Resources\RedTermPalettes\highContrast.json" />
-    <None Remove="Resources\RedTermPalettes\light.json" />
-    <None Remove="Resources\RedTermPalettes\README.txt" />
-    <None Remove="Resources\Audio\MichaelGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\MichaelGlitch.ogg" />
-    <None Remove="Resources\Audio\RedTeamGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\RedTeamGlitch.ogg" />
-    <None Remove="Resources\Audio\ThundershockGlitch.ogg" />
-    <EmbeddedResource Include="Resources\Audio\ThundershockGlitch.ogg" />
-    <None Remove="Resources\TestAudio.ogg" />
-    <None Remove="Resources\Intro.txt" />
-    <EmbeddedResource Include="Resources\Intro.txt" />
-    <None Remove="Resources\glitchie.ogg" />
-    <None Remove="Resources\Document1.ogg" />
-    <EmbeddedResource Include="Resources\Document1.ogg" />
-    <None Remove="Resources\Career\Meta" />
-    <EmbeddedResource Include="Resources\Career\Meta" />
-    <None Remove="Resources\Career\GameData" />
-    <EmbeddedResource Include="Resources\Career\GameData" />
-    <EmbeddedResource Remove="Content\bin\**" />
-    <EmbeddedResource Remove="Content\obj\**" />
-    <None Remove="Resources\kmsg.log" />
-    <EmbeddedResource Include="Resources\kmsg.log" />
-  </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Remove="Content\bin\**" />
-    <MonoGameContentReference Remove="Content\obj\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
+    <EmbeddedResource Include="Resources\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FftSharp" Version="1.0.8" />
@@ -68,10 +36,10 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Content\bin\**" />
-    <Compile Remove="Content\obj\**" />
+    <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\redteam-core\src\RedTeam.Core\RedTeam.Core.csproj" />
+    <Folder Include="Resources\Fonts\Console" />
+    <Folder Include="Resources\Textures" />
   </ItemGroup>
 </Project>

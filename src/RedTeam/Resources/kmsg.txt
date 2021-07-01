@@ -1,0 +1,242 @@
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+er_state_obj_get_for_recovery:4214: No ER state object for volume Recovery - rolling is not happening, nothing to recover.
+handle_mount:298: vol-uuid: C69934B9-6935-4FDD-9785-0895FEBC7DE7 block size: 4096 block count: 62863350 (unencrypted; flags: 0x1; features: 1.0.2)
+handle_mount:311: setting dev block size to 4096 from 512
+fs_vfsop_mount:1536: mounted volume: Recovery
+disk2s3: device is not readable.
+fs_stop_bg_work:782: Volume Recovery is unmounting, stop any bg work
+fs_vfsop_unmount:1696: /dev/disk2: unmounting volume 'Recovery'
+fs: total mem allocated: 187526026 (179 mb);
+fs_vfsop_unmount:1936: all done.  going home.  (numMountedfsVolumes 2)
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+handle_encryption_rolling:5661: er: request granted[0].
+Sandbox: SoftwareUpdateCo(620) deny(1) authorization-right-obtain system.install.app-store-software.standard-userfailed to lookup target storage class: 2Sandbox: storeassetd(426) deny(1) file-read-data /private/var/db/mds/messages/501/se_SecurityMessagesfailed to lookup target storage class: 2failed to lookup target storage class: 2Sandbox: storeassetd(426) deny(1) file-read-data /Library/Preferences/com.thisisafakebootscreen.PowerManagement.plister_state_obj_get_for_recovery:4214: No ER state object for volume Preboot - rolling is not happening, nothing to recover.
+handle_mount:298: vol-uuid: D3BC267E-5D64-4858-8C0F-4EC8A8916B89 block size: 4096 block count: 62863350 (unencrypted; flags: 0x1; features: 1.0.2)
+handle_mount:311: setting dev block size to 4096 from 512
+fs_vfsop_mount:1536: mounted volume: Preboot
+er_state_obj_get_for_recovery:4214: No ER state object for volume Recovery - rolling is not happening, nothing to recover.
+handle_mount:298: vol-uuid: C69934B9-6935-4FDD-9785-0895FEBC7DE7 block size: 4096 block count: 62863350 (unencrypted; flags: 0x1; features: 1.0.2)
+handle_mount:311: setting dev block size to 4096 from 512
+fs_vfsop_mount:1536: mounted volume: Recovery
+failed to lookup target storage class: 2failed to lookup target storage class: 2EXC_RESOURCE -> efilogin-helper[641] exceeded mem limit: ActiveSoft 250 MB (non-fatal)
+Sandbox: diskarbitrationd(65) System Policy: allow file-read-data /dev/rdisk2s2disk2s2: device is not readable.
+fs_stop_bg_work:782: Volume Preboot is unmounting, stop any bg work
+fs_vfsop_unmount:1696: /dev/disk2: unmounting volume 'Preboot'
+fs: total mem allocated: 194348808 (185 mb);
+easter_egg: hey you can read this, now you can tell that none of this is real
+fs_vfsop_unmount:1936: all done.  going home.  (numMountedfsVolumes 3)
+Sandbox: diskarbitrationd(65) System Policy: allow file-read-data /dev/rdisk2s3disk2s3: device is not readable.
+fs_vfsop_unmount:1696: /dev/disk2: unmounting volume 'Recovery'
+fs: total mem allocated: 194342052 (185 mb);
+fs_vfsop_unmount:1936: all done.  going home.  (numMountedfsVolumes 2)
+Sandbox: rtcreportingd(654) deny(1) ipc-posix-shm-write-create com.thisisafakebootscreen.FakeDatabaseChangedSandbox: deleted(657) deny(1) file-read-data /Library/MessageTracer/SubmitDiagInfo.default.domains.searchtreefailed to lookup target storage class: 2failed to lookup target storage class: 2failed to lookup target storage class: 2Sandbox: 1 duplicate report for deleted deny(1) file-read-data /Library/MessageTracer/SubmitDiagInfo.default.domains.searchtreeSandbox: suggestd(352) deny(1) mach-lookup com.thisisafakebootscreen.Maps.mapspushdSandbox: suggestd(352) deny(1) mach-lookup com.thisisafakebootscreen.routined.registrationprocess iCUE[388] caught waking the CPU 45001 times over ~148 seconds, averaging 303 wakes / second and violating a limit of 45000 wakes over 300 seconds.
+Sandbox: assistantd(373) deny(1) mach-lookup com.thisisafakebootscreen.coreduetd.knowledgeSandbox: 1 duplicate report for assistantd deny(1) mach-lookup com.thisisafakebootscreen.coreduetd.knowledgeDataDetectorsSou[693] Unable to quarantine: 1
+easter_egg: i totally didn't steal this from a real OS's boot sequence
+Sandbox: systemsoundserve(231) deny(1) mach-lookup com.thisisafakebootscreen.assertiond.processassertionconnection+ IOAudioEngineUserClient::externalMethod, selector=0x3,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioEngineUserClient[<ptr>]::startClient() - 0
+  audioEngine && !isInactive(). State = 0 
+  audioEngine->getState() != kIOAudioEnginePaused 
++- IOAudioEngineUserClient[<ptr>]::setOnline(1)
+  !isOnline() setting online 
++ IOAudioEngine[<ptr>]::startClient(<ptr>)
++ IOAudioEngine[<ptr>]::incrementActiveUserClients() - 0
++ IOAudioEngine[<ptr>]::startAudioEngine(state = 0)
++ IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 0
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 2
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 2
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 1
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(0,0)
++- IOAudioEngine[<ptr>]::resetStatusBuffer()
++-IOAudioEngine[<ptr>]::setState(0x1. oldState=0)
+- IOAudioEngine[<ptr>]::getTimerInterval()
+- IOAudioEngine[<ptr>]::startAudioEngine() returns 0x0
+- IOAudioEngine[<ptr>]::incrementActiveUserClients() - 1 returns ritchie
+- IOAudioEngine[<ptr>]::startClient(<ptr>) returns 0x0
+  engine started 
+  bufferSet <ptr> 
+  output clientBuffer <ptr> 
++ IOAudioStream[<ptr>]::addClient(<ptr>)
+- IOAudioStream[<ptr>]::addClient(<ptr>) returns 0x0
+- IOAudioEngineUserClient[<ptr>]::startClient() - 1 returns 0x0
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x4,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioStream[<ptr>]::removeClient(<ptr>)
++-IOAudioStream[<ptr>]::safeLogError kErrorLogDumpCounters mStreamErrorCountsUpdated=0
+- IOAudioStream[<ptr>]::removeClient(<ptr>)
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(2,2c00)
++- IOAudioEngine[<ptr>]::decrementActiveUserClients() - 0 returns 0x0
++- IOAudioEngine[<ptr>]::stopClient(<ptr>) returns 0x0
++- IOAudioEngineUserClient[<ptr>]::setOnline(0)
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngine[<ptr>]::stopAudioEngine()
++-IOAudioEngine[<ptr>]::setState(0x0. oldState=0x1)
++ IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 1
++ IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 1
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 1
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
+- IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 0
+- IOAudioEngine[<ptr>]::stopAudioEngine() returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x3,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioEngineUserClient[<ptr>]::startClient() - 0
+  audioEngine && !isInactive(). State = 0 
+  audioEngine->getState() != kIOAudioEnginePaused 
++- IOAudioEngineUserClient[<ptr>]::setOnline(1)
+  !isOnline() setting online 
++ IOAudioEngine[<ptr>]::startClient(<ptr>)
++ IOAudioEngine[<ptr>]::incrementActiveUserClients() - 0
++ IOAudioEngine[<ptr>]::startAudioEngine(state = 0)
++ IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 0
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 2
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 2
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 1
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(0,0)
++- IOAudioEngine[<ptr>]::resetStatusBuffer()
++-IOAudioEngine[<ptr>]::setState(0x1. oldState=0)
+- IOAudioEngine[<ptr>]::getTimerInterval()
+- IOAudioEngine[<ptr>]::startAudioEngine() returns 0x0
+- IOAudioEngine[<ptr>]::incrementActiveUserClients() - 1 returns 0
+- IOAudioEngine[<ptr>]::startClient(<ptr>) returns 0x0
+  engine started 
+  bufferSet <ptr> 
+  output clientBuffer <ptr> 
++ IOAudioStream[<ptr>]::addClient(<ptr>)
+- IOAudioStream[<ptr>]::addClient(<ptr>) returns 0x0
+- IOAudioEngineUserClient[<ptr>]::startClient() - 1 returns 0x0
+- IOAudioEngineUserClient::externalMethod returns 0x0
+easter_egg: hi hope I don't get sued
+considerRebuildOfPrelinkedKernel as.vit9696.Lilu triggered rebuild
++ IOAudioEngineUserClient::externalMethod, selector=0x4,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioStream[<ptr>]::removeClient(<ptr>)
++-IOAudioStream[<ptr>]::safeLogError kErrorLogDumpCounters mStreamErrorCountsUpdated=0
+- IOAudioStream[<ptr>]::removeClient(<ptr>)
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(2,2c00)
++- IOAudioEngine[<ptr>]::decrementActiveUserClients() - 0 returns 0x0
++- IOAudioEngine[<ptr>]::stopClient(<ptr>) returns 0x0
++- IOAudioEngineUserClient[<ptr>]::setOnline(0)
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x3,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioEngineUserClient[<ptr>]::startClient() - 0
+  audioEngine && !isInactive(). State = 1 
+  audioEngine->getState() != kIOAudioEnginePaused 
++- IOAudioEngineUserClient[<ptr>]::setOnline(1)
+  !isOnline() setting online 
++ IOAudioEngine[<ptr>]::startClient(<ptr>)
++ IOAudioEngine[<ptr>]::incrementActiveUserClients() - 0
++ IOAudioEngine[<ptr>]::startAudioEngine(state = 1)
+- IOAudioEngine[<ptr>]::startAudioEngine() returns 0x0
+- IOAudioEngine[<ptr>]::incrementActiveUserClients() - 1 returns 0
+- IOAudioEngine[<ptr>]::startClient(<ptr>) returns 0x0
+  engine started 
+  bufferSet <ptr> 
+  output clientBuffer <ptr> 
++ IOAudioStream[<ptr>]::addClient(<ptr>)
+- IOAudioStream[<ptr>]::addClient(<ptr>) returns 0x0
+- IOAudioEngineUserClient[<ptr>]::startClient() - 1 returns 0x0
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x4,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioStream[<ptr>]::removeClient(<ptr>)
++-IOAudioStream[<ptr>]::safeLogError kErrorLogDumpCounters mStreamErrorCountsUpdated=0
+- IOAudioStream[<ptr>]::removeClient(<ptr>)
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(4,c00)
++- IOAudioEngine[<ptr>]::decrementActiveUserClients() - 0 returns 0x0
++- IOAudioEngine[<ptr>]::stopClient(<ptr>) returns 0x0
++- IOAudioEngineUserClient[<ptr>]::setOnline(0)
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngine[<ptr>]::stopAudioEngine()
++-IOAudioEngine[<ptr>]::setState(0x0. oldState=0x1)
++ IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 1
++ IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 1
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 1
+= WHY ARE YOU ACTUALLY READING THIS LIKE SERIOUSLY JUST PLAY THE GAME
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
+- IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 0
+- IOAudioEngine[<ptr>]::stopAudioEngine() returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x3,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioEngineUserClient[<ptr>]::startClient() - 0
+  audioEngine && !isInactive(). State = 0 
+  audioEngine->getState() != kIOAudioEnginePaused 
++- IOAudioEngineUserClient[<ptr>]::setOnline(1)
+  !isOnline() setting online 
++ IOAudioEngine[<ptr>]::startClient(<ptr>)
++ IOAudioEngine[<ptr>]::incrementActiveUserClients() - 0
++ IOAudioEngine[<ptr>]::startAudioEngine(state = 0)
++ IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 0
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 2
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 2
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 2 returns 0x0
+- IOAudioDevice[<ptr>]::audioEngineStarting() - numRunningAudioEngines = 1
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(0,0)
++- IOAudioEngine[<ptr>]::resetStatusBuffer()
++-IOAudioEngine[<ptr>]::setState(0x1. oldState=0)
+- IOAudioEngine[<ptr>]::getTimerInterval()
+- IOAudioEngine[<ptr>]::startAudioEngine() returns 0x0
+- IOAudioEngine[<ptr>]::incrementActiveUserClients() - 1 returns 0
+
+- IOAudioEngine[<ptr>]::startClient(<ptr>) returns 0x0
+  engine started 
+  bufferSet <ptr> 
+  output clientBuffer <ptr> 
++ IOAudioStream[<ptr>]::addClient(<ptr>)
+- IOAudioStream[<ptr>]::addClient(<ptr>) returns 0x0
+- IOAudioEngineUserClient[<ptr>]::startClient() - 1 returns 0x0
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngineUserClient::externalMethod, selector=0x4,   arg0 0x0, arg1 0x0, arg2 0x0 arg3 0x0 
+  scalarInputCount=0x0  structureInputSize 0x0, scalarOutputCount 0x0, structureOutputSize 0x0 
++ IOAudioStream[<ptr>]::removeClient(<ptr>)
++-IOAudioStream[<ptr>]::safeLogError kErrorLogDumpCounters mStreamErrorCountsUpdated=0
+- IOAudioStream[<ptr>]::removeClient(<ptr>)
+- IOAudioEngine[<ptr>]::stopEngineAtPosition(2,2c00)
++- IOAudioEngine[<ptr>]::decrementActiveUserClients() - 0 returns 0x0
++- IOAudioEngine[<ptr>]::stopClient(<ptr>) returns 0x0
++- IOAudioEngineUserClient[<ptr>]::setOnline(0)
+- IOAudioEngineUserClient::externalMethod returns 0x0
++ IOAudioEngine[<ptr>]::stopAudioEngine()
++-IOAudioEngine[<ptr>]::setState(0x0. oldState=0x1)
++ IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 1
++ IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
++ IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 2 - pending = 1
++ IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 2 - pending = 1
+- IOAudioDevice[<ptr>]::protectedCompletePowerStateChange() - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::initiatePowerStateChange(0) - current = 1 - pending = 1 returns 0x0
+- IOAudioDevice[<ptr>]::scheduleIdleAudioSleep: idleSleepDelayTime = 00
+- IOAudioDevice[<ptr>]::audioEngineStopped() - numRunningAudioEngines = 0
+- IOAudioEngine[<ptr>]::stopAudioEngine() returns 0x0

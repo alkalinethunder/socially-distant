@@ -1,14 +1,14 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
-using Thundershock.Gui;
+using System.Numerics;
 using System.IO;
-using GLib;
-using Microsoft.Xna.Framework.Graphics;
-using RedTeam.Core.Components;
+using Thundershock.Core;
+using Thundershock.Gui;
+using Thundershock.Core.Rendering;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Components;
 using Thundershock.Gui.Elements;
@@ -27,14 +27,19 @@ namespace RedTeam
 
         #endregion
 
-        #region SCENE COMPONENTS
+        #region COMPONENTS
 
-        private TextureComponent _logo1;
-        private TextureComponent _logo2;
-        private GuiSystem _guiSystem;
-        private WindowManager _winManager;
-        private OobeComponent _oobe;
+        private Transform2D _logoTransform1 = new();
+        private Transform2D _logoTransform2 = new();
+        private Sprite _logoSprite1 = new();
+        private Sprite _logoSprite2 = new();
+
+        #endregion
         
+        #region SYSTEMS
+
+        private WindowManager _winManager;
+
         #endregion
 
         #region STATE
@@ -64,41 +69,36 @@ namespace RedTeam
 
         #region WINDOWS
 
-        private Pane _oobeWindow;
+        private OobeWindow _oobeWindow;
 
         #endregion
         
         protected override void OnLoad()
         {
-            // Camera setup.
-            Camera = new Camera2D();
-            
             // Grab app references.
-            _contentManager = App.GetComponent<ContentManager>();
-            _saveManager = App.GetComponent<SaveManager>();
-            _redConf = App.GetComponent<RedConfigManager>();
+            _contentManager = Game.GetComponent<ContentManager>();
+            _saveManager = Game.GetComponent<SaveManager>();
+            _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add the gui system to the scene.
-            _guiSystem = AddComponent<GuiSystem>();
-            _winManager = AddComponent<WindowManager>();
-            _oobe = AddComponent<OobeComponent>();
-            _logo1 = AddComponent<TextureComponent>();
-            _logo2 = AddComponent<TextureComponent>();
+            var logo1 = SpawnObject();
+            var logo2 = SpawnObject();
             
-            // Logo textures.
-            _logo1.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_1");
-            _logo2.Texture = App.Content.Load<Texture2D>("Textures/rtos_boot_2");
+            // Add components to these entities.
+            logo1.AddComponent(_logoTransform1);
+            logo2.AddComponent(_logoTransform2);
+            logo1.AddComponent(_logoSprite1);
+            logo2.AddComponent(_logoSprite2);
             
-            // Logo sizes.
-            _logo1.Size = _logo1.Texture.Bounds.Size.ToVector2() / 2;
-            _logo2.Size = _logo2.Texture.Bounds.Size.ToVector2() / 2;
-
             // Set up the GUI.
             _master.Children.Add(_statusHeader);
             _master.Children.Add(_progress);
             _master.Children.Add(_console);
-            _guiSystem.AddToViewport(_master);
-            _guiSystem.AddToViewport(_bootProgress);
+            Gui.AddToViewport(_master);
+            Gui.AddToViewport(_bootProgress);
+            
+            // Window manager.
+            _winManager = RegisterSystem<WindowManager>();
             
             // Boot progress bar setup.
             _bootProgress.Properties.SetValue(FreePanel.AutoSizeProperty, true);
@@ -113,7 +113,7 @@ namespace RedTeam
             
             // Style the GUI
             _statusHeader.Font = _console.Font;
-            _statusHeader.Color = Color.White;
+            _statusHeader.ForeColor = Color.White;
             _statusHeader.Visibility = Visibility.Collapsed;
             _progress.Visibility = Visibility.Collapsed;
             _progress.Padding = new Padding(0, 5, 0, 10);
@@ -121,16 +121,23 @@ namespace RedTeam
 
             // Prepare the kmsg text.
             this.LoadKernelMessages();
-            
-            _winManager.AddToGuiRoot(_guiSystem);
 
+            // Logo setup.
+            _logoSprite1.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.rtos_boot_1.png");
+            _logoSprite2.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.rtos_boot_2.png");
+            _logoSprite1.Size = new Vector2(128, 128);
+            _logoSprite2.Size = new Vector2(128, 128);
+            
+            
             base.OnLoad();
         }
 
         protected override void OnUpdate(GameTime gameTime)
         {
-            _logo1.Color = Color.Transparent;
-            _logo2.Color = Color.Transparent;
+            _logoSprite1.Color = Color.Transparent;
+            _logoSprite2.Color = Color.Transparent;
             _bootProgress.Opacity = 0;
             
             switch (_bootState)
@@ -309,11 +316,8 @@ namespace RedTeam
                     }
                     break;
                 case 18:
-                    if (_oobe.IsComplete)
+                    if (_oobeWindow == null)
                     {
-                        _username = _oobe.Username;
-                        _password = _oobe.Password;
-                        _hostname = _oobe.Hostname;
                         _installState++;
                         _console.WriteLine("echo {0} > /mnt/etc/hostname", _hostname);
                     }
@@ -427,10 +431,19 @@ namespace RedTeam
 
         private void BuildOobeWindow()
         {
-            _oobeWindow = _winManager.CreateFloatingPane("Initial Setup");
-            _oobe.InitExperience(_oobeWindow);
+            _oobeWindow = _winManager.OpenWindow<OobeWindow>();
+            _oobeWindow.WindowClosed += OobeWindowOnWindowClosed;
         }
-        
+
+        private void OobeWindowOnWindowClosed(object? sender, EventArgs e)
+        {
+            _username = _oobeWindow.Username;
+            _password = _oobeWindow.Password;
+            _hostname = _oobeWindow.Hostname;
+
+            _oobeWindow = null;
+        }
+
         private void GraphicalBootUpdate(GameTime gameTime)
         {
             _master.Visibility = Visibility.Collapsed;
@@ -451,30 +464,30 @@ namespace RedTeam
 
                     var halfWidth = ViewportBounds.Width / 2;
 
-                    _logo1.Color = Color.White * _bootProgress.Opacity;
-                    _logo2.Color = _logo1.Color;
+                    _logoSprite1.Color = Color.White * _bootProgress.Opacity;
+                    _logoSprite2.Color = _logoSprite1.Color;
 
-                    _logo1.Position = new Vector2(-(halfWidth * _bootProgress.Opacity), 0);
-                    _logo2.Position = new Vector2(-_logo1.Position.X, 0);
+                    _logoTransform1.Position = new Vector2(-(halfWidth * _bootProgress.Opacity), 0);
+                    _logoTransform2.Position = new Vector2(-_logoTransform1.Position.X, 0);
 
                     if (_gbootTime >= 0.5)
                     {
                         _gbootTime = 0;
                         _gbootState++;
-                        _logo1.Position = Vector2.Zero;
-                        _logo2.Position = Vector2.Zero;
+                        _logoTransform1.Position = Vector2.Zero;
+                        _logoTransform2.Position = Vector2.Zero;
                     }
                     
                     break;
                 case 2:
-                    _logo1.Color = Color.White;
-                    _logo2.Color = Color.White;
+                    _logoSprite1.Color = Color.White;
+                    _logoSprite2.Color = Color.White;
                     _bootProgress.Opacity = 1;
 
                     _bootProgress.Value = (float) (_gbootTime / 3);
                     if (_gbootTime >= 3)
                     {
-                        App.LoadScene<Workspace>();
+                        this.GoToScene<Workspace>();
                     }
                     
                     break;
@@ -535,7 +548,7 @@ namespace RedTeam
         private void LoadKernelMessages()
         {
             var asm = this.GetType().Assembly;
-            using var resource = asm.GetManifestResourceStream("RedTeam.Resources.kmsg.log");
+            using var resource = asm.GetManifestResourceStream("RedTeam.Resources.kmsg.txt");
 
             var text = string.Empty;
             

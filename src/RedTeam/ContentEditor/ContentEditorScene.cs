@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection.Metadata;
 using System.Text.Json;
-using Microsoft.Xna.Framework;
-using RedTeam.Components;
 using RedTeam.Core;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
-using RedTeam.Gui.Elements;
+using RedTeam.Core.Windowing;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Gui.Elements.Console;
-using Thundershock.Input;
+using Thundershock.Core.Input;
 using Thundershock.Rendering;
 
 namespace RedTeam.ContentEditor
@@ -56,16 +51,7 @@ namespace RedTeam.ContentEditor
         
         protected override void OnLoad()
         {
-            Camera = new Camera2D();
-
-            _content = App.GetComponent<ContentManager>();
-            
-            // Disable post-process effects.
-            Game.PostProcessSettings.EnableBloom = false;
-            Game.PostProcessSettings.EnableShadowMask = false;
-
-            _gui = AddComponent<GuiSystem>();
-            _wm = AddComponent<WindowManager>();
+            _content = Game.GetComponent<ContentManager>();
 
             _dbs = _wm.CreatePane("Content Packs");
             _contentTypes = _wm.CreatePane("Data");
@@ -127,6 +113,8 @@ namespace RedTeam.ContentEditor
             LoadEditors();   
             
             _typeList.SelectedIndexChanged += TypeListOnSelectedIndexChanged;
+            
+            _wm = RegisterSystem<WindowManager>();
             
             base.OnLoad();
         }
@@ -239,7 +227,7 @@ namespace RedTeam.ContentEditor
 
         private void SetupDebugLog()
         {
-            App.GetComponent<EditorConsole>().SetConsole(_thundershockConsole);
+            Game.GetComponent<EditorConsole>().SetConsole(_thundershockConsole);
         }
 
         private void LoadDefaultConsolePalette()
