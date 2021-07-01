@@ -10,7 +10,7 @@ using Thundershock.Core.Input;
 
 namespace RedTeam
 {
-    public class OobeComponent : SceneComponent
+    public class OobeWindow : Window
     {
         #region APP REFERENCES
 
@@ -18,13 +18,7 @@ namespace RedTeam
         private ContentManager _contentManager;
 
         #endregion
-
-        #region WINDOWS
-
-        private WindowFrame _oobeWindow;
-
-        #endregion
-
+        
         #region STATE
 
         private int _oobeState;
@@ -67,12 +61,14 @@ namespace RedTeam
         public string Password => _passwd.Text;
         public string Hostname => _hostname.Text;
         
-        protected override void OnLoad()
+        protected override void OnOpened()
         {
             _saveManager = Scene.Game.GetComponent<SaveManager>();
             _contentManager = Scene.Game.GetComponent<ContentManager>();
+            
+            BuildGui();
 
-            base.OnLoad();
+            SetupState();
         }
 
         protected override void OnUpdate(GameTime gameTime)
@@ -81,16 +77,7 @@ namespace RedTeam
             _back.Enabled = _oobeState > 0;   
             base.OnUpdate(gameTime);
         }
-
-        public void InitExperience(WindowFrame oobePane)
-        {
-            _oobeWindow = oobePane;
-
-            BuildGui();
-
-            SetupState();
-        }
-
+        
         private void SetupState()
         {
             _agree.Visibility = Visibility.Collapsed;
@@ -130,7 +117,7 @@ namespace RedTeam
                     }
 
                     _done = true;
-                    _oobeWindow.Parent.Children.Remove(_oobeWindow);
+                    Close();
                     
                     break;
             }
@@ -159,8 +146,8 @@ namespace RedTeam
             _back.Padding = 2;
             _next.Padding = 2;
 
-            _oobeWindow.FixedWidth = 620;
-            _oobeWindow.FixedHeight = 460;
+            FixedWidth = 620;
+            FixedHeight = 460;
             
             _scroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
@@ -213,7 +200,7 @@ namespace RedTeam
             _master.Children.Add(_agree);
             _master.Children.Add(_buttonList);
             _bg.Children.Add(_master);
-            _oobeWindow.Content.Add(_bg);
+            Children.Add(_bg);
             
             _next.MouseUp += NextOnMouseUp;
             _back.MouseUp += BackOnMouseUp;

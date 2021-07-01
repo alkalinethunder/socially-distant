@@ -32,8 +32,7 @@ namespace RedTeam
         private TextureComponent _logo1;
         private TextureComponent _logo2;
         private WindowManager _winManager;
-        private OobeComponent _oobe;
-        
+
         #endregion
 
         #region STATE
@@ -63,7 +62,7 @@ namespace RedTeam
 
         #region WINDOWS
 
-        private WindowFrame _oobeWindow;
+        private OobeWindow _oobeWindow;
 
         #endregion
         
@@ -75,7 +74,6 @@ namespace RedTeam
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add the gui system to the scene.
-            _oobe = AddComponent<OobeComponent>();
             _logo1 = AddComponent<TextureComponent>();
             _logo2 = AddComponent<TextureComponent>();
             
@@ -296,11 +294,8 @@ namespace RedTeam
                     }
                     break;
                 case 18:
-                    if (_oobe.IsComplete)
+                    if (_oobeWindow == null)
                     {
-                        _username = _oobe.Username;
-                        _password = _oobe.Password;
-                        _hostname = _oobe.Hostname;
                         _installState++;
                         _console.WriteLine("echo {0} > /mnt/etc/hostname", _hostname);
                     }
@@ -414,10 +409,19 @@ namespace RedTeam
 
         private void BuildOobeWindow()
         {
-            _oobeWindow = _winManager.CreateFloatingPane("Initial Setup");
-            _oobe.InitExperience(_oobeWindow);
+            _oobeWindow = _winManager.OpenWindow<OobeWindow>();
+            _oobeWindow.WindowClosed += OobeWindowOnWindowClosed;
         }
-        
+
+        private void OobeWindowOnWindowClosed(object? sender, EventArgs e)
+        {
+            _username = _oobeWindow.Username;
+            _password = _oobeWindow.Password;
+            _hostname = _oobeWindow.Hostname;
+
+            _oobeWindow = null;
+        }
+
         private void GraphicalBootUpdate(GameTime gameTime)
         {
             _master.Visibility = Visibility.Collapsed;
