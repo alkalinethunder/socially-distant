@@ -61,6 +61,12 @@ namespace RedTeam
         
         #endregion
 
+        #region WINDOWS
+
+        private SettingsWindow _settingsWindow;
+
+        #endregion
+        
         #region PROPERTIES
 
         public TimeSpan Uptime => _uptime;
@@ -110,9 +116,17 @@ namespace RedTeam
         {
             if (e.Button == MouseButton.Primary)
             {
-                if (!HasComponent<SettingsComponent>())
-                    AddComponent<SettingsComponent>();
+                if (_settingsWindow == null)
+                {
+                    _settingsWindow = _windowManager.OpenWindow<SettingsWindow>();
+                    _settingsWindow.WindowClosed += SettingsWindowOnWindowClosed;
+                }
             }
+        }
+
+        private void SettingsWindowOnWindowClosed(object? sender, EventArgs e)
+        {
+            _settingsWindow = null;
         }
 
         protected override void OnUpdate(GameTime gameTime)

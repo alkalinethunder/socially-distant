@@ -12,7 +12,7 @@ using Thundershock.Core.Input;
 
 namespace RedTeam
 {
-    public class SettingsComponent : SceneComponent
+    public class SettingsWindow : Window
     {
         private ConfigurationManager _config;
         private RedConfigManager _redConfig;
@@ -20,8 +20,6 @@ namespace RedTeam
         private BasicSettingsCategory _currentCategory;
         private string _modCategoryName = string.Empty;
         
-        private WindowFrame _settingsPane;
-        private WindowManager _wm;
         private Stacker _masterStacker = new();
         private Stacker _buttonList = new();
         private Stacker _splitter = new();
@@ -62,17 +60,13 @@ namespace RedTeam
         private CheckBox _enableWhatsNew = new();
         private TextBlock _whatsNewLabel = new();
         
-        protected override void OnLoad()
+        protected override void OnOpened()
         {
             _config = Scene.Game.GetComponent<ConfigurationManager>();
             _redConfig = Scene.Game.GetComponent<RedConfigManager>();
-
-            _wm = Scene.GetSystem<WindowManager>();
-
-            _settingsPane = _wm.CreateFloatingPane("System Settings");
-
-            _settingsPane.FixedWidth = 720;
-            _settingsPane.FixedHeight = 500;
+            
+            FixedWidth = 720;
+            FixedHeight = 500;
             
             // General layout tree.
             _sidebarScroller.Children.Add(_sidebar);
@@ -80,7 +74,8 @@ namespace RedTeam
             _splitter.Children.Add(_mainScroller);
             _masterStacker.Children.Add(_splitter);
             _masterStacker.Children.Add(_buttonList);
-            _settingsPane.Content.Add(_masterStacker);
+            
+            Children.Add(_masterStacker);
 
             // Button list and splitter are both horizontal stackers.
             _splitter.Direction = StackDirection.Horizontal;
@@ -118,21 +113,13 @@ namespace RedTeam
             BuildAboutScreen();
             
             _close.MouseUp += CloseOnMouseUp;
-            
-            base.OnLoad();
         }
-
-        protected override void OnUnload()
-        {
-            _settingsPane.Parent.Children.Remove(_settingsPane);
-            base.OnUnload();
-        }
-
+        
         private void CloseOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
-                Scene.RemoveComponent(this);
+                Close();
             }
         }
 

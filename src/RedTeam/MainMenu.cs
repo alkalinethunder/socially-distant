@@ -51,7 +51,7 @@ namespace RedTeam
 
         #region Scene Components
 
-        private SettingsComponent _settingsComponent;
+        private SettingsWindow _settingsWindow;
         private WindowManager _wm;
         
         #endregion
@@ -525,8 +525,16 @@ namespace RedTeam
 
         private void OpenSettings()
         {
-            if (!HasComponent<SettingsComponent>())
-                AddComponent<SettingsComponent>();
+            if (_settingsWindow == null)
+            {
+                _settingsWindow = _wm.OpenWindow<SettingsWindow>();
+                _settingsWindow.WindowClosed += SettingsWindowOnWindowClosed;
+            }
+        }
+
+        private void SettingsWindowOnWindowClosed(object? sender, EventArgs e)
+        {
+            _settingsWindow = null;
         }
     }
 }
