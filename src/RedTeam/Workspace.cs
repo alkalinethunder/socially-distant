@@ -1,10 +1,10 @@
 using System;
 using RedTeam.Core;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Net;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Components;
@@ -77,7 +77,6 @@ namespace RedTeam
             
             // Add scene components.
             _backdrop = AddComponent<Backdrop>();
-            _windowManager = AddComponent<WindowManager>();
             _network = AddComponent<NetworkSimulation>();
             
             // Set up the Player Context.
@@ -95,14 +94,14 @@ namespace RedTeam
             // Start the command shell.
             StartShell();
             
-            // Link the Window Manager with the GUI.
-            _windowManager.AddToGuiRoot(Gui);
-
             // Bind to configuration reloads.
             _redConf.ConfigUpdated += RedConfOnConfigUpdated;
 
             // Bind to settings click.
             _settings.MouseUp += SettingsOnMouseUp;
+
+            // Window manager.
+            _windowManager = RegisterSystem<WindowManager>();
             
             base.OnLoad();
         }

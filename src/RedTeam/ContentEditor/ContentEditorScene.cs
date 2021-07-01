@@ -5,10 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
 using RedTeam.Core;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Gui;
@@ -52,8 +52,6 @@ namespace RedTeam.ContentEditor
         protected override void OnLoad()
         {
             _content = Game.GetComponent<ContentManager>();
-            
-            _wm = AddComponent<WindowManager>();
 
             _dbs = _wm.CreatePane("Content Packs");
             _contentTypes = _wm.CreatePane("Data");
@@ -115,6 +113,8 @@ namespace RedTeam.ContentEditor
             LoadEditors();   
             
             _typeList.SelectedIndexChanged += TypeListOnSelectedIndexChanged;
+            
+            _wm = RegisterSystem<WindowManager>();
             
             base.OnLoad();
         }

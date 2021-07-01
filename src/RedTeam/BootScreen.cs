@@ -4,7 +4,6 @@ using System.IO;
 using Thundershock.Core;
 using Thundershock.Gui;
 using Thundershock.Core.Rendering;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
@@ -76,7 +75,6 @@ namespace RedTeam
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add the gui system to the scene.
-            _winManager = AddComponent<WindowManager>();
             _oobe = AddComponent<OobeComponent>();
             _logo1 = AddComponent<TextureComponent>();
             _logo2 = AddComponent<TextureComponent>();
@@ -87,6 +85,9 @@ namespace RedTeam
             _master.Children.Add(_console);
             Gui.AddToViewport(_master);
             Gui.AddToViewport(_bootProgress);
+            
+            // Window manager.
+            _winManager = RegisterSystem<WindowManager>();
             
             // Boot progress bar setup.
             _bootProgress.Properties.SetValue(FreePanel.AutoSizeProperty, true);
@@ -109,8 +110,6 @@ namespace RedTeam
 
             // Prepare the kmsg text.
             this.LoadKernelMessages();
-            
-            _winManager.AddToGuiRoot(Gui);
 
             base.OnLoad();
         }

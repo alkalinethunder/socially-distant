@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.Windowing;
@@ -68,7 +67,7 @@ namespace RedTeam
             _config = Scene.Game.GetComponent<ConfigurationManager>();
             _redConfig = Scene.Game.GetComponent<RedConfigManager>();
 
-            _wm = Scene.GetComponent<WindowManager>();
+            _wm = Scene.GetSystem<WindowManager>();
 
             _settingsPane = _wm.CreateFloatingPane("System Settings");
 

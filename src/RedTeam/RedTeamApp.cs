@@ -1,11 +1,11 @@
 ﻿using DocoptNet;
 using RedTeam.Connectivity;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Game;
 using RedTeam.Core.IO;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using RedTeam.Gui.Styles;
 using RedTeam.Windowing;
 using Thundershock;

@@ -1,5 +1,6 @@
 using System.Numerics;
 using RedTeam.Core.Windowing;
+using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
@@ -12,6 +13,8 @@ namespace RedTeam.Windowing
         private int _borderPad = 3;
 
         private Font _titleFont;
+
+        private Color _amber = ThundershockPlatform.HtmlColor("#ffb000");
         
         private Texture2D _topLeftCorner;
         private Texture2D _topRightCorner;
@@ -61,9 +64,6 @@ namespace RedTeam.Windowing
 
         public override void PaintWindow(GameTime gameTime, GuiRenderer renderer, WindowFrame win)
         {
-            // black BG for the main window bg
-            renderer.FillRectangle(win.BoundingBox, Color.Black);
-            
             var client = win.BoundingBox;
             var padding = GetClientPadding(win);
             client.X += padding.Left;
@@ -80,7 +80,7 @@ namespace RedTeam.Windowing
                     _topLeftCorner.Height
                 ),
                 _topLeftCorner,
-                Color.White
+                _amber
             );
             
             // top-right corner
@@ -92,7 +92,7 @@ namespace RedTeam.Windowing
                     _topRightCorner.Height
                 ),
                 _topRightCorner,
-                Color.White
+                _amber
             );
             
             // bottom-left corner
@@ -104,7 +104,7 @@ namespace RedTeam.Windowing
                     _bottomLeftCorner.Height
                 ),
                 _bottomLeftCorner,
-                Color.White
+                _amber
             );
             
             // bottom-right corner
@@ -116,7 +116,7 @@ namespace RedTeam.Windowing
                     _bottomRightCorner.Height
                 ),
                 _bottomRightCorner,
-                Color.White
+                _amber
             );
             
             // Left side
@@ -127,7 +127,8 @@ namespace RedTeam.Windowing
                     win.BoundingBox.Height - (_topLeftCorner.Height + _bottomLeftCorner.Height)
                 ),
                 _leftSide,
-                Color.White);
+                _amber
+            );
             
             // Right side
             renderer.FillRectangle(new Rectangle(
@@ -137,7 +138,8 @@ namespace RedTeam.Windowing
                     win.BoundingBox.Height - (_topRightCorner.Height + _bottomRightCorner.Height)
                 ),
                 _rightSide,
-                Color.White);
+                _amber
+            );
             
             // Bottom side
             renderer.FillRectangle(new Rectangle(
@@ -147,7 +149,8 @@ namespace RedTeam.Windowing
                     _bottomSide.Height
                 ),
                 _bottomSide,
-                Color.White);
+                _amber
+            );
             
             // Top side
             renderer.FillRectangle(new Rectangle(
@@ -157,7 +160,8 @@ namespace RedTeam.Windowing
                     _topSide.Height
                 ),
                 _topSide,
-                Color.White);
+                _amber
+            );
             
             
 
@@ -189,12 +193,12 @@ namespace RedTeam.Windowing
                 rightSideRect.X = rightSideRect.Right - _titleRight.Width;
                 rightSideRect.Width = _titleRight.Width;
 
-                renderer.FillRectangle(leftSiderect, _titleLeft, Color.White);
-                renderer.FillRectangle(rightSideRect, _titleRight, Color.White);
+                renderer.FillRectangle(leftSiderect, _titleLeft, _amber);
+                renderer.FillRectangle(rightSideRect, _titleRight, _amber);
                 
                 // Now we can paint the text.
                 renderer.DrawString(_titleFont, win.TitleText, new Vector2(leftSiderect.Right, leftSiderect.Top),
-                    Color.White);
+                    _amber);
             }
             
             // Now we paint the client area.

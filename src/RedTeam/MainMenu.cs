@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Numerics;
 using RedTeam.Connectivity;
-using RedTeam.Core.Components;
 using RedTeam.Core.Config;
 using RedTeam.Core.ContentEditors;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.SaveData;
+using RedTeam.Core.Windowing;
 using Thundershock;
 using Thundershock.Audio;
 using Thundershock.Core;
@@ -52,14 +52,15 @@ namespace RedTeam
         #region Scene Components
 
         private SettingsComponent _settingsComponent;
-        private Backdrop _backdrop;
         private WindowManager _wm;
-        private Backdrop _packBackdrop;
         
         #endregion
         
         #region UI
 
+        private Picture _mainBackdrop = new();
+        private Picture _packBackdrop = new();
+        private Panel _fadePanel = new();
         private Stacker _careerErrorStacker = new();
         private TextBlock _careerErrorTitle = new();
         private TextBlock _careerErrorMessage = new();
@@ -123,18 +124,15 @@ namespace RedTeam
             _announcements = Game.GetComponent<AnnouncementManager>();
             _contentManager = Game.GetComponent<ContentManager>();
 
-            // Add scene components.
-            _backdrop = AddComponent<Backdrop>();
-            _packBackdrop = AddComponent<Backdrop>();
-            _wm = AddComponent<WindowManager>();
-            
             // Add root UI elements.
+            Gui.AddToViewport(_mainBackdrop);
+            Gui.AddToViewport(_packBackdrop);
             Gui.AddToViewport(_logo);
             Gui.AddToViewport(_backdropOverlay);
-
-            // Add the window manager layer.
-            _wm.AddToGuiRoot(Gui);
             
+            // Add scene components.
+            _wm = RegisterSystem<WindowManager>();
+
             // Set up the layout of the game's logo.
             // It sits near the top of the screen in the middle.
             _logo.Properties.SetValue(FreePanel.AutoSizeProperty, true);
@@ -221,6 +219,13 @@ namespace RedTeam
 
             // Done
             base.OnLoad();
+            
+            // load the default menu backdrop
+            _mainBackdrop.Image = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.DesktopBackgroundImage2.png");
+            
+            // Add the fade panel.
+            Gui.AddToViewport(_fadePanel);
         }
 
         private void ContinueOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -400,7 +405,7 @@ namespace RedTeam
             if (_fade >= 0)
             {
                 _fade = MathHelper.Clamp(_fade - (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
-                PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.Black, Color.White, _fade);
+                _fadePanel.BackColor = Color.Lerp(Color.Transparent, Color.White, _fade);
             }
             
             if (_announcements.IsReady && !_hasShownAnnouncement)
@@ -436,12 +441,12 @@ namespace RedTeam
 
             if (_pack != null)
             {
-                _packBackdrop.Texture = _pack.Backdrop;
+                _packBackdrop.Image = _pack.Backdrop;
                 _backdropOverlay.BackColor = Color.Black * 0.75f;
             }
             else
             {
-                _packBackdrop.Texture = null;
+                _packBackdrop.Image = null;
                 _backdropOverlay.BackColor = Color.Transparent;
             }
         }

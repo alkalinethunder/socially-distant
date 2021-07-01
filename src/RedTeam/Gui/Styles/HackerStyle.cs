@@ -15,7 +15,7 @@ namespace RedTeam.Gui.Styles
         // Color palette...
         private Color _bg = ThundershockPlatform.HtmlColor("#222222");
         private Color _bgInset = Color.Black;
-        private Color _cyan = ThundershockPlatform.HtmlColor("#00ffff");
+        private Color _amber = ThundershockPlatform.HtmlColor("#ffbf00");
         private Color _peace = ThundershockPlatform.HtmlColor("#1baaf7");
         private Color _danger = ThundershockPlatform.HtmlColor("#ff0000");
         private Color _dangerBright = ThundershockPlatform.HtmlColor("#f71b1b");
@@ -119,7 +119,7 @@ namespace RedTeam.Gui.Styles
             var color = Color.Black;
 
             if (button.IsActive)
-                color = (button.ButtonActiveColor ?? StyleColor.Default).GetColor(_cyan);
+                color = (button.ButtonActiveColor ?? StyleColor.Default).GetColor(_amber);
             else
                 color = (button.ButtonColor ?? StyleColor.Default).GetColor(_dangerBright);
 

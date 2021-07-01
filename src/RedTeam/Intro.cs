@@ -120,11 +120,15 @@ namespace RedTeam
             _tsFont.Size = 20;
             _pbFont.Size = 12;
 
+            var tsMeasure = _tsFont.MeasureString(_ts);
+            
             _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2);
+            _poweredByTransform.Position.Y -= (tsMeasure.Y / 2);
+            
             _tsTransform.Position.Y += _pbFont.LineHeight / 2;
             _tsText.Pivot = new Vector2(0, 0.5f);
             _poweredBy.Pivot = _tsText.Pivot;
-            _tsTransform.Position.X -= _tsFont.MeasureString(_ts).X / 2;
+            _tsTransform.Position.X -= tsMeasure.X / 2;
             _poweredByTransform.Position.X = _tsTransform.Position.X;
 
             base.OnLoad();
