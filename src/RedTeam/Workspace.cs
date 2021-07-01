@@ -81,7 +81,7 @@ namespace RedTeam
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add scene components.
-            _network = AddComponent<NetworkSimulation>();
+            _network = RegisterSystem<NetworkSimulation>();
             
             // Set up the Player Context.
             SetupPlayerContext();
