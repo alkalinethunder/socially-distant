@@ -27,10 +27,17 @@ namespace RedTeam
 
         #endregion
 
-        #region SCENE COMPONENTS
+        #region COMPONENTS
 
-        private TextureComponent _logo1;
-        private TextureComponent _logo2;
+        private Transform2D _logoTransform1 = new();
+        private Transform2D _logoTransform2 = new();
+        private Sprite _logoSprite1 = new();
+        private Sprite _logoSprite2 = new();
+
+        #endregion
+        
+        #region SYSTEMS
+
         private WindowManager _winManager;
 
         #endregion
@@ -74,8 +81,14 @@ namespace RedTeam
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add the gui system to the scene.
-            _logo1 = AddComponent<TextureComponent>();
-            _logo2 = AddComponent<TextureComponent>();
+            var logo1 = SpawnObject();
+            var logo2 = SpawnObject();
+            
+            // Add components to these entities.
+            logo1.AddComponent(_logoTransform1);
+            logo2.AddComponent(_logoTransform2);
+            logo1.AddComponent(_logoSprite1);
+            logo2.AddComponent(_logoSprite2);
             
             // Set up the GUI.
             _master.Children.Add(_statusHeader);
@@ -109,13 +122,22 @@ namespace RedTeam
             // Prepare the kmsg text.
             this.LoadKernelMessages();
 
+            // Logo setup.
+            _logoSprite1.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.rtos_boot_1.png");
+            _logoSprite2.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Textures.rtos_boot_2.png");
+            _logoSprite1.Size = new Vector2(128, 128);
+            _logoSprite2.Size = new Vector2(128, 128);
+            
+            
             base.OnLoad();
         }
 
         protected override void OnUpdate(GameTime gameTime)
         {
-            _logo1.Color = Color.Transparent;
-            _logo2.Color = Color.Transparent;
+            _logoSprite1.Color = Color.Transparent;
+            _logoSprite2.Color = Color.Transparent;
             _bootProgress.Opacity = 0;
             
             switch (_bootState)
@@ -442,24 +464,24 @@ namespace RedTeam
 
                     var halfWidth = ViewportBounds.Width / 2;
 
-                    _logo1.Color = Color.White * _bootProgress.Opacity;
-                    _logo2.Color = _logo1.Color;
+                    _logoSprite1.Color = Color.White * _bootProgress.Opacity;
+                    _logoSprite2.Color = _logoSprite1.Color;
 
-                    _logo1.Position = new Vector2(-(halfWidth * _bootProgress.Opacity), 0);
-                    _logo2.Position = new Vector2(-_logo1.Position.X, 0);
+                    _logoTransform1.Position = new Vector2(-(halfWidth * _bootProgress.Opacity), 0);
+                    _logoTransform2.Position = new Vector2(-_logoTransform1.Position.X, 0);
 
                     if (_gbootTime >= 0.5)
                     {
                         _gbootTime = 0;
                         _gbootState++;
-                        _logo1.Position = Vector2.Zero;
-                        _logo2.Position = Vector2.Zero;
+                        _logoTransform1.Position = Vector2.Zero;
+                        _logoTransform2.Position = Vector2.Zero;
                     }
                     
                     break;
                 case 2:
-                    _logo1.Color = Color.White;
-                    _logo2.Color = Color.White;
+                    _logoSprite1.Color = Color.White;
+                    _logoSprite2.Color = Color.White;
                     _bootProgress.Opacity = 1;
 
                     _bootProgress.Value = (float) (_gbootTime / 3);

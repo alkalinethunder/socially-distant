@@ -28,7 +28,6 @@ namespace RedTeam
 
         #region SCENE COMPONENTS
 
-        private Backdrop _backdrop;
         private WindowManager _windowManager;
         private NetworkSimulation _network;
         private Shell _shell;
@@ -82,7 +81,6 @@ namespace RedTeam
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add scene components.
-            _backdrop = AddComponent<Backdrop>();
             _network = AddComponent<NetworkSimulation>();
             
             // Set up the Player Context.
@@ -241,7 +239,6 @@ namespace RedTeam
             }
             
             // Backdrop.
-            _backdrop.Texture = _palette.BackgroundImage;
             _console.DrawBackgroundImage = false;
             _bgOverlay.BackColor = _palette.GetColor(ConsoleColor.Black);
         }

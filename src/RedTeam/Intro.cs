@@ -63,6 +63,9 @@ namespace RedTeam
 
         protected override void OnLoad()
         {
+            // This scene works a lot better in perspective mode.
+            PrimaryCameraSettings.ProjectionType = CameraProjectionType.Perspective;
+            
             _introBG = Song.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Bgm.Intro.ogg");
             _glitch1 = Sound.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Audio.ThundershockGlitch.ogg");
             _typeSound = Sound.FromOggResource(this.GetType().Assembly, "RedTeam.Resources.Audio.Typing.ogg");
