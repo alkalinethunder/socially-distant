@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using RedTeam.Core;
 using RedTeam.Core.Config;
 using RedTeam.Core.Gui.Elements;
 using RedTeam.Core.Windowing;
@@ -134,8 +135,11 @@ namespace RedTeam
             guiHeader.Text = "User Interface";
             
             displayHeader.ForeColor = Color.Cyan;
+            displayHeader.Properties.SetValue(FontStyle.Heading2);
             ppHeader.ForeColor = Color.Cyan;
+            ppHeader.Properties.SetValue(FontStyle.Heading2);
             guiHeader.ForeColor = Color.Cyan;
+            guiHeader.Properties.SetValue(FontStyle.Heading2);
 
             _resolution.Title = "Screen Resolution";
             _windowMode.Title = "Fullscreen";
@@ -337,6 +341,7 @@ namespace RedTeam
             _sidebar.Children.Clear();
 
             var basicHeader = new TextBlock();
+            basicHeader.Properties.SetValue(FontStyle.Heading2);
             basicHeader.Text = "Settings";
             basicHeader.ForeColor = Color.Cyan;
             _sidebar.Children.Add(basicHeader);

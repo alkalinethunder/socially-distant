@@ -43,10 +43,8 @@ namespace RedTeam.Windowing
 
             _titleLeft = LoadResource("WindowTitleLeft.png");
             _titleRight = LoadResource("WindowTitleRight.png");
-            
-            
-            // TODO: don't use the engine font for this.
-            _titleFont = Font.GetDefaultFont(_gpu);
+
+            _titleFont = Font.FromResource(_gpu, this.GetType().Assembly, "RedTeam.Resources.Fonts.Console.Bold.ttf");
             _titleFont.Size = _titleLeft.Height;
             
             base.OnLoad(gpu);

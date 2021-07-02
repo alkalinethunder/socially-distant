@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using RedTeam.Core;
 using Thundershock.Core;
 using Thundershock;
 using Thundershock.Gui;
@@ -11,7 +12,14 @@ namespace RedTeam.Gui.Styles
     public class HackerStyle : GuiStyle
     {
         private Font _paragraph;
-        
+
+        private Font _h1;
+        private Font _h2;
+        private Font _h3;
+        private Font _code;
+        private Font _stringListFont;
+        private Font _buttonFont;
+
         // Color palette...
         private Color _bg = ThundershockPlatform.HtmlColor("#222222");
         private Color _bgInset = Color.Black;
@@ -23,18 +31,34 @@ namespace RedTeam.Gui.Styles
         private Color _text = ThundershockPlatform.HtmlColor("#eeeeee");
         private Color _textBright = Color.White;
 
-        public override Font StringListFont => DefaultFont;
         public override int ProgressBarHeight => 5;
 
         public override Font DefaultFont => _paragraph;
         public override int CheckSize => 12;
         public override int TextCursorWidth => 1;
         public override Color DefaultForeground => _text;
-        public override Font ButtonFont => _paragraph;
 
         protected override void OnLoad()
         {
-            _paragraph = Font.GetDefaultFont(this.Gui.Graphics);
+            _paragraph = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.SourceSansPro-Regular.ttf");
+            _h1 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Bold.ttf");
+            _h2 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Bold.ttf");
+            _h3 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Bold.ttf");
+            _buttonFont = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Bold.ttf");
+            _code = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Regular.ttf");
+            _stringListFont = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+                "RedTeam.Resources.Fonts.Console.Regular.ttf");
+
+            _h3.Size = _paragraph.Size + 2;
+            _h2.Size = _h3.Size + 4;
+            _h1.Size = _h2.Size + 8;
+            
             base.OnLoad();
         }
 
@@ -147,7 +171,33 @@ namespace RedTeam.Gui.Styles
             else if (isHovered)
                 DrawSelectionBox(renderer, bounds, SelectionStyle.ItemHover);
 
-            renderer.DrawString(StringListFont, text, bounds.Location, _textBright);
+            renderer.DrawString(_stringListFont, text, bounds.Location, _textBright);
+        }
+
+        public override Font GetFont(Element element)
+        {
+            if (element is StringList)
+            {
+                return _stringListFont;
+            }
+            else if (element is Button)
+            {
+                return _buttonFont;
+            }
+            else
+            {
+                var style = element.Properties.GetValue<FontStyle>();
+
+                return style switch
+                {
+                    FontStyle.Paragraph => _paragraph,
+                    FontStyle.Heading1 => _h1,
+                    FontStyle.Heading2 => _h2,
+                    FontStyle.Heading3 => _h3,
+                    FontStyle.Code => _code,
+                    _ => _paragraph
+                };
+            }
         }
     }
 }
