@@ -19,8 +19,7 @@ namespace SociallyDistant
         private RedConfigManager _redConfig;
         
         private BasicSettingsCategory _currentCategory;
-        private string _modCategoryName = string.Empty;
-        
+
         private Stacker _masterStacker = new();
         private Stacker _buttonList = new();
         private Stacker _splitter = new();
@@ -48,8 +47,6 @@ namespace SociallyDistant
         
         // Gameplay Settings UI
         private Stacker _gameplayStacker = new();
-        private LabeledDropdown _primaryMouse = new();
-        private LabeledDropdown _consolePalette = new();
 
         // About UI
         private Stacker _aboutStacker = new();
@@ -108,7 +105,7 @@ namespace SociallyDistant
             UpdateCategories();
             
             // Build the Graphics UI.
-            BuildGraphicsUI();
+            BuildGraphicsUi();
             
             // Build the about screen.
             BuildAboutScreen();
@@ -116,7 +113,7 @@ namespace SociallyDistant
             _close.MouseUp += CloseOnMouseUp;
         }
         
-        private void CloseOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void CloseOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
@@ -124,7 +121,7 @@ namespace SociallyDistant
             }
         }
 
-        private void BuildGraphicsUI()
+        private void BuildGraphicsUi()
         {
             var displayHeader = new TextBlock();
             var ppHeader = new TextBlock();
@@ -263,7 +260,7 @@ namespace SociallyDistant
             _aboutStacker.Children.Add(_github);
             _aboutStacker.Children.Add(_enableWhatsNew);
 
-            _openLocalData.MouseUp += (o, a) =>
+            _openLocalData.MouseUp += (_, a) =>
             {
                 if (a.Button == MouseButton.Primary)
                 {
@@ -271,7 +268,7 @@ namespace SociallyDistant
                 }
             };
             
-            _openWebsite.MouseUp += (o, a) =>
+            _openWebsite.MouseUp += (_, a) =>
             {
                 if (a.Button == MouseButton.Primary)
                 {
@@ -279,7 +276,7 @@ namespace SociallyDistant
                 }
             };
             
-            _github.MouseUp += (o, a) =>
+            _github.MouseUp += (_, a) =>
             {
                 if (a.Button == MouseButton.Primary)
                 {
@@ -289,7 +286,7 @@ namespace SociallyDistant
 
             _enableWhatsNew.IsChecked = _redConfig.ActiveConfig.ShowWhatsNew;
             
-            _enableWhatsNew.CheckStateChanged += (o, a) =>
+            _enableWhatsNew.CheckStateChanged += (_, _) =>
             {
                 _redConfig.ActiveConfig.ShowWhatsNew = _enableWhatsNew.IsChecked;
                 _redConfig.ApplyChanges();
@@ -302,31 +299,31 @@ namespace SociallyDistant
             _redConfig.ApplyChanges();
         }
 
-        private void VsyncOnCheckStateChanged(object? sender, EventArgs e)
+        private void VsyncOnCheckStateChanged(object sender, EventArgs e)
         {
             _config.ActiveConfig.VSync = _vsync.IsChecked;
             _config.ApplyChanges();
         }
 
-        private void ShadowmaskOnCheckStateChanged(object? sender, EventArgs e)
+        private void ShadowmaskOnCheckStateChanged(object sender, EventArgs e)
         {
             _config.ActiveConfig.Effects.ShadowMask = _shadowmask.IsChecked;
             _config.ApplyChanges();
         }
 
-        private void BloomOnCheckStateChanged(object? sender, EventArgs e)
+        private void BloomOnCheckStateChanged(object sender, EventArgs e)
         {
             _config.ActiveConfig.Effects.Bloom = _bloom.IsChecked;
             _config.ApplyChanges();
         }
 
-        private void WindowModeOnCheckStateChanged(object? sender, EventArgs e)
+        private void WindowModeOnCheckStateChanged(object sender, EventArgs e)
         {
             _config.ActiveConfig.IsFullscreen = _windowMode.IsChecked;
             _config.ApplyChanges();
         }
 
-        private void ResolutionOnSelectedIndexChanged(object? sender, EventArgs e)
+        private void ResolutionOnSelectedIndexChanged(object sender, EventArgs e)
         {
             // Get the desired resolution.
             var res = _resolution.SelectedItem;
@@ -355,7 +352,7 @@ namespace SociallyDistant
 
                 var btn = new Button();
                 btn.Text = setting;
-                btn.MouseUp += (o, a) =>
+                btn.MouseUp += (_, a) =>
                 {
                     if (a.Button == MouseButton.Primary)
                     {

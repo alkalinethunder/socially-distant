@@ -18,7 +18,7 @@ namespace SociallyDistant
         private Font _tsFont;
         private Font _pbFont;
         private Font _atFont;
-        private Song _introBG;
+        private Song _introBg;
         private Texture2D _atCircle;
         private string _at = "Alkaline Thunder";
         private string _ts = "Thundershock Engine";
@@ -29,9 +29,9 @@ namespace SociallyDistant
 
         #region State
 
-        private int _state = 0;
-        private float _atFade = 0;
-        private double _atTime = 0;
+        private int _state;
+        private float _atFade;
+        private double _atTime;
         private TextComponent _typer;
         private double _typeLength;
         private double _typeTime;
@@ -65,18 +65,18 @@ namespace SociallyDistant
             // This scene works a lot better in perspective mode.
             PrimaryCameraSettings.ProjectionType = CameraProjectionType.Perspective;
             
-            _introBG = Song.FromOggResource(this.GetType().Assembly, "SociallyDistant.Resources.Bgm.Intro.ogg");
-            _glitch1 = Sound.FromOggResource(this.GetType().Assembly, "SociallyDistant.Resources.Audio.ThundershockGlitch.ogg");
-            _typeSound = Sound.FromOggResource(this.GetType().Assembly, "SociallyDistant.Resources.Audio.Typing.ogg");
-            _mmTheme = Song.FromOggResource(this.GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
+            _introBg = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Intro.ogg");
+            _glitch1 = Sound.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Audio.ThundershockGlitch.ogg");
+            _typeSound = Sound.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Audio.Typing.ogg");
+            _mmTheme = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
             
-            MusicPlayer.PlaySong(_introBG);
+            MusicPlayer.PlaySong(_introBg);
             
-            _atFont = Font.FromResource(Game.Graphics, this.GetType().Assembly,
+            _atFont = Font.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.AlkalineThunder.ttf");
             _atFont.Size = 38;
 
-            _atCircle = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+            _atCircle = Texture2D.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Brand.atcomputercircle.png");
 
             var atTextEntity = SpawnObject();
@@ -113,8 +113,8 @@ namespace SociallyDistant
             _poweredBy.Text = _pb;
             _tsText.Text = _ts;
 
-            _tsFont = Font.FromResource(Game.Graphics, this.GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
-            _pbFont = Font.FromResource(Game.Graphics, this.GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
+            _tsFont = Font.FromResource(Game.Graphics, GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
+            _pbFont = Font.FromResource(Game.Graphics, GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
 
             _tsText.Font = _tsFont;
             _poweredBy.Font = _pbFont;
@@ -124,10 +124,10 @@ namespace SociallyDistant
 
             var tsMeasure = _tsFont.MeasureString(_ts);
             
-            _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2);
+            _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2f);
             _poweredByTransform.Position.Y -= (tsMeasure.Y / 2);
             
-            _tsTransform.Position.Y += _pbFont.LineHeight / 2;
+            _tsTransform.Position.Y += _pbFont.LineHeight / 2f;
             _tsText.Pivot = new Vector2(0, 0.5f);
             _poweredBy.Pivot = _tsText.Pivot;
             _tsTransform.Position.X -= tsMeasure.X / 2;

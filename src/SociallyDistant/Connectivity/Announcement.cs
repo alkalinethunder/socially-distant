@@ -12,10 +12,13 @@ namespace SociallyDistant.Connectivity
         
         public Announcement(AnnouncementJson json)
         {
-            Title = json.title.rendered;
-            Link = json.link;
-            Excerpt = Regex.Replace(json.excerpt.rendered, "<.*?>", string.Empty);
-            Date = json.date;
+            Title = json.Title.Rendered;
+            Link = json.Link;
+            if (!string.IsNullOrEmpty(json.Excerpt.Rendered))
+                Excerpt = Regex.Replace(json.Excerpt.Rendered, "<.*?>", string.Empty);
+            else
+                Excerpt = string.Empty;
+            Date = json.Date;
         }
     }
 }

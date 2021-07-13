@@ -24,7 +24,7 @@ namespace SociallyDistant
             get
             {
                 if (_vfs == null)
-                    _vfs = FileSystem.FromHostOS();
+                    _vfs = FileSystem.FromHostOs();
 
                 return _vfs;
             }
@@ -48,7 +48,7 @@ namespace SociallyDistant
                     home = home.Replace(Path.DirectorySeparatorChar.ToString(), PathUtils.Separator);
                     
                     // get the drive letter
-                    var letter = home.Substring(0, home.IndexOf(PathUtils.Separator));
+                    var letter = home.Substring(0, home.IndexOf(PathUtils.Separator, StringComparison.Ordinal));
                     
                     // remove the drive letter from the vfs path.
                     home = home.Substring(letter.Length);

@@ -3,10 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Thundershock;
 using Thundershock.Core;
-using Thundershock.Debugging;
+using Thundershock.Core.Debugging;
 
 namespace SociallyDistant.Connectivity
 {
@@ -14,7 +13,6 @@ namespace SociallyDistant.Connectivity
     {
         private AnnouncementState _state;
         private WebClient _webClient;
-        private Task _downloadTask;
         private AnnouncementJson _announcement;
         private Announcement _shownAnnouncement;
 
@@ -92,8 +90,8 @@ namespace SociallyDistant.Connectivity
                 {
                     // Check the two post dates.
                     // If the new post is actually old then we won't display it to the user.
-                    var old = oldAnnouncement.date;
-                    var newDate = announcement.date;
+                    var old = oldAnnouncement.Date;
+                    var newDate = announcement.Date;
                     if (old >= newDate)
                     {
                         _announcement = oldAnnouncement;

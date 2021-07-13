@@ -9,18 +9,17 @@ namespace SociallyDistant.Gui.Elements
         private Panel _leftSide = new();
         private Panel _middle = new();
         private Panel _rightSide = new();
-        private Picture _leftBG = new();
-        private Picture _rightBG = new();
+        private Picture _leftBg = new();
+        private Picture _rightBg = new();
         private Picture _leftTransition = new();
         private Picture _rightTransition = new();
         private Picture _bg = new();
-        private BootScreen _desktop;
         private TextBlock _host = new();
         private TextBlock _fps = new();
 
         public Color Color
         {
-            get => _leftBG.Tint;
+            get => _leftBg.Tint;
             set => SetColors(value);
         }
         
@@ -36,15 +35,13 @@ namespace SociallyDistant.Gui.Elements
             set => _fps.Text = value;
         }
         
-        public StatusPanel(BootScreen desktop)
+        public StatusPanel()
         {
-            _desktop = desktop;
-            
             _fps.ForeColor = Color.Black;
             _host.ForeColor = Color.Black;
             
-            _leftSide.Children.Add(_leftBG);
-            _rightSide.Children.Add(_rightBG);
+            _leftSide.Children.Add(_leftBg);
+            _rightSide.Children.Add(_rightBg);
             _middle.Children.Add(_bg);
 
             _leftSide.Children.Add(_host);
@@ -66,9 +63,9 @@ namespace SociallyDistant.Gui.Elements
 
         private void SetColors(Color color)
         {
-            _leftBG.Tint = color;
+            _leftBg.Tint = color;
             _leftTransition.Tint = color;
-            _rightBG.Tint = color;
+            _rightBg.Tint = color;
             _rightTransition.Tint = color;
             _bg.Tint = color;
         }

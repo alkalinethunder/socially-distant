@@ -2,7 +2,6 @@
 using System.IO;
 using System.Numerics;
 using SociallyDistant.Core.Config;
-using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
 using Thundershock;
@@ -20,7 +19,6 @@ namespace SociallyDistant
         #region GLOBAL REFERENCES
 
         private SaveManager _saveManager;
-        private ContentManager _contentManager;
         private RedConfigManager _redConf;
 
         #endregion
@@ -42,11 +40,11 @@ namespace SociallyDistant
 
         #region STATE
 
-        private int _bootState = 0;
+        private int _bootState;
         private string[] _kmsgList = Array.Empty<string>();
-        private int _kmsgIndex = 0;
-        private double _kmsgNextTime = 0;
-        private int _installState = 0;
+        private int _kmsgIndex;
+        private double _kmsgNextTime;
+        private int _installState;
         private string _username;
         private string _hostname;
         private string _password;
@@ -74,7 +72,6 @@ namespace SociallyDistant
         protected override void OnLoad()
         {
             // Grab app references.
-            _contentManager = Game.GetComponent<ContentManager>();
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();
             
@@ -118,12 +115,12 @@ namespace SociallyDistant
             _console.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             // Prepare the kmsg text.
-            this.LoadKernelMessages();
+            LoadKernelMessages();
 
             // Logo setup.
-            _logoSprite1.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+            _logoSprite1.Texture = Texture2D.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Textures.rtos_boot_1.png");
-            _logoSprite2.Texture = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+            _logoSprite2.Texture = Texture2D.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Textures.rtos_boot_2.png");
             _logoSprite1.Size = new Vector2(128, 128);
             _logoSprite2.Size = new Vector2(128, 128);
@@ -433,7 +430,7 @@ namespace SociallyDistant
             _oobeWindow.WindowClosed += OobeWindowOnWindowClosed;
         }
 
-        private void OobeWindowOnWindowClosed(object? sender, EventArgs e)
+        private void OobeWindowOnWindowClosed(object sender, EventArgs e)
         {
             _username = _oobeWindow.Username;
             _password = _oobeWindow.Password;
@@ -485,7 +482,7 @@ namespace SociallyDistant
                     _bootProgress.Value = (float) (_gbootTime / 3);
                     if (_gbootTime >= 3)
                     {
-                        this.GoToScene<Workspace>();
+                        GoToScene<Workspace>();
                     }
                     
                     break;
@@ -545,7 +542,7 @@ namespace SociallyDistant
         
         private void LoadKernelMessages()
         {
-            var asm = this.GetType().Assembly;
+            var asm = GetType().Assembly;
             using var resource = asm.GetManifestResourceStream("SociallyDistant.Resources.kmsg.txt");
 
             var text = string.Empty;

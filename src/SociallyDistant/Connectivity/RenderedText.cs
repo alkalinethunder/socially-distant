@@ -1,7 +1,10 @@
-﻿namespace SociallyDistant.Connectivity
+﻿using System.Text.Json.Serialization;
+
+namespace SociallyDistant.Connectivity
 {
     public class RenderedText
     {
-        public string rendered { get; set; }
+        [JsonPropertyName("rendered")]
+        public string Rendered { get; set; }
     }
 }

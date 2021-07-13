@@ -1,5 +1,3 @@
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
 using Thundershock.Core;
 using Thundershock.Core.Input;
@@ -10,17 +8,10 @@ namespace SociallyDistant
 {
     public class OobeWindow : Window
     {
-        #region APP REFERENCES
-
-        private SaveManager _saveManager;
-        private ContentManager _contentManager;
-
-        #endregion
-        
         #region STATE
 
         private int _oobeState;
-        private bool _done = false;
+        private bool _done;
         
         #endregion
         
@@ -61,9 +52,6 @@ namespace SociallyDistant
         
         protected override void OnOpened()
         {
-            _saveManager = Scene.Game.GetComponent<SaveManager>();
-            _contentManager = Scene.Game.GetComponent<ContentManager>();
-            
             BuildGui();
 
             SetupState();
@@ -281,7 +269,7 @@ namespace SociallyDistant
             return s;
         }
         
-        private void BackOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void BackOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
@@ -290,7 +278,7 @@ namespace SociallyDistant
             }
         }
 
-        private void NextOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void NextOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {

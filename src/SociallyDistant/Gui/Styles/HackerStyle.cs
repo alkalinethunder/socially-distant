@@ -40,19 +40,19 @@ namespace SociallyDistant.Gui.Styles
 
         protected override void OnLoad()
         {
-            _paragraph = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _paragraph = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.SourceSansPro-Regular.ttf");
-            _h1 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _h1 = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
-            _h2 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _h2 = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
-            _h3 = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _h3 = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
-            _buttonFont = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _buttonFont = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
-            _code = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _code = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
-            _stringListFont = Font.FromResource(Gui.Graphics, this.GetType().Assembly,
+            _stringListFont = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
 
             _h3.Size = _paragraph.Size + 2;

@@ -12,7 +12,7 @@ namespace SociallyDistant
             var econsole = RegisterComponent<EditorConsole>();
             Logger.AddOutput(econsole);
 
-            base.OnPostInit();
+            OnPostInit();
         }
 
         protected override void OnInit()

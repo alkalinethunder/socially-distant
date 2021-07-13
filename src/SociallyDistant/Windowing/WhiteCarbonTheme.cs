@@ -44,7 +44,7 @@ namespace SociallyDistant.Windowing
             _titleLeft = LoadResource("WindowTitleLeft.png");
             _titleRight = LoadResource("WindowTitleRight.png");
 
-            _titleFont = Font.FromResource(_gpu, this.GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
+            _titleFont = Font.FromResource(_gpu, GetType().Assembly, "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
             _titleFont.Size = _titleLeft.Height;
             
             base.OnLoad(gpu);

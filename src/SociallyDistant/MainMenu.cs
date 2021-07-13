@@ -19,7 +19,7 @@ namespace SociallyDistant
 {
     public class MainMenu : Scene
     {
-        private static bool _isFirstDisplay = false;
+        private static bool _isFirstDisplay;
 
         public static void ArmFirstDisplay()
         {
@@ -41,12 +41,6 @@ namespace SociallyDistant
 
         #endregion
         
-        #region Textures
-
-        private Texture2D _mainIcon;
-        
-        #endregion
-
         #region Scene Components
 
         private SettingsWindow _settingsWindow;
@@ -79,8 +73,6 @@ namespace SociallyDistant
         private Button _back = new();
         private TextBlock _menuTitle = new();
         private Stacker _packInfoStacker = new();
-        private Picture _packIcon = new();
-        private Stacker _packTextStacker = new();
         private TextBlock _packTitle = new();
         private TextBlock _packAuthor = new();
         private Stacker _mainMenuStacker = new();
@@ -92,7 +84,7 @@ namespace SociallyDistant
         private float _fade;
         private InstalledContentPack _pack;
         private MenuState _state;
-        private bool _hasShownAnnouncement = false;
+        private bool _hasShownAnnouncement;
         private SaveSlot[] _saves;
         private bool _isAnyCorrupted;
 
@@ -110,7 +102,7 @@ namespace SociallyDistant
             }
             else
             {
-                var music = Song.FromOggResource(this.GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
+                var music = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
                 MusicPlayer.PlaySong(music);
             }
 
@@ -219,23 +211,23 @@ namespace SociallyDistant
             base.OnLoad();
             
             // load the default menu backdrop
-            _mainBackdrop.Image = Texture2D.FromResource(Game.Graphics, this.GetType().Assembly,
+            _mainBackdrop.Image = Texture2D.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Textures.DesktopBackgroundImage2.png");
             
             // Add the fade panel.
             Gui.AddToViewport(_fadePanel);
         }
 
-        private void ContinueOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ContinueOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
                 _saveManager.LoadGame(_saves.First());
-                this.GoToScene<BootScreen>();
+                GoToScene<BootScreen>();
             }
         }
 
-        private void SettingsOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void SettingsOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
@@ -243,7 +235,7 @@ namespace SociallyDistant
             }
         }
 
-        private void ContentOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ContentOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
@@ -251,12 +243,12 @@ namespace SociallyDistant
             }
         }
 
-        private void NewAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void NewAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary && _pack != null) 
             {
                 Game.GetComponent<SaveManager>().NewGame(_pack);
-                this.GoToScene<BootScreen>();
+                GoToScene<BootScreen>();
             }
         }
 
@@ -316,8 +308,7 @@ namespace SociallyDistant
                     {
                         _menuTitle.Visibility = Visibility.Collapsed;
                         _packInfoStacker.Visibility = Visibility.Visible;
-
-                        _packIcon.Image = _pack.Icon ?? _mainIcon;
+                        
                         _packTitle.Text = _pack.Name;
                         _packAuthor.Text = _pack.Author;
                     }
@@ -341,21 +332,21 @@ namespace SociallyDistant
             }
         }
         
-        private void BackOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void BackOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             _pack = null;
             _state = MenuState.MainMenu;
             UpdateMenuScroller();
         }
 
-        private void ExtensionsAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ExtensionsAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             ListExtensions();
             _state = MenuState.Extensions;
             UpdateMenuScroller();
         }
         
-        private void ExitAdvancedButtonOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void ExitAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             Game.Exit();
         }
@@ -376,7 +367,7 @@ namespace SociallyDistant
                     btn.Title = pack.Name;
                     btn.Icon = pack.Icon;
                     
-                    btn.MouseUp += (o, a) =>
+                    btn.MouseUp += (_, _) =>
                     {
                         _pack = pack;
                         _state = MenuState.Play;
@@ -476,7 +467,7 @@ namespace SociallyDistant
             readMoreLink.ForeColor = Color.Cyan;
             readMoreLink.Text = "Read More";
             readMoreLink.IsInteractable = true;
-            readMoreLink.MouseDown += (o, a) =>
+            readMoreLink.MouseDown += (_, a) =>
             {
                 if (a.Button == MouseButton.Primary)
                 {
@@ -492,7 +483,7 @@ namespace SociallyDistant
 
             var doneButton = new Button();
             doneButton.Text = "Close";
-            doneButton.MouseDown += (o, a) =>
+            doneButton.MouseDown += (_, _) =>
             {
                 if (doNotShowAgain.IsChecked)
                 {
@@ -530,7 +521,7 @@ namespace SociallyDistant
             }
         }
 
-        private void SettingsWindowOnWindowClosed(object? sender, EventArgs e)
+        private void SettingsWindowOnWindowClosed(object sender, EventArgs e)
         {
             _settingsWindow = null;
         }

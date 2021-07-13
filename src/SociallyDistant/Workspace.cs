@@ -1,7 +1,6 @@
 using System;
 using SociallyDistant.Core;
 using SociallyDistant.Core.Config;
-using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.Net;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
@@ -19,7 +18,6 @@ namespace SociallyDistant
         #region APP REFERENCES
 
         private SaveManager _saveManager;
-        private ContentManager _content;
         private RedConfigManager _redConf;
         
         #endregion
@@ -35,7 +33,7 @@ namespace SociallyDistant
         #region USER INTERFACE
 
         private Stacker _master = new();
-        private Panel _statusBG = new();
+        private Panel _statusBg = new();
         private Stacker _statusStacker = new();
         private ConsoleControl _console = new();
         private TextBlock _playerInfo = new();
@@ -75,7 +73,6 @@ namespace SociallyDistant
         {
             // Grab app references.
             _saveManager = Game.GetComponent<SaveManager>();
-            _content = Game.GetComponent<ContentManager>();
             _redConf = Game.GetComponent<RedConfigManager>();
             
             // Add scene components.
@@ -108,7 +105,7 @@ namespace SociallyDistant
             base.OnLoad();
         }
 
-        private void SettingsOnMouseUp(object? sender, MouseButtonEventArgs e)
+        private void SettingsOnMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
             {
@@ -120,7 +117,7 @@ namespace SociallyDistant
             }
         }
 
-        private void SettingsWindowOnWindowClosed(object? sender, EventArgs e)
+        private void SettingsWindowOnWindowClosed(object sender, EventArgs e)
         {
             _settingsWindow = null;
         }
@@ -140,7 +137,7 @@ namespace SociallyDistant
             _shell.Update(gameTime);
         }
 
-        private void RedConfOnConfigUpdated(object? sender, EventArgs e)
+        private void RedConfOnConfigUpdated(object sender, EventArgs e)
         {
             LoadConfig();
             StyleGui();
@@ -215,10 +212,10 @@ namespace SociallyDistant
             _tray.Children.Add(_exit);
             _statusStacker.Children.Add(_playerInfo);
             _statusStacker.Children.Add(_tray);
-            _statusBG.Children.Add(_statusStacker);
+            _statusBg.Children.Add(_statusStacker);
             _workspaceStacker.Children.Add(_console);
             _workspaceStacker.Children.Add(_sidebar);
-            _master.Children.Add(_statusBG);
+            _master.Children.Add(_statusBg);
             _master.Children.Add(_workspaceStacker);
             _bgOverlay.Children.Add(_master);
             Gui.AddToViewport(_bgOverlay);
@@ -229,11 +226,11 @@ namespace SociallyDistant
             // Status panel.
             if (_palette.BackgroundImage != null)
             {
-                _statusBG.BackColor = ThundershockPlatform.HtmlColor("#222222") * 0.5f;
+                _statusBg.BackColor = ThundershockPlatform.HtmlColor("#222222") * 0.5f;
             }
             else
             {
-                _statusBG.BackColor = ThundershockPlatform.HtmlColor("#222222");
+                _statusBg.BackColor = ThundershockPlatform.HtmlColor("#222222");
             }
             
             // Backdrop.

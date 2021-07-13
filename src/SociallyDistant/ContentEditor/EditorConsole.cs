@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Thundershock.Core;
-using Thundershock.Debugging;
+using Thundershock.Core.Debugging;
 using Thundershock.Gui.Elements.Console;
 
 namespace SociallyDistant.ContentEditor
 {
     public class EditorConsole : GlobalComponent, ILogOutput
     {
-        private ConsoleControl _console = null;
+        private ConsoleControl _console;
         private Queue<string> _preQueue = new Queue<string>();
 
         public void SetConsole(ConsoleControl console)

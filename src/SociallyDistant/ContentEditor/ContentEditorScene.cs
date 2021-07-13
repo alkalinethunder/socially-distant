@@ -12,7 +12,6 @@ using SociallyDistant.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Input;
-using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Gui.Elements.Console;
 
@@ -20,7 +19,6 @@ namespace SociallyDistant.ContentEditor
 {
     public class ContentEditorScene : Scene
     {
-        private GuiSystem _gui;
         private WindowManager _wm;
         private ContentManager _content;
         private ContentPack _currentPack;
@@ -65,7 +63,7 @@ namespace SociallyDistant.ContentEditor
             _inner.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
             _editorStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
             
-            _gui.AddToViewport(_master);
+            Gui.AddToViewport(_master);
 
             _master.Children.Add(_slave);
 
@@ -118,7 +116,7 @@ namespace SociallyDistant.ContentEditor
             base.OnLoad();
         }
 
-        private void TypeListOnSelectedIndexChanged(object? sender, EventArgs e)
+        private void TypeListOnSelectedIndexChanged(object sender, EventArgs e)
         {
             if (_currentEditor != null)
             {
@@ -179,7 +177,7 @@ namespace SociallyDistant.ContentEditor
             }
         }
         
-        private void DbListSelectedItemChanged(object? sender, EventArgs e)
+        private void DbListSelectedItemChanged(object sender, EventArgs e)
         {
             if (_dbList.SelectedIndex >= 0)
                 SelectContentPack(_dbList.SelectedItem);
@@ -195,7 +193,7 @@ namespace SociallyDistant.ContentEditor
             }
         }
         
-        private void HandleNewPackAdvancedButton(object? sender, MouseButtonEventArgs e)
+        private void HandleNewPackAdvancedButton(object sender, MouseButtonEventArgs e)
         {
             if (_newDialog == null)
             {
@@ -206,7 +204,7 @@ namespace SociallyDistant.ContentEditor
             }
         }
 
-        private void HandleNewDialogCancelled(object? sender, EventArgs e)
+        private void HandleNewDialogCancelled(object sender, EventArgs e)
         {
             _newDialog = null;
         }
