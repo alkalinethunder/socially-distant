@@ -144,7 +144,7 @@ namespace SociallyDistant
                     _tsText.Color = Color.Transparent;
                     _poweredBy.Color = Color.Transparent;
                     
-                    PrimaryCameraSettings.BackgroundColor = Color.Black;
+                    PrimaryCameraSettings.SkyColor = Color.Black;
                     
                     _atText.Color = Color.Transparent;
                     _atLogoSprite.Color = Color.Transparent;
@@ -179,7 +179,7 @@ namespace SociallyDistant
 
                     break;
                 case 3:
-                    PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.White, _atColor, _atFade);
+                    PrimaryCameraSettings.SkyColor = Color.Lerp(Color.White, _atColor, _atFade);
                     _atText.Color = Color.White * _atFade;
                     
                     _atFade = MathHelper.Clamp(_atFade + (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
@@ -188,7 +188,7 @@ namespace SociallyDistant
                         _atFade = 0;
                         _state++;
                         _atText.Color = Color.White;
-                        PrimaryCameraSettings.BackgroundColor = _atColor;
+                        PrimaryCameraSettings.SkyColor = _atColor;
                     }
 
                     break;
@@ -213,7 +213,7 @@ namespace SociallyDistant
                     if (_glitch1.State != AudioState.Playing)
                     {
                         _state++;
-                        PrimaryCameraSettings.BackgroundColor = Color.Black;
+                        PrimaryCameraSettings.SkyColor = Color.Black;
                         _atLogoSprite.Color = Color.Transparent;
                         _atText.Color = Color.Transparent;
                         _poweredBy.Color = Color.Red;
@@ -239,7 +239,7 @@ namespace SociallyDistant
                         _tsText.Color = Color.Red * (1 - realFade);
                         _poweredBy.Color = _tsText.Color;
 
-                        PrimaryCameraSettings.BackgroundColor = Color.Lerp(Color.Black, Color.White, realFade);
+                        PrimaryCameraSettings.SkyColor = Color.Lerp(Color.Black, Color.White, realFade);
                     }
 
                     if (_atFade >= 1)

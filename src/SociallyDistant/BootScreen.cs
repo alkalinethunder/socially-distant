@@ -5,6 +5,7 @@ using SociallyDistant.Core.Config;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
 using Thundershock;
+using Thundershock.Audio;
 using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
@@ -71,6 +72,9 @@ namespace SociallyDistant
         
         protected override void OnLoad()
         {
+            // Stop playing music.
+            MusicPlayer.Stop();
+            
             // Grab app references.
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();

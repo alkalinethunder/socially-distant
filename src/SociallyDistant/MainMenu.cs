@@ -97,7 +97,7 @@ namespace SociallyDistant
             // fade the UI in from white.
             if (_isFirstDisplay)
             {
-                PrimaryCameraSettings.BackgroundColor = Color.White;
+                PrimaryCameraSettings.SkyColor = Color.White;
                 _fade = 1;
             }
             else
