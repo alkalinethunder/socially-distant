@@ -199,5 +199,15 @@ namespace SociallyDistant.Gui.Styles
                 };
             }
         }
+
+        public override void PaintElementBackground(Element element, GameTime gameTime, GuiRenderer renderer)
+        {
+            
+        }
+
+        public override void PaintMenuItemText(Element element, GameTime gameTime, GuiRenderer renderer, string text, Font font,
+            Vector2 textPos, SelectionStyle selectionStyle)
+        {
+        }
     }
 }
