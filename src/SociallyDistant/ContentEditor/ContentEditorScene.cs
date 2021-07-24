@@ -114,7 +114,7 @@ namespace SociallyDistant.ContentEditor
         private void BuildGui()
         {
             _newProject.Activated += NewProjectOnActivated;
-            
+            _saveProject.Activated += SaveProjectOnActivated;
             _goodiesTitle.Text = "Goodies Bag";
             
             _helpMenu.Items.Add(_about);
@@ -163,6 +163,11 @@ namespace SociallyDistant.ContentEditor
             Gui.AddToViewport(_mastStacker);
         }
 
+        private void SaveProjectOnActivated(object? sender, EventArgs e)
+        {
+            ContentController.SaveProject();
+        }
+
         private void NewProjectOnActivated(object? sender, EventArgs e)
         {
             ContentController.NewProject();
@@ -172,6 +177,8 @@ namespace SociallyDistant.ContentEditor
         {
             // Update the recents list.
             _recentProjects.Items.Clear();
+
+            _saveProject.Enabled = ContentController.CanSave;
 
             if (ContentController.RecentProjects.Any())
             {
@@ -257,7 +264,7 @@ namespace SociallyDistant.ContentEditor
             _editItems.Children.Add(stacker);
         }
 
-        public void AddEditItem(string category, string name, string desc)
+        public void AddEditItem(string category, string name, string desc, IAssetPropertyEditor editor)
         {
             var stacker = _categories[category];
 
@@ -273,6 +280,10 @@ namespace SociallyDistant.ContentEditor
             nameText.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
             hStacker.Children.Add(nameText);
+            hStacker.Children.Add(editor.RootElement);
+
+            editor.RootElement.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
             stacker.Children.Add(hStacker);
         }
 

@@ -27,6 +27,7 @@ namespace SociallyDistant.ContentEditor
             => _registry.GetAssets(info);
         
         public static bool CanCreateAssets => _projectFS != null;
+        public static bool CanSave => CanCreateAssets && _registry.HasDirty;
         
         public static void Init(IContentEditor editor)
         {
@@ -122,8 +123,11 @@ namespace SociallyDistant.ContentEditor
                 var path = "/" + assetType.Name;
                 foreach (var asset in _registry.GetAssets(assetType))
                 {
+                    if (!_registry.IsDirty(asset))
+                        continue;
+                    
                     var aPath = path + "/" + asset.Id.ToString() + ".scasset";
-                    var json = JsonSerializer.Serialize(asset, new JsonSerializerOptions
+                    var json = JsonSerializer.Serialize(asset, asset.GetType(), new JsonSerializerOptions
                     {
                         WriteIndented = true
                     });
@@ -131,6 +135,8 @@ namespace SociallyDistant.ContentEditor
                     _projectFS.WriteAllText(aPath, json);
                 }
             }
+            
+            _registry.ClearDirty();
         }
 
         private static void LoadRecents()
@@ -196,7 +202,25 @@ namespace SociallyDistant.ContentEditor
                     cats.Add(property.Category);
                 }
 
-                _editor.AddEditItem(property.Category, property.Name, property.Description);
+                var editor = property.CreateEditor(obj);
+                
+                _editor.AddEditItem(property.Category, property.Name, property.Description, editor);
+
+                editor.ValueChanged += (o, a) =>
+                {
+                    if (!_registry.IsDirty(obj))
+                    {
+                        _registry.SetDirty(obj);
+                        _editor.UpdateMenu();
+                    }
+
+                    if (_registry.CheckName(obj))
+                    {
+                        _editor.UpdateGoodies(type);
+                        _editor.ExpandGoodieCategory(type);
+                        _editor.SelectGoodie(obj);
+                    } 
+                };
             }
 
         }

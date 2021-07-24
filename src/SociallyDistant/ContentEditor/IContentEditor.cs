@@ -17,7 +17,7 @@ namespace SociallyDistant.ContentEditor
         void UpdateGoodieLists();
         bool AskForFolder(string title, out string folder);
         void AddCategory(string name);
-        void AddEditItem(string category, string name, string desc);
+        void AddEditItem(string category, string name, string desc, IAssetPropertyEditor editor);
         void ClearCategories();
     }
 }
