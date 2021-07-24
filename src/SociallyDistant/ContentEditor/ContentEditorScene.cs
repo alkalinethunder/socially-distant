@@ -9,246 +9,338 @@ using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.Gui.Elements;
 using SociallyDistant.Core.Windowing;
+using SociallyDistant.Gui.Styles;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Input;
+using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Gui.Elements.Console;
 
 namespace SociallyDistant.ContentEditor
 {
-    public class ContentEditorScene : Scene
+    public class ContentEditorScene : Scene, IContentEditor
     {
-        private WindowManager _wm;
-        private ContentManager _content;
-        private ContentPack _currentPack;
-        private List<Editor> _editors = new();
-        private Editor _currentEditor;
+        #region Important Shit
+
+        public bool ShowEditor { get; set; }
+
+        public string DataDirectory
+            => Path.Combine(ThundershockPlatform.LocalDataPath, "editor");
+
+        #endregion
         
         #region GUI Elements
+
+        private Stacker _mastStacker = new();
+        private MenuBar _masterMenu = new();
+        private Stacker _contentStacker = new();
+        private Panel _goodiesPanel = new();
+        private ScrollPanel _goodiesScroller = new();
+        private Stacker _goodiesStacker = new();
+        private TextBlock _goodiesTitle = new();
+        private Stacker _goodieTree = new();
+        private Panel _editorPanel = new();
+        private ScrollPanel _editorScroller = new();
+        private Stacker _editStacker = new();
+        private Stacker _editItems = new();
         
-        private Stacker _master = new();
-        private Stacker _slave = new();
-        private Stacker _inner = new();
-        private Stacker _editorStacker = new();
+        #endregion
 
-        private ConsoleControl _thundershockConsole = new();
+        #region Editor State
 
-        private Stacker _dbStacker = new();
-        private StringList _dbList = new();
-        private AdvancedButton _newPackAdvancedButton = new();
-        private TextEntryDialog _newDialog;
-        private StringList _typeList = new();
-        private Pane _dbs;
-        private Pane _contentTypes;
-        private Pane _editor;
-        private Pane _consolePanel;
+        private Dictionary<string, Stacker> _categories = new();
+
+        #endregion
+        
+        #region Goodies Bag State
+
+        private Dictionary<AssetInfo, Stacker> _goodiesLists = new();
+
+        #endregion
+        
+        #region Menu
+
+        private MenuItem _projectMenu = new MenuItem("Project");
+        private MenuItem _fileMenu = new MenuItem("File");
+        private MenuItem _editMenu = new("Edit");
+        private MenuItem _helpMenu = new MenuItem("Help");
+
+        #endregion
+
+        #region File Menu
+
+        private MenuItem _newProject = new("New Project...");
+        private MenuItem _openProject = new("Open Project...");
+        private MenuItem _recentProjects = new("Recent Projects...");
+        private MenuItem _saveProject = new("Save Project...");
+        private MenuItem _closeProject = new("Close Project...");
+        private MenuItem _exit = new("Exit");
+
+        #endregion
+
+        #region Edit Menu
+
+        private MenuItem _undo = new("Undo");
+        private MenuItem _redo = new("Redo");
+
+        #endregion
+
+        #region Project Menu
+
+        private MenuItem _newProjectItem = new("Create Item...");
+        private MenuItem _importResource = new("Import Goodie...");
+        private MenuItem _editMetadata = new("Edit Metadata...");
+
+        #endregion
+
+        #region Help Menu
+
+        private MenuItem _about = new("About Socially Distant Editor");
+        private MenuItem _documentation = new("Documentation...");
+        private MenuItem _website = new("Website...");
         
         #endregion
         
         protected override void OnLoad()
         {
-            _content = Game.GetComponent<ContentManager>();
-
-            _dbs = _wm.CreatePane("Content Packs");
-            _contentTypes = _wm.CreatePane("Data");
-            _editor = _wm.CreatePane("Editor");
-            _consolePanel = _wm.CreatePane("Console");
-
-            _slave.Direction = StackDirection.Horizontal;
-            _editorStacker.Direction = StackDirection.Horizontal;
+            Gui.LoadStyle<HackerStyle>();
             
-            _slave.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _editor.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _inner.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _editorStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            BuildGui();
             
-            Gui.AddToViewport(_master);
-
-            _master.Children.Add(_slave);
-
-            _slave.Children.Add(_dbs);
-            _slave.Children.Add(_inner);
-
-            _inner.Children.Add(_editorStacker);
-            _inner.Children.Add(_consolePanel);
-
-            _editorStacker.Children.Add(_contentTypes);
-            _editorStacker.Children.Add(_editor);
-            
-            _consolePanel.FixedHeight = 300;
-
-            _dbs.FixedWidth = 200;
-            _contentTypes.FixedWidth = 200;
-
-            _consolePanel.Content.Add(_thundershockConsole);
-
-            LoadDefaultConsolePalette();
-            
-            // set up thundershock's console output
-            SetupDebugLog();
-
-            _dbs.Content.Add(_dbStacker);
-
-            _dbStacker.Children.Add(_newPackAdvancedButton);
-
-            var newText = new TextBlock();
-            newText.Text = "CREATE NEW";
-            _newPackAdvancedButton.Children.Add(newText);
-
-            _dbStacker.Children.Add(_dbList);
-            _dbList.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-
-            _newPackAdvancedButton.MouseUp += HandleNewPackAdvancedButton;
-
-            ListPacks();
-            
-            _dbList.SelectedIndexChanged += DbListSelectedItemChanged;
-            
-            _contentTypes.Content.Add(_typeList);
-
-            LoadEditors();   
-            
-            _typeList.SelectedIndexChanged += TypeListOnSelectedIndexChanged;
-            
-            _wm = RegisterSystem<WindowManager>();
-            
-            base.OnLoad();
+            ContentController.Init(this);
         }
 
-        private void TypeListOnSelectedIndexChanged(object sender, EventArgs e)
+        private void BuildGui()
         {
-            if (_currentEditor != null)
-            {
-                _currentEditor.Unbind();
-                _currentEditor = null;
-            }
+            _newProject.Activated += NewProjectOnActivated;
+            
+            _goodiesTitle.Text = "Goodies Bag";
+            
+            _helpMenu.Items.Add(_about);
+            _helpMenu.Items.Add(_documentation);
+            _helpMenu.Items.Add(_website);
+            
+            _projectMenu.Items.Add(_newProjectItem);
+            _projectMenu.Items.Add(_importResource);
+            _projectMenu.Items.Add(_editMetadata);
+            
+            _editMenu.Items.Add(_undo);
+            _editMenu.Items.Add(_redo);
 
-            if (_typeList.SelectedIndex >= 0)
-            {
-                _currentEditor = _editors.First(x => x.Name == _typeList.SelectedItem);
+            _fileMenu.Items.Add(_newProject);
+            _fileMenu.Items.Add(_openProject);
+            _fileMenu.Items.Add(_saveProject);
+            _fileMenu.Items.Add(_closeProject);
+            _fileMenu.Items.Add(_recentProjects);
+            _fileMenu.Items.Add(_exit);
 
-                _currentEditor.Bind(_editor, _currentPack);
-            }
+            _masterMenu.Items.Add(_fileMenu);
+            _masterMenu.Items.Add(_editMenu);
+            _masterMenu.Items.Add(_projectMenu);
+            _masterMenu.Items.Add(_helpMenu);
+
+            _contentStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _goodiesScroller.Padding = 5;
+            _goodiesScroller.MinimumWidth = 375;
+            
+            _contentStacker.Direction = StackDirection.Horizontal;
+
+            _editorPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _goodiesStacker.Children.Add(_goodiesTitle);
+            _goodiesStacker.Children.Add(_goodieTree);
+            _goodiesScroller.Children.Add(_goodiesStacker);
+            _goodiesPanel.Children.Add(_goodiesScroller);
+            _contentStacker.Children.Add(_goodiesPanel);
+            _editStacker.Children.Add(_editItems);
+            _editorScroller.Children.Add(_editStacker);
+            _editorPanel.Children.Add(_editorScroller);
+            _contentStacker.Children.Add(_editorPanel);
+            _mastStacker.Children.Add(_masterMenu);
+            _mastStacker.Children.Add(_contentStacker);
+            Gui.AddToViewport(_mastStacker);
         }
 
-        private void LoadEditors()
+        private void NewProjectOnActivated(object? sender, EventArgs e)
         {
-            foreach (var type in ThundershockPlatform.GetAllTypes<Editor>())
+            ContentController.NewProject();
+        }
+
+        public void UpdateMenu()
+        {
+            // Update the recents list.
+            _recentProjects.Items.Clear();
+
+            if (ContentController.RecentProjects.Any())
             {
-                if (type.GetCustomAttributes(false).OfType<CustomEditorAttribute>().Any())
+                foreach (var recent in ContentController.RecentProjects)
                 {
-                    var editor = (Editor) Activator.CreateInstance(type, null);
-
-                    _editors.Add(editor);
-
-                    _typeList.AddItem(editor.Name);
+                    var recentItem = new MenuItem(recent);
+                    _recentProjects.Items.Add(recentItem);
+                    recentItem.Activated += (o, a) =>
+                    {
+                        ContentController.OpenProject(recent);
+                    };
                 }
             }
-
-            foreach (var type in ThundershockPlatform.GetAllTypes<IContentData>())
+            else
             {
-                var attr = type.GetCustomAttributes(false).OfType<EditableDataAttribute>().FirstOrDefault();
-
-                if (attr != null)
+                var none = new MenuItem("<empty>");
+                _recentProjects.Items.Add(none);
+            }
+            
+            // Item creation
+            _newProjectItem.Items.Clear();
+            if (ContentController.AssetTypes.Any())
+            {
+                foreach (var assetType in ContentController.AssetTypes)
                 {
-                    var editorType = typeof(MultiDataEditor<>).MakeGenericType(new[] {type});
-
-                    var createMethod =
-                        Expression.Call(editorType, "Create", new[] {type}, Expression.Constant(attr.Name));
-
-                    var variable = Expression.Variable(typeof(Editor), "ins");
-
-                    var cast = Expression.Convert(createMethod, typeof(Editor));
-
-                    var assignment = Expression.Assign(variable, cast);
-
-                    var body = Expression.Block(typeof(Editor), new[] {variable}, assignment, variable);
-
-                    var lambda = Expression.Lambda<Func<Editor>>(body);
-
-                    var creator = lambda.Compile();
-
-                    var editor = creator();
-                    
-                    _editors.Add(editor);
-                    _typeList.AddItem(attr.Name);
+                    var item = new MenuItem(assetType.Name);
+                    item.Activated += (o, a) =>
+                    {
+                        ContentController.CreateAsset(assetType, "Unnamed " + assetType.Name);
+                    };
+                    _newProjectItem.Items.Add(item);
                 }
             }
         }
         
-        private void DbListSelectedItemChanged(object sender, EventArgs e)
+        public void SelectGoodie(IAsset asset)
         {
-            if (_dbList.SelectedIndex >= 0)
-                SelectContentPack(_dbList.SelectedItem);
-        }
-
-        private void ListPacks()
-        {
-            _dbList.Clear();
-
-            foreach (var pack in _content.Packs)
+            foreach (var stacker in _goodiesLists.Values)
             {
-                _dbList.AddItem(pack.Id);
+                foreach (var button in stacker.Children.OfType<AdvancedButton>())
+                {
+                    var g = button.Properties.GetValue<IAsset>("goodie");
+                    if (g == asset)
+                    {
+                        button.IsActive = true;
+                    }
+                    else
+                    {
+                        button.IsActive = false;
+                    }
+                }
             }
         }
-        
-        private void HandleNewPackAdvancedButton(object sender, MouseButtonEventArgs e)
+
+        public bool AskForFolder(string title, out string folder)
         {
-            if (_newDialog == null)
+            var chooser = new FileChooser();
+            chooser.FileOpenerType = FileOpenerType.FolderTree;
+            chooser.Title = title;
+            chooser.InitialDirectory = ThundershockPlatform.LocalDataPath;
+
+            var result = chooser.Activate();
+
+            if (result == FileOpenerResult.Ok)
             {
-                _newDialog = _wm.MakeTextPrompt("New Content Pack", "Please enter a name for your new RED TEAM Content Pack file.");
+                folder = chooser.SelectedFilePath;
+                return true;
+            }
+
+            folder = string.Empty;
+            return false;
+        }
+
+        public void AddCategory(string name)
+        {
+            var stacker = new Stacker();
+            _categories.Add(name, stacker);
+
+            var text = new TextBlock();
+            text.Text = name;
+
+            _editItems.Children.Add(text);
+            _editItems.Children.Add(stacker);
+        }
+
+        public void AddEditItem(string category, string name, string desc)
+        {
+            var stacker = _categories[category];
+
+            var hStacker = new Stacker();
+            hStacker.Direction = StackDirection.Horizontal;
+            hStacker.Padding = 5;
+            
+            var nameText = new TextBlock();
+            nameText.Text = name;
+
+            hStacker.ToolTip = desc;
+            
+            nameText.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            hStacker.Children.Add(nameText);
+            stacker.Children.Add(hStacker);
+        }
+
+        public void ClearCategories()
+        {
+            _categories.Clear();
+            _editItems.Children.Clear();
+        }
+
+        public void Error(string message)
+        {
+            DialogBox.ShowError("Error", message);
+        }
+
+        public void UpdateGoodies(AssetInfo info)
+        {
+            var list = _goodiesLists[info];
+            list.Children.Clear();
+
+            var goodies = ContentController.GetAssets(info);
+
+            foreach (var goodie in goodies)
+            {
+                var button = new AdvancedButton();
+                var text = new TextBlock();
+
+                text.Text = goodie.Name;
                 
-                _newDialog.TextEntered += CreateNewContentPack;
-                _newDialog.Cancelled += HandleNewDialogCancelled;
+                button.Children.Add(text);
+
+                button.Properties.SetValue("goodie", goodie);
+
+                button.MouseUp += (_, args) =>
+                {
+                    if (args.Button == MouseButton.Primary)
+                    {
+                        ContentController.SelectAsset(info, goodie);
+                    }
+                };
+
+                list.Children.Add(button);
             }
         }
 
-        private void HandleNewDialogCancelled(object sender, EventArgs e)
+        public void ExpandGoodieCategory(AssetInfo info)
         {
-            _newDialog = null;
+            var list = _goodiesLists[info];
+            list.Visibility = Visibility.Visible;
         }
-
-        private void CreateNewContentPack(string obj)
+        
+        public void UpdateGoodieLists()
         {
-            _content.CreatePack(obj);
-            ListPacks();
-            SelectContentPack(obj);
-        }
+            _goodiesLists.Clear();
 
-        private void SelectContentPack(string packId)
-        {
-            _dbList.SelectedIndex = _dbList.IndexOf(packId);
-            _currentPack = _content.Packs.FirstOrDefault(x => x.Id == packId);
-        }
+            _goodieTree.Children.Clear();
 
-        private void SetupDebugLog()
-        {
-            Game.GetComponent<EditorConsole>().SetConsole(_thundershockConsole);
-        }
-
-        private void LoadDefaultConsolePalette()
-        {
-            var asm = typeof(IRedTeamContext).Assembly;
-            var res = asm.GetManifestResourceStream("SociallyDistant.Core.Resources.RedTermPalettes.default.json");
-            using var reader = new StreamReader(res);
-
-            var json = reader.ReadToEnd();
-
-            var obj = JsonSerializer.Deserialize<RedTermPalette>(json, new JsonSerializerOptions
+            foreach (var assetType in ContentController.AssetTypes)
             {
-                IncludeFields = true
-            });
+                var text = new TextBlock();
+                var stacker = new Stacker();
+                
+                text.Text = assetType.Name;
 
-            _thundershockConsole.ColorPalette = obj.ToColorPalette();
-        }
+                _goodieTree.Children.Add(text);
+                _goodieTree.Children.Add(stacker);
 
-        protected override void OnUpdate(GameTime gameTime)
-        {
-            base.OnUpdate(gameTime);
-
-            _contentTypes.Visibility = _currentPack != null ? Visibility.Visible : Visibility.Hidden;
-            _editor.Visibility = _currentEditor != null ? Visibility.Visible : Visibility.Hidden;
+                _goodiesLists.Add(assetType, stacker);
+            }
         }
     }
 }

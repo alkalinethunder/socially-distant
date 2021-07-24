@@ -1,4 +1,5 @@
 ﻿using SociallyDistant.Connectivity;
+using SociallyDistant.Core;
 using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.IO;
@@ -15,6 +16,9 @@ namespace SociallyDistant
     {
         protected override void OnPreInit()
         {
+            // module manager init
+            ModuleManager.Initialize();
+
             Window.Title = "Socially Distant";
         
             // Global window theme.

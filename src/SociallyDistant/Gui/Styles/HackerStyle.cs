@@ -76,7 +76,7 @@ namespace SociallyDistant.Gui.Styles
                 SelectionStyle.TextHighlight => _peace,
                 SelectionStyle.ItemHover => _warning * 0.5f,
                 SelectionStyle.ItemActive => _warning,
-                _ => throw new ArgumentOutOfRangeException(nameof(selectionStyle), selectionStyle, null)
+                _ => Color.Transparent
             };
 
             renderer.FillRectangle(bounds, color);
@@ -202,13 +202,13 @@ namespace SociallyDistant.Gui.Styles
 
         public override void PaintElementBackground(Element element, GameTime gameTime, GuiRenderer renderer)
         {
-            
+            renderer.FillRectangle(element.BoundingBox, _bg);
         }
 
         public override void PaintMenuItemText(Element element, GameTime gameTime, GuiRenderer renderer, string text, Font font,
             Vector2 textPos, SelectionStyle selectionStyle)
         {
-            
+            renderer.DrawString(font, text, textPos, _text);
         }
     }
 }

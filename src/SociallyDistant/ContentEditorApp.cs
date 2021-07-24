@@ -1,4 +1,5 @@
 ﻿using SociallyDistant.ContentEditor;
+using SociallyDistant.Core;
 using SociallyDistant.Core.ContentEditors;
 using Thundershock;
 
@@ -8,16 +9,19 @@ namespace SociallyDistant
     {
         protected override void OnPreInit()
         {
+            // module manager stuff
+            ModuleManager.Initialize();
+
             // register the editor console
             var econsole = RegisterComponent<EditorConsole>();
             Logger.AddOutput(econsole);
 
-            OnPostInit();
+            base.OnPreInit();
         }
 
         protected override void OnInit()
         {
-            Window.Title = "Michael VanOverbeek's RED TEAM - Content Editor";
+            Window.Title = "Socially Distant Editor";
 
             RegisterComponent<ContentManager>();
             
