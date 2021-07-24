@@ -137,6 +137,7 @@ namespace SociallyDistant.ContentEditor
             }
             
             _registry.ClearDirty();
+            _editor.UpdateMenu();
         }
 
         private static void LoadRecents()
