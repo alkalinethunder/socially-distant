@@ -79,11 +79,11 @@ namespace SociallyDistant.ContentEditor
                 SaveRecents();
 
                 _registry.ClearAssets();
-
-                CreateAssetFolders();
                 
                 _projectFS = FileSystem.FromHostDirectory(_activeProjectFolder);
-                
+
+                CreateAssetFolders();
+
                 _metadata = new();
 
                 AutoCreateAssets();

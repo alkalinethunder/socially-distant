@@ -163,12 +163,14 @@ namespace SociallyDistant.ContentEditor
 
             _contentStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
             
-            _goodiesScroller.Padding = 5;
+            _goodiesScroller.Padding = 10;
             _goodiesScroller.MinimumWidth = 375;
             
             _contentStacker.Direction = StackDirection.Horizontal;
 
             _editorPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            _editItems.Padding = 10;
             
             _goodiesStacker.Children.Add(_goodiesTitle);
             _goodiesStacker.Children.Add(_goodieTree);
@@ -211,6 +213,9 @@ namespace SociallyDistant.ContentEditor
             _imageSelect.Children.Add(_imageSelectMain);
             
             _imageBrowse.MouseUp += ImageBrowseOnMouseUp;
+
+            _goodiesTitle.Properties.SetValue(FontStyle.Heading2);
+            _goodiesTitle.ForeColor = Color.Cyan;
         }
 
         private void ImageBrowseOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -324,6 +329,18 @@ namespace SociallyDistant.ContentEditor
 
             var text = new TextBlock();
             text.Text = name;
+            text.Properties.SetValue(FontStyle.Heading3);
+            text.ForeColor = Color.Cyan;
+
+            if (_editItems.Children.Any())
+            {
+                text.Padding = new Padding(0, 10, 0, 5f);
+            }
+            else
+            {
+                text.Padding = new Padding(0, 0, 0, 5f);
+            }
+
 
             _editItems.Children.Add(text);
             _editItems.Children.Add(stacker);
@@ -335,15 +352,17 @@ namespace SociallyDistant.ContentEditor
 
             var hStacker = new Stacker();
             hStacker.Direction = StackDirection.Horizontal;
-            hStacker.Padding = 5;
+            hStacker.Padding = new Padding(10, 2);
             
             var nameText = new TextBlock();
             nameText.Text = name;
-
+            nameText.VerticalAlignment = VerticalAlignment.Center;
             hStacker.ToolTip = desc;
             
-            nameText.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-
+            nameText.Properties.SetValue(Stacker.FillProperty, new StackFill(2f /  3f));
+            nameText.TextAlign = TextAlign.Right;
+            nameText.Padding = new Padding(0, 0, 7.5f, 0);
+            
             hStacker.Children.Add(nameText);
             hStacker.Children.Add(editor.RootElement);
 
@@ -410,7 +429,9 @@ namespace SociallyDistant.ContentEditor
                 var text = new TextBlock();
                 var stacker = new Stacker();
                 
+                text.Properties.SetValue(FontStyle.Heading3);
                 text.Text = assetType.Name;
+                text.Padding = new Padding(0, 7.5f, 0, 0);
 
                 _goodieTree.Children.Add(text);
                 _goodieTree.Children.Add(stacker);
