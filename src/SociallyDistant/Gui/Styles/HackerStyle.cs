@@ -202,7 +202,8 @@ namespace SociallyDistant.Gui.Styles
 
         public override void PaintElementBackground(Element element, GameTime gameTime, GuiRenderer renderer)
         {
-            renderer.FillRectangle(element.BoundingBox, _bg);
+            var backColor = element.BackColor ?? StyleColor.Default;
+            renderer.FillRectangle(element.BoundingBox, backColor.GetColor(_bg));
         }
 
         public override void PaintMenuItemText(Element element, GameTime gameTime, GuiRenderer renderer, string text, Font font,

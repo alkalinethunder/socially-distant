@@ -32,6 +32,7 @@ namespace SociallyDistant.ContentEditor
         
         #region GUI Elements
 
+        private Panel _overlay = new();
         private Stacker _mastStacker = new();
         private MenuBar _masterMenu = new();
         private Stacker _contentStacker = new();
@@ -102,6 +103,24 @@ namespace SociallyDistant.ContentEditor
         private MenuItem _website = new("Website...");
         
         #endregion
+
+        #region Image Select
+
+        private Panel _imageSelect = new();
+        private Stacker _imageSelectMain = new();
+        private TextBlock _imageSelectTitle = new();
+        private ScrollPanel _imageSelectScroller = new();
+        private WrapPanel _imageWrapper = new();
+        private Stacker _imageButtons = new();
+        private Button _imageBrowse = new();
+        private Action<ImageAsset> _imageCallback;
+        #endregion
+
+        public string ImageSelectTitle
+        {
+            get => _imageSelectTitle.Text;
+            set => _imageSelectTitle.Text = value;
+        }
         
         protected override void OnLoad()
         {
@@ -114,6 +133,7 @@ namespace SociallyDistant.ContentEditor
 
         private void BuildGui()
         {
+            _overlay.BackColor = Color.Black * 0.5f;
             _newProject.Activated += NewProjectOnActivated;
             _saveProject.Activated += SaveProjectOnActivated;
             _goodiesTitle.Text = "Goodies Bag";
@@ -163,6 +183,48 @@ namespace SociallyDistant.ContentEditor
             _mastStacker.Children.Add(_masterMenu);
             _mastStacker.Children.Add(_contentStacker);
             Gui.AddToViewport(_mastStacker);
+            Gui.AddToViewport(_overlay);
+            _overlay.Visibility = Visibility.Collapsed;
+
+            _overlay.Children.Add(_imageSelect);
+            _imageSelect.HorizontalAlignment = HorizontalAlignment.Center;
+            _imageSelect.VerticalAlignment = VerticalAlignment.Center;
+            _imageSelect.FixedWidth = 520;
+            _imageSelect.FixedHeight = 800;
+
+            _imageBrowse.Text = "Import from Files...";
+
+            _imageSelectTitle.Padding = 5;
+            _imageWrapper.Padding = 5;
+            _imageButtons.Padding = 5;
+            
+            _imageSelectScroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _imageSelectScroller.Children.Add(_imageWrapper);
+            
+            _imageButtons.Children.Add(_imageBrowse);
+            
+            _imageSelectMain.Children.Add(_imageSelectTitle);
+            _imageSelectMain.Children.Add(_imageSelectScroller);
+            _imageSelectMain.Children.Add(_imageButtons);
+            
+            _imageSelect.Children.Add(_imageSelectMain);
+            
+            _imageBrowse.MouseUp += ImageBrowseOnMouseUp;
+        }
+
+        private void ImageBrowseOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                if (ContentController.ImportImage(this.Graphics, out var asset))
+                {
+                    _overlay.Visibility = Visibility.Collapsed;
+                    _overlay.IsInteractable = false;
+                    _imageCallback?.Invoke(asset);
+                    _imageCallback = null;
+                }
+            }
         }
 
         private void SaveProjectOnActivated(object? sender, EventArgs e)
@@ -375,6 +437,40 @@ namespace SociallyDistant.ContentEditor
                 _editorPanel.FixedWidth = 0;
                 _customViewPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Auto);
                 _customViewPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        public void ShowImageSelect(Action<ImageAsset> callback)
+        {
+            _overlay.Visibility = Visibility.Visible;
+            _overlay.IsInteractable = true;
+            _imageCallback = callback;
+            
+            _imageWrapper.Children.Clear();
+
+            foreach (var img in ContentController.Images)
+            {
+                var button = new AdvancedButton();
+                var pic = new Picture();
+                
+                button.FixedWidth = 160;
+                button.FixedHeight = 90;
+                button.Children.Add(pic);
+                pic.Padding = 3;
+                pic.Image = img.Texture;
+
+                button.MouseUp += (o, a) =>
+                {
+                    if (a.Button == MouseButton.Primary)
+                    {
+                        _overlay.Visibility = Visibility.Collapsed;
+                        _overlay.IsInteractable = false;
+                        _imageCallback?.Invoke(img);
+                        _imageCallback = null;
+                    }
+                };
+                
+                _imageWrapper.Children.Add(button);
             }
         }
     }

@@ -87,13 +87,15 @@ namespace SociallyDistant.Editors
             private TextBlock _authorName = new();
             private TextEntry _messageText = new();
             private Picture _messageImage = new();
+            private Stacker _messageActions = new();
+            private Button _addImage = new();
             
-
             public MessageBubble(ChatEditor owner, ChatMessageData data)
             {
                 _message = data;
                 _owner = owner;
 
+                _addImage.Text = "Add Image...";
                 _profilePicture.FixedWidth = 32;
                 _profilePicture.FixedHeight = 32;
                 _profilePicture.Padding = 3;
@@ -101,10 +103,17 @@ namespace SociallyDistant.Editors
                 _profilePicture.VerticalAlignment = VerticalAlignment.Center;
                 _messageStacker.VerticalAlignment = VerticalAlignment.Center;
 
+                _addImage.MouseUp += AddImageOnMouseUp;
+                
+                _messageActions.Children.Add(_addImage);
+                
                 _stacker.Direction = StackDirection.Horizontal;
+                _messageActions.Direction = StackDirection.Horizontal;
 
                 _messageStacker.Children.Add(_authorName);
                 _messageStacker.Children.Add(_messageText);
+                _messageStacker.Children.Add(_messageImage);
+                _messageStacker.Children.Add(_messageActions);
                 
                 _stacker.Children.Add(_profilePicture);
                 _stacker.Children.Add(_messageStacker);
@@ -114,6 +123,34 @@ namespace SociallyDistant.Editors
                 _messageText.Text = _message.Text;
                 
                 _messageText.TextChanged += MessageTextOnTextChanged;
+
+                _messageStacker.MaximumWidth = 460;
+
+                if (_message.Type == ChatMessageType.Image)
+                {
+                    var img = ContentController.Images.FirstOrDefault(x => x.Path == _message.AssetPath);
+                    if (img != null)
+                    {
+                        _messageImage.Image = img.Texture;
+                        _addImage.Text = "Change image...";
+                    }
+                }
+            }
+
+            private void AddImageOnMouseUp(object? sender, MouseButtonEventArgs e)
+            {
+                if (e.Button == MouseButton.Primary)
+                {
+                    ContentController.AskForImage("Select Chat Message Image", (img) =>
+                    {
+                        _message.Type = ChatMessageType.Image;
+                        _message.AssetPath = img.Path;
+                        _messageImage.Image = img.Texture;
+                        _addImage.Text = "Change image...";
+                        
+                        _owner.NotifyAssetChanged();
+                    });
+                }
             }
 
             private void MessageTextOnTextChanged(object? sender, EventArgs e)

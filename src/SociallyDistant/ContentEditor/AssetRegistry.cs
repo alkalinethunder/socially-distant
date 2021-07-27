@@ -6,6 +6,7 @@ namespace SociallyDistant.ContentEditor
 {
     public sealed class AssetRegistry
     {
+        private List<ImageAsset> _images = new();
         private Dictionary<AssetInfo, List<IAsset>> _assets = new();
         private List<IAsset> _dirty = new();
         private Dictionary<IAsset, string> _names = new();
@@ -16,11 +17,18 @@ namespace SociallyDistant.ContentEditor
         
         public bool IsDirty(IAsset asset)
             => _dirty.Contains(asset);
+
+        public IEnumerable<ImageAsset> Images => _images;
         
         public void SetDirty(IAsset asset)
         {
             if (!_dirty.Contains(asset))
                 _dirty.Add(asset);
+        }
+
+        public void AddImage(ImageAsset imageAsset)
+        {
+            _images.Add(imageAsset);
         }
         
         public IEnumerable<AssetInfo> GetAssetTypes()

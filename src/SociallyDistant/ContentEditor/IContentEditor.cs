@@ -1,4 +1,6 @@
-﻿using SociallyDistant.Core;
+﻿using System;
+using SociallyDistant.Core;
+using Thundershock.Core.Rendering;
 using Thundershock.Gui.Elements;
 
 namespace SociallyDistant.ContentEditor
@@ -7,6 +9,9 @@ namespace SociallyDistant.ContentEditor
     {
         bool ShowEditor { get; set; }
         string DataDirectory { get; }
+        GraphicsProcessor Graphics { get; }
+        
+        string ImageSelectTitle { get; set; }
         
         void UpdateMenu();
 
@@ -22,5 +27,6 @@ namespace SociallyDistant.ContentEditor
         void ClearCategories();
 
         void SetCustomViewElement(Element element);
+        void ShowImageSelect(Action<ImageAsset> callback);
     }
 }

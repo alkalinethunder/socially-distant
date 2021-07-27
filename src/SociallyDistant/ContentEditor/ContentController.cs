@@ -6,6 +6,8 @@ using System.Text.Json;
 using Silk.NET.OpenGL;
 using SociallyDistant.Core;
 using SociallyDistant.Core.ContentEditors;
+using Thundershock.Core.Rendering;
+using Thundershock.Gui;
 using Thundershock.IO;
 
 namespace SociallyDistant.ContentEditor
@@ -28,6 +30,8 @@ namespace SociallyDistant.ContentEditor
         
         public static bool CanCreateAssets => _projectFS != null;
         public static bool CanSave => CanCreateAssets && _registry.HasDirty;
+
+        public static IEnumerable<ImageAsset> Images => _registry.Images;
         
         public static void Init(IContentEditor editor)
         {
@@ -111,6 +115,7 @@ namespace SociallyDistant.ContentEditor
 
             LoadAssets();
             AutoCreateAssets();
+            LoadImages();
             
             _editor.UpdateMenu();
         }
@@ -259,6 +264,9 @@ namespace SociallyDistant.ContentEditor
         
         private static void CreateAssetFolders()
         {
+            if (!_projectFS.DirectoryExists("/Images"))
+                _projectFS.CreateDirectory("/Images");
+            
             foreach (var assetType in AssetTypes)
             {
                 var path = "/" + assetType.Name;
@@ -316,6 +324,84 @@ namespace SociallyDistant.ContentEditor
                 foreach (var asset in _registry.GetAssets(assetType).OfType<T>())
                     yield return asset;
             }
+        }
+
+        public static void AskForImage(string title, Action<ImageAsset> callback)
+        {
+            _editor.ImageSelectTitle = title;
+            _editor.ShowImageSelect(callback);
+        }
+
+        public static bool ImportImage(GraphicsProcessor gpu, out ImageAsset asset)
+        {
+            if (!_projectFS.DirectoryExists("/Images"))
+                _projectFS.CreateDirectory("/Images");
+            
+            var fileChooser = new FileChooser();
+            fileChooser.AcceptFileType("png", "PNG image");
+            fileChooser.AcceptFileType("jpg", "JPEG image");
+            fileChooser.AcceptFileType("jpeg", "JPEG image");
+            fileChooser.AcceptFileType("bmp", "Bitmap image");
+            fileChooser.Title = "Import image file";
+            fileChooser.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            var result = fileChooser.Activate();
+            if (result == FileOpenerResult.Ok)
+            {
+                var path = fileChooser.SelectedFilePath;
+                
+
+                var ext = Path.GetExtension(path);
+                var guid = Guid.NewGuid().ToString() + ext;
+                var assetPath = "/Images/" + guid;
+                using (var iStream = File.OpenRead(path))
+                {
+                    using (var oStream = _projectFS.OpenFile(assetPath))
+                    {
+                        iStream.CopyTo(oStream);
+                    }
+                }
+
+                using var aStream = _projectFS.OpenFile(assetPath);
+
+                var texture = Texture2D.FromStream(gpu, aStream);
+
+                var assetData = new ImageAsset(texture, assetPath);
+                _registry.AddImage(assetData);
+
+                asset = assetData;
+                return true;
+            }
+
+            asset = null;
+            return false;
+        }
+        
+        private static void LoadImages()
+        {
+            var gpu = _editor.Graphics;
+
+            foreach (var imagePath in _projectFS.GetFiles("/Images"))
+            {
+                using var stream = _projectFS.OpenFile(imagePath);
+                var texture = Texture2D.FromStream(gpu, stream);
+
+                var asset = new ImageAsset(texture, imagePath);
+                _registry.AddImage(asset);
+            }
+        }
+
+    }
+
+    public class ImageAsset
+    {
+        public Texture2D Texture { get; }
+        public string Path { get; }
+
+        public ImageAsset(Texture2D texture, string path)
+        {
+            Texture = texture;
+            Path = path;
         }
     }
 }
