@@ -50,6 +50,8 @@ namespace SociallyDistant.ContentEditor
             _editor.UpdateGoodieLists();
 
             _editor.UpdateMenu();
+
+            _editor.SetCustomViewElement(null);
         }
 
         public static void NewProject()
@@ -79,6 +81,9 @@ namespace SociallyDistant.ContentEditor
                 _projectFS = FileSystem.FromHostDirectory(_activeProjectFolder);
                 
                 _metadata = new();
+
+                AutoCreateAssets();
+                
                 SaveProject();
                 
                 _editor.UpdateMenu();
@@ -105,6 +110,7 @@ namespace SociallyDistant.ContentEditor
             CreateAssetFolders();
 
             LoadAssets();
+            AutoCreateAssets();
             
             _editor.UpdateMenu();
         }
@@ -179,6 +185,7 @@ namespace SociallyDistant.ContentEditor
             obj.Name = name;
 
             _registry.Add(type, obj);
+            _registry.SetDirty(obj);
             
             _editor.UpdateGoodies(type);
             
@@ -224,6 +231,30 @@ namespace SociallyDistant.ContentEditor
                 };
             }
 
+            var customView = type.CreateCustomView(obj);
+            if (customView != null)
+            {
+                _editor.SetCustomViewElement(customView.RootElement);
+                customView.AssetChanged += (o, a) =>
+                {
+                    if (!_registry.IsDirty(obj))
+                    {
+                        _registry.SetDirty(obj);
+                        _editor.UpdateMenu();
+                    }
+
+                    if (_registry.CheckName(obj))
+                    {
+                        _editor.UpdateGoodies(type);
+                        _editor.ExpandGoodieCategory(type);
+                        _editor.SelectGoodie(obj);
+                    }
+                };
+            }
+            else
+            {
+                _editor.SetCustomViewElement(null);
+            }
         }
         
         private static void CreateAssetFolders()
@@ -256,6 +287,34 @@ namespace SociallyDistant.ContentEditor
                 }
 
                 _editor.UpdateGoodies(assetType);
+            }
+        }
+
+        private static void AutoCreateAssets()
+        {
+            foreach (var assetType in AssetTypes)
+            {
+                if (assetType.AutoCreate)
+                {
+                    var name = assetType.AutoCreateName;
+
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        if (_registry.GetAssets(assetType).All(x => x.Name != name))
+                        {
+                            CreateAsset(assetType, name);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<T> GetAssetsOfType<T>() where T : IAsset
+        {
+            foreach (var assetType in _registry.GetAssetTypes())
+            {
+                foreach (var asset in _registry.GetAssets(assetType).OfType<T>())
+                    yield return asset;
             }
         }
     }

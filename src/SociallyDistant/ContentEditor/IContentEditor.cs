@@ -1,4 +1,5 @@
 ﻿using SociallyDistant.Core;
+using Thundershock.Gui.Elements;
 
 namespace SociallyDistant.ContentEditor
 {
@@ -19,5 +20,7 @@ namespace SociallyDistant.ContentEditor
         void AddCategory(string name);
         void AddEditItem(string category, string name, string desc, IAssetPropertyEditor editor);
         void ClearCategories();
+
+        void SetCustomViewElement(Element element);
     }
 }

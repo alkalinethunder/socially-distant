@@ -44,6 +44,7 @@ namespace SociallyDistant.ContentEditor
         private ScrollPanel _editorScroller = new();
         private Stacker _editStacker = new();
         private Stacker _editItems = new();
+        private Panel _customViewPanel = new();
         
         #endregion
 
@@ -154,6 +155,7 @@ namespace SociallyDistant.ContentEditor
             _goodiesScroller.Children.Add(_goodiesStacker);
             _goodiesPanel.Children.Add(_goodiesScroller);
             _contentStacker.Children.Add(_goodiesPanel);
+            _contentStacker.Children.Add(_customViewPanel);
             _editStacker.Children.Add(_editItems);
             _editorScroller.Children.Add(_editStacker);
             _editorPanel.Children.Add(_editorScroller);
@@ -200,9 +202,10 @@ namespace SociallyDistant.ContentEditor
             
             // Item creation
             _newProjectItem.Items.Clear();
-            if (ContentController.AssetTypes.Any())
+            var types = ContentController.AssetTypes.Where(x => x.CanUserCreate).ToArray();
+            if (types.Any())
             {
-                foreach (var assetType in ContentController.AssetTypes)
+                foreach (var assetType in types)
                 {
                     var item = new MenuItem(assetType.Name);
                     item.Activated += (o, a) =>
@@ -351,6 +354,27 @@ namespace SociallyDistant.ContentEditor
                 _goodieTree.Children.Add(stacker);
 
                 _goodiesLists.Add(assetType, stacker);
+            }
+        }
+
+        public void SetCustomViewElement(Element element)
+        {
+            _customViewPanel.Children.Clear();
+
+            if (element != null)
+            {
+                _customViewPanel.Children.Add(element);
+                _customViewPanel.Visibility = Visibility.Visible;
+                _customViewPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+                _editorPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Auto);
+                _editorPanel.FixedWidth = 375;
+            }
+            else
+            {
+                _editorPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+                _editorPanel.FixedWidth = 0;
+                _customViewPanel.Properties.SetValue(Stacker.FillProperty, StackFill.Auto);
+                _customViewPanel.Visibility = Visibility.Collapsed;
             }
         }
     }
