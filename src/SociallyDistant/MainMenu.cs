@@ -216,6 +216,23 @@ namespace SociallyDistant
             
             // Add the fade panel.
             Gui.AddToViewport(_fadePanel);
+
+            if (Game.GetComponent<SaveManager>().PreloadException != null)
+            {
+                var ex = Game.GetComponent<SaveManager>().PreloadException;
+                
+                #if DEBUG
+                var message =
+                    "An error has occurred while trying to load the previous save file.\r\n\r\nYou have been returned to the main menu.\r\n\r\n" +
+                    ex.ToString();
+#else
+                var message =
+                    "An error has occurred trying to load the previous save file (403).\r\n\r\nYou've been returned to the main menu.";
+#endif
+
+                _wm.ShowMessage("Socially Distant", message);
+                Game.GetComponent<SaveManager>().DisarmPreloaderCrash();
+            }
         }
 
         private void ContinueOnMouseUp(object sender, MouseButtonEventArgs e)

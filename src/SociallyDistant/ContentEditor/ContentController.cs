@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Silk.NET.OpenGL;
 using SociallyDistant.Core;
 using SociallyDistant.Core.ContentEditors;
+using Thundershock;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
+using Thundershock.Gui.Elements;
 using Thundershock.IO;
 
 namespace SociallyDistant.ContentEditor
@@ -21,16 +24,25 @@ namespace SociallyDistant.ContentEditor
         private static string[] _recents;
         private static ContentPackMetadata _metadata = null;
         private static AssetRegistry _registry = new();
+        private static Task _packageTask;
+        private static PakWorker _worker;
+        
         public static IEnumerable<string> RecentProjects => _recents;
 
+        
+        
         public static IEnumerable<AssetInfo> AssetTypes => _registry.GetAssetTypes();
 
+        public static PakWorkerProgress PackageProgress => _worker.Progress;
+        
         public static IEnumerable<IAsset> GetAssets(AssetInfo info)
             => _registry.GetAssets(info);
         
         public static bool CanCreateAssets => _projectFS != null;
         public static bool CanSave => CanCreateAssets && _registry.HasDirty;
 
+        public static bool IsPackaging => _packageTask != null;
+        
         public static IEnumerable<ImageAsset> Images => _registry.Images;
         
         public static void Init(IContentEditor editor)
@@ -391,17 +403,60 @@ namespace SociallyDistant.ContentEditor
             }
         }
 
-    }
-
-    public class ImageAsset
-    {
-        public Texture2D Texture { get; }
-        public string Path { get; }
-
-        public ImageAsset(Texture2D texture, string path)
+        public static void StartPackage()
         {
-            Texture = texture;
-            Path = path;
+            if (IsPackaging)
+            {
+                _editor.Error("Packaging is already in progress.");
+                return;
+            }
+
+            if (!CanCreateAssets)
+            {
+                _editor.Error("Cannot package the project - because no project is opened!");
+                return;
+            }
+
+            var chooser = new FileChooser();
+            chooser.Title = "Package Project";
+            chooser.AcceptFileType("pak", "Thundershock Engine PAK File (Socially Distant World Pak)");
+            chooser.InitialDirectory = Path.Combine(ThundershockPlatform.LocalDataPath, "packs");
+            chooser.FileOpenerType = FileOpenerType.Save;
+            if (!Directory.Exists(chooser.InitialDirectory))
+                Directory.CreateDirectory(chooser.InitialDirectory);
+
+            if (chooser.Activate() == FileOpenerResult.Ok)
+            {
+                _editor.OverlayVisibility = Visibility.Visible;
+                
+                var path = chooser.SelectedFilePath;
+                var fs = _projectFS;
+                var registry = _registry;
+
+                var worker = new PakWorker(fs, registry, path, _editor);
+
+                _worker = worker;
+                
+                worker.Finished += WorkerOnFinished;
+
+                _packageTask = worker.PackageAsync();
+            }
+
+
+        }
+
+        private static void WorkerOnFinished(object? sender, EventArgs e)
+        {
+            if (_packageTask.Exception != null)
+            {
+                _editor.Error("An error occurred packaging the world data." + Environment.NewLine +
+                              Environment.NewLine + _packageTask.Exception.ToString());
+            }
+            
+            _packageTask = null;
+            _editor.OverlayVisibility = Visibility.Collapsed;
+            _worker = null;
         }
     }
+
 }

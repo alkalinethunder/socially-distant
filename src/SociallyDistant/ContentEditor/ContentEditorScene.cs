@@ -76,6 +76,7 @@ namespace SociallyDistant.ContentEditor
         private MenuItem _openProject = new("Open Project...");
         private MenuItem _recentProjects = new("Recent Projects...");
         private MenuItem _saveProject = new("Save Project...");
+        private MenuItem _packageProject = new MenuItem("Package Project...");
         private MenuItem _closeProject = new("Close Project...");
         private MenuItem _exit = new("Exit");
 
@@ -116,12 +117,38 @@ namespace SociallyDistant.ContentEditor
         private Action<ImageAsset> _imageCallback;
         #endregion
 
+        #region Progress Dialog
+
+        private Panel _progressPanel = new();
+        private Stacker _progressStacker = new();
+        private TextBlock _progressTitle = new();
+        private TextBlock _progressStatus = new();
+        private ProgressBar _progressBar = new();
+
+        #endregion
+        
         public string ImageSelectTitle
         {
             get => _imageSelectTitle.Text;
             set => _imageSelectTitle.Text = value;
         }
-        
+
+        protected override void OnUpdate(GameTime gameTime)
+        {
+            base.OnUpdate(gameTime);
+
+            if (ContentController.IsPackaging)
+            {
+                _progressPanel.Visibility = Visibility.Visible;
+                _progressBar.Value = ContentController.PackageProgress.Percentage;
+                _progressStatus.Text = ContentController.PackageProgress.Status;
+            }
+            else
+            {
+                _progressPanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
         protected override void OnLoad()
         {
             Gui.LoadStyle<HackerStyle>();
@@ -131,6 +158,13 @@ namespace SociallyDistant.ContentEditor
             ContentController.Init(this);
         }
 
+
+        public Visibility OverlayVisibility
+        {
+            get => _overlay.Visibility;
+            set => _overlay.Visibility = value;
+        }
+        
         private void BuildGui()
         {
             _overlay.BackColor = Color.Black * 0.5f;
@@ -153,6 +187,7 @@ namespace SociallyDistant.ContentEditor
             _fileMenu.Items.Add(_openProject);
             _fileMenu.Items.Add(_saveProject);
             _fileMenu.Items.Add(_closeProject);
+            _fileMenu.Items.Add(_packageProject);
             _fileMenu.Items.Add(_recentProjects);
             _fileMenu.Items.Add(_exit);
 
@@ -216,6 +251,33 @@ namespace SociallyDistant.ContentEditor
 
             _goodiesTitle.Properties.SetValue(FontStyle.Heading2);
             _goodiesTitle.ForeColor = Color.Cyan;
+
+            _progressPanel.FixedWidth = 600;
+            _progressPanel.FixedHeight = 250;
+
+            _progressPanel.VerticalAlignment = VerticalAlignment.Center;
+            _progressPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            
+            _progressStacker.Padding = 15;
+            
+            _progressTitle.Padding = new Padding(0, 0, 0, 7.5f);
+            
+            _progressTitle.Properties.SetValue(FontStyle.Heading3);
+            _progressTitle.ForeColor = Color.Cyan;
+            _progressTitle.Text = "Packaging project...";
+            
+            _progressTitle.TextAlign = TextAlign.Center;
+            _progressStatus.TextAlign = TextAlign.Center;
+            
+            _progressStacker.Children.Add(_progressTitle);
+            _progressStacker.Children.Add(_progressStatus);
+            _progressStacker.Children.Add(_progressBar);
+            _progressPanel.Children.Add(_progressStacker);
+            _overlay.Children.Add(_progressPanel);
+
+            _progressPanel.Visibility = Visibility.Collapsed;
+            
+            _packageProject.Activated += PackageProjectOnActivated;
         }
 
         private void ImageBrowseOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -283,7 +345,12 @@ namespace SociallyDistant.ContentEditor
                 }
             }
         }
-        
+
+        private void PackageProjectOnActivated(object? sender, EventArgs e)
+        {
+            ContentController.StartPackage();
+        }
+
         public void SelectGoodie(IAsset asset)
         {
             foreach (var stacker in _goodiesLists.Values)

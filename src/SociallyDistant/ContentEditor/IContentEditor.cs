@@ -11,6 +11,8 @@ namespace SociallyDistant.ContentEditor
         string DataDirectory { get; }
         GraphicsProcessor Graphics { get; }
         
+        Visibility OverlayVisibility { get; set; }
+        
         string ImageSelectTitle { get; set; }
         
         void UpdateMenu();

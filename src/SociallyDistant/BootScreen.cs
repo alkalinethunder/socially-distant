@@ -138,6 +138,16 @@ namespace SociallyDistant
             _logoSprite1.Color = Color.Transparent;
             _logoSprite2.Color = Color.Transparent;
             _bootProgress.Opacity = 0;
+
+            // Stop us from fucking up the preloader.
+            if (_saveManager.IsPreloading)
+                return;
+
+            if (_saveManager.PreloadException != null)
+            {
+                GoToScene<MainMenu>();
+                return;
+            }
             
             switch (_bootState)
             {
