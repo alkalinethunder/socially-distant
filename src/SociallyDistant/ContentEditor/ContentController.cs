@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Silk.NET.OpenGL;
 using SociallyDistant.Core;
+using SociallyDistant.Core.AssetPropertyEditors;
 using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.Editors;
 using Thundershock;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
@@ -39,7 +41,7 @@ namespace SociallyDistant.ContentEditor
             => _registry.GetAssets(info);
         
         public static bool CanCreateAssets => _projectFS != null;
-        public static bool CanSave => CanCreateAssets && _registry.HasDirty;
+        public static bool CanSave => CanCreateAssets;
 
         public static bool IsPackaging => _packageTask != null;
         
@@ -70,6 +72,88 @@ namespace SociallyDistant.ContentEditor
             _editor.SetCustomViewElement(null);
         }
 
+        public static void EditProjectMetadata()
+        {
+            if (!CanCreateAssets)
+                throw new InvalidOperationException();
+            
+            _editor.SelectGoodie(null);
+            _editor.ShowEditor = true;
+
+            _editor.ClearCategories();
+            
+            // get the type information
+            var type = _metadata.GetType();
+            
+            // get property info for the needed properties.
+            var name = type.GetProperty(nameof(_metadata.Name));
+            var desc = type.GetProperty(nameof(_metadata.Description));
+            var author = type.GetProperty(nameof(_metadata.Author));
+            var icon = type.GetProperty(nameof(_metadata.Icon));
+            var wallpaper = type.GetProperty(nameof(_metadata.Wallpaper));
+            var vosBoot = type.GetProperty(nameof(_metadata.BootLogo));
+            var eula = type.GetProperty(nameof(_metadata.EnableEula));
+            // Category names.
+            var packInfo = "Package Information";
+            var images = "Images";
+            var oobe = "Initial Setup";
+            
+            // Package information category.
+            _editor.AddCategory(packInfo);
+            _editor.AddCategory(images);
+            _editor.AddCategory(oobe);
+
+            // Create editors for the name, description and author.
+            var nameEditor = new StringEditor();
+            var descEditor = new StringEditor();
+            var authEditor = new StringEditor();
+            
+            // Initialize them.
+            nameEditor.Initialize(_metadata, name);
+            descEditor.Initialize(_metadata, desc);
+            authEditor.Initialize(_metadata, author);
+            
+            // Add them to the editor UI.
+            _editor.AddEditItem(packInfo, "Package Name",
+                "This is the name of your package. It's displayed in the main  menu, as the name of the custom story. It's also used as the name of the folder where save files are stored.",
+                nameEditor);
+            _editor.AddEditItem(packInfo, "Description",
+                "Describe your custom content pack in about one or two sentences - it's displayed in the main menu.",
+                descEditor);
+            _editor.AddEditItem(packInfo, "Author", "Enter your name or username so people know who made this world.",
+                authEditor);
+            
+            // Set up image editors for the pack icon, wallpaper, and boot logo.
+            var iconEditor = new ImagePropertyEditor();
+            var wpEditor = new ImagePropertyEditor();
+            var bootEditor = new ImagePropertyEditor();
+
+            iconEditor.Initialize(_metadata, icon);
+            wpEditor.Initialize(_metadata, wallpaper);
+            bootEditor.Initialize(_metadata, vosBoot);
+            
+            // Add them to the Images category.
+            _editor.AddEditItem(images, "Package Icon", "Used in the main menu when listing your custom story.", iconEditor);
+            _editor.AddEditItem(images, "vOS Desktop Wallpaper",
+                "The default Desktop Wallpaper used by the game's virtual operating system (vOS). If left as nothing, we'll use the one we do for Career Mode.",
+                wpEditor);
+            _editor.AddEditItem(images, "vOS Boot Logo",
+                "Set the logo that the vOS displays while loading the game world. If left as nothing, wwe'll use the Socially Distant logo.",
+                bootEditor);
+            
+            // Check-boxes for the initial setup behaviour
+            var eulaEditor = new BooleanEditor();
+            eulaEditor.Initialize(_metadata, eula);
+
+            _editor.AddEditItem(oobe, "Show Fake EULA Agreement",
+                "If enabled, the vOS Initial Setup will show a fake License Agreement screen to the player. You can edit the EULA message by modifying the eula.txt file in the root of the project.",
+                eulaEditor);
+            
+            // Add action for editing the eula.txt.
+            _editor.AddEditAction(oobe, "Edit eula.txt",
+                "Click to create/open the eula.txt file that will be used for the fake license agreement.", EditEULA);
+        }
+        
         public static void NewProject()
         {
             if (_editor.AskForFolder("New Project", out var folder))
@@ -143,7 +227,7 @@ namespace SociallyDistant.ContentEditor
 
             foreach (var assetType in AssetTypes)
             {
-                var path = "/" + assetType.Name;
+                var path = "/Objects/" + assetType.Name;
                 foreach (var asset in _registry.GetAssets(assetType))
                 {
                     if (!_registry.IsDirty(asset))
@@ -278,10 +362,12 @@ namespace SociallyDistant.ContentEditor
         {
             if (!_projectFS.DirectoryExists("/Images"))
                 _projectFS.CreateDirectory("/Images");
-            
+            if (!_projectFS.DirectoryExists("/Objects"))
+                _projectFS.CreateDirectory("/Objects");
+
             foreach (var assetType in AssetTypes)
             {
-                var path = "/" + assetType.Name;
+                var path = "/Objects/" + assetType.Name;
                 if (!_projectFS.DirectoryExists(path))
                 {
                     _projectFS.CreateDirectory(path);
@@ -293,7 +379,7 @@ namespace SociallyDistant.ContentEditor
         {
             foreach (var assetType in AssetTypes)
             {
-                var path = "/" + assetType.Name;
+                var path = "/Objects/" + assetType.Name;
                 if (_projectFS.DirectoryExists(path))
                 {
                     foreach (var file in _projectFS.GetFiles(path))
@@ -433,7 +519,7 @@ namespace SociallyDistant.ContentEditor
                 var fs = _projectFS;
                 var registry = _registry;
 
-                var worker = new PakWorker(fs, registry, path, _editor);
+                var worker = new PakWorker(fs, registry, path, _metadata, _editor);
 
                 _worker = worker;
                 
@@ -456,6 +542,15 @@ namespace SociallyDistant.ContentEditor
             _packageTask = null;
             _editor.OverlayVisibility = Visibility.Collapsed;
             _worker = null;
+        }
+
+        public static void EditEULA()
+        {
+            if (!_projectFS.FileExists("/eula.txt"))
+                _projectFS.WriteAllText("/eula.txt", "Edit the message displayed in the License Agreement screen.");
+
+            var realPath = Path.Combine(_activeProjectFolder, "eula.txt");
+            ThundershockPlatform.OpenFile(realPath);
         }
     }
 

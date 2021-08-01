@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Gtk;
 using SociallyDistant.Connectivity;
+using SociallyDistant.Core;
 using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.Gui.Elements;
@@ -14,519 +17,427 @@ using Thundershock.Core.Input;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
+using Action = System.Action;
+using Button = Thundershock.Gui.Elements.Button;
 
 namespace SociallyDistant
 {
     public class MainMenu : Scene
     {
-        private static bool _isFirstDisplay;
+        private static bool _isFirstDisplay = false;
 
-        public static void ArmFirstDisplay()
-        {
-            _isFirstDisplay = true;
-        }
-        
-        public enum MenuState
-        {
-            MainMenu,
-            Extensions,
-            Play
-        }
-
-        #region Global Components
-        
-        private AnnouncementManager _announcements;
-        private ContentManager _contentManager;
-        private SaveManager _saveManager;
-
-        #endregion
-        
-        #region Scene Components
-
-        private SettingsWindow _settingsWindow;
-        private WindowManager _wm;
-        
-        #endregion
-        
-        #region UI
-
-        private Picture _mainBackdrop = new();
-        private Picture _packBackdrop = new();
-        private Panel _fadePanel = new();
-        private Stacker _careerErrorStacker = new();
-        private TextBlock _careerErrorTitle = new();
-        private TextBlock _careerErrorMessage = new();
-        private Panel _backdropOverlay = new();
-        private Stacker _menuArea = new();
-        private Stacker _menuStacker = new();
-        private Picture _logo = new();
-        private Stacker _extensionsList = new();
-        private Stacker _playStacker = new();
-        private ScrollPanel _menuScroller = new();
-        private IconButton _load = new();
-        private IconButton _new = new();
-        private Button _extensions = new();
-        private Button _settings = new();
-        private IconButton _continue = new();
-        private Button _content = new();
-        private Button _exit = new();
-        private Button _back = new();
-        private TextBlock _menuTitle = new();
-        private Stacker _packInfoStacker = new();
-        private TextBlock _packTitle = new();
-        private TextBlock _packAuthor = new();
-        private Stacker _mainMenuStacker = new();
-        
-        #endregion
-        
         #region State
 
-        private float _fade;
+        private Stack<int> _history = new();
+        private List<SaveSlot> _saves = new();
+        private int _menuState = 0;
         private InstalledContentPack _pack;
-        private MenuState _state;
-        private bool _hasShownAnnouncement;
-        private SaveSlot[] _saves;
-        private bool _isAnyCorrupted;
+        private SettingsWindow _settingsWindow;
+        
+        #endregion
+        
+        #region App References
+
+        private AnnouncementManager _announcement;
+        private ContentManager _packManager;
+        private SaveManager _saveManager;
+        
+        #endregion
+        
+        #region UI elements
+
+        private Button _menuBack = new();
+        private Panel _sidebarOverlay = new();
+        private Stacker _mainMenuInterface = new();
+        private Stacker _packStacker = new();
+        private Stacker _packInfoStacker = new();
+        private TextBlock _menuTitle = new();
+        private TextBlock _menuDescription = new();
+        private Picture _mainLogo = new();
+        private Picture _packLogo = new();
+        private Stacker _menuStack = new();
+        private ScrollPanel _menuScroller = new();
+        private Picture _announcementFeaturedImage = new();
+        private TextBlock _announcementTitle = new();
+        private TextBlock _announcementText = new();
+        private Button _announcementReadMore = new();
+        private Stacker _announcementStacker = new();
+        private Stacker _masterStacker = new();
+
+        #endregion
+
+        #region Systems
+
+        private WindowManager _wm;
 
         #endregion
         
         protected override void OnLoad()
         {
-            // If this was the first time the menu's been shown (we just got loaded in by
-            // the game splash) then we don't need to start menu music but we do need to
-            // fade the UI in from white.
-            if (_isFirstDisplay)
-            {
-                PrimaryCameraSettings.SkyColor = Color.White;
-                _fade = 1;
-            }
-            else
-            {
-                var music = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
-                MusicPlayer.PlaySong(music);
-            }
-
-            // Dis-arm the "first display of main menu" state
-            _isFirstDisplay = false;
-            
-            // Retrieve app component references.
+            _announcement = Game.GetComponent<AnnouncementManager>();
+            _packManager = Game.GetComponent<ContentManager>();
             _saveManager = Game.GetComponent<SaveManager>();
-            _announcements = Game.GetComponent<AnnouncementManager>();
-            _contentManager = Game.GetComponent<ContentManager>();
-
-            // Add root UI elements.
-            Gui.AddToViewport(_mainBackdrop);
-            Gui.AddToViewport(_packBackdrop);
-            Gui.AddToViewport(_logo);
-            Gui.AddToViewport(_backdropOverlay);
             
-            // Add scene components.
+            BuildGui();
+            
             _wm = RegisterSystem<WindowManager>();
 
-            // Set up the layout of the game's logo.
-            // It sits near the top of the screen in the middle.
-            _logo.Properties.SetValue(FreePanel.AutoSizeProperty, true);
-            _logo.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.TopSide);
-            _logo.HorizontalAlignment = HorizontalAlignment.Center;
-            _logo.Margin = 60;
+            StyleGui();
+            BindEvents();
             
-            // Set up the menu area. It goes exactly in the center of the screen.
-            _backdropOverlay.Properties.SetValue(FreePanel.AutoSizeProperty, true);
-            _backdropOverlay.Properties.SetValue(FreePanel.AnchorProperty, FreePanel.CanvasAnchor.Center);
-            _backdropOverlay.Properties.SetValue(FreePanel.AlignmentProperty, new Vector2(0.5f, 0.5f));
-            _menuArea.Padding = 15;
+            UpdateMenuState();
             
-            // The menu area goes in the backdrop overlay.
-            _backdropOverlay.Children.Add(_menuArea);
-            
-            // Set up the menu title.
-            _menuTitle.TextAlign = TextAlign.Center;
-            _menuTitle.ForeColor = Color.Cyan;
-            _menuArea.Children.Add(_menuTitle);
-            
-            // Set up the pack info area.
-            _menuArea.Children.Add(_packInfoStacker);
-            
-            // The menu scroller is simple.
-            _menuArea.Children.Add(_menuScroller);
-            
-            // Set up the back button.
-            _back.Text = "Back";
-            _back.HorizontalAlignment = HorizontalAlignment.Center;
-            _menuArea.Children.Add(_back);
-            
-            // Set up the career error message.
-            // This only shows in modder's mode, where there is no career.
-            _careerErrorMessage.Text =
-                "This version of RED TEAM does not have a Career mode. Career mode is only available in official releases of the game." +
-                Environment.NewLine + Environment.NewLine +
-                "You are free to play Custom Stories or make your own in this build.";
-            _careerErrorTitle.Text = "* no career mode *";
-            _careerErrorTitle.ForeColor = Color.Red;
-            _careerErrorMessage.ForeColor = Color.White;
-            _careerErrorTitle.TextAlign = TextAlign.Center;
-            _careerErrorMessage.TextAlign = TextAlign.Center;
-            _careerErrorStacker.Children.Add(_careerErrorTitle);
-            _careerErrorStacker.Children.Add(_careerErrorMessage);
-            
-            // Set up the Play menu.
-            _playStacker.Children.Add(_continue);
-            _playStacker.Children.Add(_new);
-            _playStacker.Children.Add(_load);
-            _playStacker.Direction = StackDirection.Horizontal;
-            _playStacker.HorizontalAlignment = HorizontalAlignment.Center;
-            
-            // Set up the new, load and continue buttons.
-            _new.Text = "New OS";
-            _continue.Text = "Boot Last OS";
-            _load.Text = "Other OS";
-
-            // Set up the secondary menu. This is where you find extensions, settings, etc.
-            _menuStacker.Children.Add(_extensions);
-            _menuStacker.Children.Add(_content);
-            _menuStacker.Children.Add(_settings);
-            _menuStacker.Children.Add(_exit);
-            _menuStacker.HorizontalAlignment = HorizontalAlignment.Center;
-            _menuStacker.Direction = StackDirection.Horizontal;
-            
-            // Set up the secondary menu buttons.
-            _exit.Text = "Shut Down";
-            _settings.Text = "Options";
-            _content.Text = "Content Manager";
-            _extensions.Text = "More Stories";
-            
-            // Bind events.
-            _new.MouseUp += NewAdvancedButtonOnMouseUp;
-            _extensions.MouseUp += ExtensionsAdvancedButtonOnMouseUp;
-            _exit.MouseUp += ExitAdvancedButtonOnMouseUp;
-            _content.MouseUp += ContentOnMouseUp;
-            _settings.MouseUp += SettingsOnMouseUp;
-            _back.MouseUp += BackOnMouseUp;
-            _continue.MouseUp += ContinueOnMouseUp;
-            
-            // Update the UI state.
-            UpdateMenuScroller();
-
-            // Done
-            base.OnLoad();
-            
-            // load the default menu backdrop
-            _mainBackdrop.Image = Texture2D.FromResource(Game.Graphics, GetType().Assembly,
-                "SociallyDistant.Resources.Textures.DesktopBackgroundImage2.png");
-            
-            // Add the fade panel.
-            Gui.AddToViewport(_fadePanel);
-
-            if (Game.GetComponent<SaveManager>().PreloadException != null)
+            if (_isFirstDisplay)
             {
-                var ex = Game.GetComponent<SaveManager>().PreloadException;
-                
+                _isFirstDisplay = false;
+            }
+
+            if (_saveManager.PreloadException != null)
+            {
+                var ex = _saveManager.PreloadException;
+                _saveManager.DisarmPreloaderCrash();
+
                 #if DEBUG
-                var message =
-                    "An error has occurred while trying to load the previous save file.\r\n\r\nYou have been returned to the main menu.\r\n\r\n" +
-                    ex.ToString();
+                _wm.ShowMessage("Corrupt Data",
+                    "An error prevented the career save file from loading. This is due to possibly corrupt world information." +
+                    Environment.NewLine + Environment.NewLine + "You have been returned to the main menu." +
+                    Environment.NewLine + Environment.NewLine + ex.ToString());
 #else
-                var message =
-                    "An error has occurred trying to load the previous save file (403).\r\n\r\nYou've been returned to the main menu.";
+                _wm.ShowMessage("Corrupt Data",
+                    "An error prevented the career save file from loading. This is due to possibly corrupt world information. (403)" + Environment.NewLine + Environment.NewLine + "You have been returned to the main menu.");
 #endif
-
-                _wm.ShowMessage("Socially Distant", message);
-                Game.GetComponent<SaveManager>().DisarmPreloaderCrash();
             }
-        }
-
-        private void ContinueOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.Button == MouseButton.Primary)
-            {
-                _saveManager.LoadGame(_saves.First());
-                GoToScene<BootScreen>();
-            }
-        }
-
-        private void SettingsOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.Button == MouseButton.Primary)
-            {
-                OpenSettings();
-            }
-        }
-
-        private void ContentOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.Button == MouseButton.Primary)
-            {
-                OpenContentManager();
-            }
-        }
-
-        private void NewAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.Button == MouseButton.Primary && _pack != null) 
-            {
-                Game.GetComponent<SaveManager>().NewGame(_pack);
-                GoToScene<BootScreen>();
-            }
-        }
-
-        private void SetupCareerSaves()
-        {
-            _pack = _contentManager.CareerPack;
-            _isAnyCorrupted = _saveManager.SaveDatabase.HasAnyCorruptData;
-            _saves = _saveManager.SaveDatabase.CareerSlots.ToArray();
-
-            UpdatePlayMenu();
-        }
-
-        private void UpdatePlayMenu()
-        {
-            _continue.Visibility = _saves.Any() ? Visibility.Visible : Visibility.Collapsed;
-            _load.Visibility = _saves.Length > 1 ? Visibility.Visible : Visibility.Collapsed;
-
-        }
-        
-        private void UpdateMenuScroller()
-        {
-            _menuScroller.Children.Clear();
-            _isAnyCorrupted = false;
-            _saves = null;
-            _mainMenuStacker.Children.Clear();
             
-            switch (_state)
-            {
-                case MenuState.MainMenu:
-                    _menuTitle.Text = "Main menu";
-                    _menuScroller.Children.Add(_mainMenuStacker);
-                    
-                    if (_contentManager.HasCareerMode)
-                    {
-                        SetupCareerSaves();
-                        _mainMenuStacker.Children.Add(_playStacker);
-                    }
-                    else
-                    {
-                        _mainMenuStacker.Children.Add(_careerErrorStacker);
-                    }
-
-                    _mainMenuStacker.Children.Add(_menuStacker);
-                    _menuTitle.Visibility = Visibility.Visible;
-                    _packInfoStacker.Visibility = Visibility.Collapsed;
-                    break;
-                case MenuState.Extensions:
-                    _menuTitle.Text = "Extensions";
-                    _menuScroller.Children.Add(_extensionsList);
-                    _menuTitle.Visibility = Visibility.Visible;
-                    _packInfoStacker.Visibility = Visibility.Collapsed;
-                    break;
-                case MenuState.Play:
-                    _menuScroller.Children.Add(_playStacker);
-
-                    if (_pack != null)
-                    {
-                        _menuTitle.Visibility = Visibility.Collapsed;
-                        _packInfoStacker.Visibility = Visibility.Visible;
-                        
-                        _packTitle.Text = _pack.Name;
-                        _packAuthor.Text = _pack.Author;
-                    }
-                    else
-                    {
-                        _packInfoStacker.Visibility = Visibility.Collapsed;
-                        _menuTitle.Visibility = Visibility.Visible;
-                        _menuTitle.Text = "Career";
-                    }
-
-                    if (_isAnyCorrupted)
-                    {
-                        _wm.ShowMessage("Corruption Detected",
-                            "RED TEAM was unable to load some of the save games for " + _pack.Name +
-                            ". You may wish to investigate this in the Content Manager. In some cases, corrupt saves can be recovered.", OpenContentManager);
-                        
-                        _isAnyCorrupted = false;
-                    }
-                    
-                    break;
-            }
-        }
-        
-        private void BackOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            _pack = null;
-            _state = MenuState.MainMenu;
-            UpdateMenuScroller();
-        }
-
-        private void ExtensionsAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ListExtensions();
-            _state = MenuState.Extensions;
-            UpdateMenuScroller();
-        }
-        
-        private void ExitAdvancedButtonOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            Game.Exit();
-        }
-
-        private void ListExtensions()
-        {
-            _extensionsList.Children.Clear();
-
-            var packs = _contentManager.InstalledPacks.ToArray();
-
-            if (packs.Any())
-            {
-                foreach (var pack in packs)
-                {
-                    var btn = new DetailedAdvancedButton();
-
-                    btn.Text = pack.Author;
-                    btn.Title = pack.Name;
-                    btn.Icon = pack.Icon;
-                    
-                    btn.MouseUp += (_, _) =>
-                    {
-                        _pack = pack;
-                        _state = MenuState.Play;
-                        UpdateMenuScroller();
-                    };
-                    
-                    _extensionsList.Children.Add(btn);
-                }
-            }
-            else
-            {
-                var text = new TextBlock();
-                text.Text = "There are no Content Packs to show here.";
-                text.WrapMode = TextWrapMode.WordWrap;
-                text.ForeColor = Color.Cyan;
-                _extensionsList.Children.Add(text);
-            }
+            base.OnLoad();
         }
 
         protected override void OnUpdate(GameTime gameTime)
         {
-            base.OnUpdate(gameTime);
+            if (_announcement.IsReady)
+            {
+                _announcementStacker.Visibility = Visibility.Visible;
 
-            if (_fade >= 0)
-            {
-                _fade = MathHelper.Clamp(_fade - (float) gameTime.ElapsedGameTime.TotalSeconds * 2, 0, 1);
-                _fadePanel.BackColor = Color.Lerp(Color.Transparent, Color.White, _fade);
-            }
-            
-            if (_announcements.IsReady && !_hasShownAnnouncement)
-            {
-                if (Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew)
-                {
-                    ShowAnnouncement(_announcements.Announcement);
-                }
-                else
-                {
-                    _hasShownAnnouncement = true;
-                }
-            }
-            
-            switch (_state)
-            {
-                case MenuState.MainMenu:
-                    _extensionsList.Visibility = Visibility.Collapsed;
-                    _menuStacker.Visibility = Visibility.Visible;
-                    _back.Visibility = Visibility.Collapsed;
-                    break;
-                case MenuState.Extensions:
-                    _extensionsList.Visibility = Visibility.Visible;
-                    _menuStacker.Visibility = Visibility.Collapsed;
-                    _back.Visibility = Visibility.Visible;
-                    break;
-                case MenuState.Play:
-                    _extensionsList.Visibility = Visibility.Collapsed;
-                    _menuStacker.Visibility = Visibility.Collapsed;
-                    _back.Visibility = Visibility.Visible;
-                    break;
-            }
-
-            if (_pack != null)
-            {
-                _packBackdrop.Image = _pack.Backdrop;
-                _backdropOverlay.BackColor = Color.Black * 0.75f;
+                _announcementTitle.Text = _announcement.Announcement.Title;
+                _announcementText.Text = _announcement.Announcement.Excerpt;
             }
             else
             {
-                _packBackdrop.Image = null;
-                _backdropOverlay.BackColor = Color.Transparent;
+                _announcementStacker.Visibility = Visibility.Hidden;
             }
+            
+            base.OnUpdate(gameTime);
         }
 
-        private void ShowAnnouncement(Announcement announcement)
+        #region Private Methods
+
+        private void BuildGui()
         {
-            var pane = _wm.CreateFloatingPane("Announcement");
+            _sidebarOverlay.FixedWidth = 404;
+            
+            _packInfoStacker.Children.Add(_menuTitle);
+            _packInfoStacker.Children.Add(_menuDescription);
+            
+            _packStacker.Children.Add(_packLogo);
+            _packStacker.Children.Add(_packInfoStacker);
+            
+            _packStacker.Direction = StackDirection.Horizontal;
 
-            var stacker = new Stacker();
-            stacker.Padding = 15;
-            stacker.Margin = 15;
-            var title = new TextBlock();
-            title.Text = announcement.Title;
-            title.ForeColor = Color.Cyan;
-            title.Font = _menuTitle.Font;
-            stacker.Children.Add(title);
-            var excerpt = new TextBlock();
-            excerpt.ForeColor = Color.White;
-            excerpt.Text = announcement.Excerpt;
-            stacker.Children.Add(excerpt);
+            _menuScroller.Children.Add(_menuStack);
+            
+            _menuScroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _mainMenuInterface.Children.Add(_mainLogo);
+            _mainMenuInterface.Children.Add(_packStacker);
+            _mainMenuInterface.Children.Add(_menuScroller);
 
-            var doNotShowAgain = new CheckBox();
-            var doNotShowLabel = new TextBlock();
-            doNotShowLabel.Text = "Don't show what's new on startup";
-            doNotShowLabel.ForeColor = Color.White;
-            doNotShowAgain.Children.Add(doNotShowLabel);
+            _sidebarOverlay.Children.Add(_mainMenuInterface);
+            
+            _announcementStacker.Children.Add(_announcementTitle);
+            _announcementStacker.Children.Add(_announcementText);
+            _announcementStacker.Children.Add(_announcementFeaturedImage);
+            _announcementStacker.Children.Add(_announcementReadMore);
+            
+            _announcementStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _masterStacker.Direction = StackDirection.Horizontal;
 
-            var readMoreLink = new TextBlock();
-            readMoreLink.ForeColor = Color.Cyan;
-            readMoreLink.Text = "Read More";
-            readMoreLink.IsInteractable = true;
-            readMoreLink.MouseDown += (_, a) =>
+            _masterStacker.Children.Add(_sidebarOverlay);
+            _masterStacker.Children.Add(_announcementStacker);
+            
+            Gui.AddToViewport(_masterStacker);
+        }
+
+        private void StyleGui()
+        {
+            _mainMenuInterface.Padding = 45;
+
+            _menuTitle.Properties.SetValue(FontStyle.Heading2);
+
+            _packInfoStacker.VerticalAlignment = VerticalAlignment.Center;
+            _packLogo.VerticalAlignment = VerticalAlignment.Center;
+            _packLogo.Padding = 2;
+            _packInfoStacker.Padding = 2;
+            
+            _packLogo.FixedWidth = 48;
+            _packLogo.FixedHeight = 48;
+
+            _menuScroller.Padding = new Padding(0, 45, 0, 0);
+            
+            _menuBack.Text = " << Back";
+            _menuBack.Padding = new Padding(0, 7.5f, 0, 0);
+            _menuBack.HorizontalAlignment = HorizontalAlignment.Left;
+            
+            _announcementTitle.Properties.SetValue(FontStyle.Heading1);
+            _announcementTitle.ForeColor = Color.Cyan;
+
+            _announcementText.Padding = new Padding(0, 0, 0, 4);
+
+            _announcementReadMore.Text = "Read More...";
+            _announcementReadMore.HorizontalAlignment = HorizontalAlignment.Left;
+
+            _announcementStacker.VerticalAlignment = VerticalAlignment.Center;
+            _announcementStacker.Padding = 75;
+
+            _mainLogo.Image = Texture2D.FromResource(Graphics, this.GetType().Assembly,
+                "SociallyDistant.Resources.LogoText.png");
+        }
+
+        private void BindEvents()
+        {
+            _announcementReadMore.MouseUp += AnnouncementReadMoreOnMouseUp;
+            _menuBack.MouseUp += MenuBackOnMouseUp;
+        }
+        
+        private void ClearMenu()
+        {
+            _menuStack.Children.Clear();
+        }
+
+        private void AddMenuItem(string title, string description, Texture2D icon, Action action)
+        {
+            var button = new AdvancedButton();
+            var hStacker = new Stacker();
+            var vStacker = new Stacker();
+            var nameText = new TextBlock();
+            var descText = new TextBlock();
+            var iconImage = new Picture();
+
+            nameText.ForeColor = Color.Cyan;
+            nameText.Properties.SetValue(FontStyle.Code);
+            
+            iconImage.Image = icon;
+            iconImage.FixedWidth = 24;
+            iconImage.FixedHeight = 24;
+            
+            nameText.Text = title.ToUpperInvariant();
+            descText.Text = description;
+            
+            vStacker.Children.Add(nameText);
+            vStacker.Children.Add(descText);
+
+            hStacker.Padding = 3;
+            vStacker.Padding = 2;
+            iconImage.Padding = 2;
+            
+            iconImage.VerticalAlignment = VerticalAlignment.Center;
+            vStacker.VerticalAlignment = VerticalAlignment.Center;
+            
+            vStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            hStacker.Direction = StackDirection.Horizontal;
+            
+            hStacker.Children.Add(iconImage);
+            hStacker.Children.Add(vStacker);
+            
+            button.Children.Add(hStacker);
+
+            button.MouseUp += (_, a) =>
             {
                 if (a.Button == MouseButton.Primary)
                 {
-                    ThundershockPlatform.OpenFile(announcement.Link);
+                    action?.Invoke();
                 }
             };
-            stacker.Children.Add(readMoreLink);
-            
-            var buttonRow = new Stacker();
-            buttonRow.Direction = StackDirection.Horizontal;
-            buttonRow.Children.Add(doNotShowAgain);
-            doNotShowAgain.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
 
-            var doneButton = new Button();
-            doneButton.Text = "Close";
-            doneButton.MouseDown += (_, _) =>
-            {
-                if (doNotShowAgain.IsChecked)
-                {
-                    Game.GetComponent<RedConfigManager>().ActiveConfig.ShowWhatsNew = false;
-                    Game.GetComponent<RedConfigManager>().ApplyChanges();
-                    _wm.ShowMessage("Settings Changed",
-                        "You've chosen to hide the What's New screen on startup. You can change this preference in System Settings.");
-                }
-                
-                pane.Parent.Children.Remove(pane);
-            };
-            buttonRow.Children.Add(doneButton);
-
-            doneButton.VerticalAlignment = VerticalAlignment.Center;
-            doNotShowAgain.VerticalAlignment = VerticalAlignment.Center;
-            
-            stacker.Children.Add(buttonRow);
-            
-            pane.Content.Add(stacker);
-
-            _hasShownAnnouncement = true;
+            _menuStack.Children.Add(button);
         }
 
-        private void OpenContentManager()
+        private void UpdateMenuState()
         {
+            ClearMenu();
+
+            if (_menuState == 0)
+            {
+                _mainLogo.Visibility = Visibility.Visible;
+                _packStacker.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                _mainLogo.Visibility = Visibility.Collapsed;
+                _packStacker.Visibility = Visibility.Visible;
+            }
             
+            switch (_menuState)
+            {
+                case 0:
+
+                    if (_packManager.HasCareerMode)
+                    {
+                        AddMenuItem("Career", _packManager.CareerPack.Description, _packManager.CareerPack.Icon, () =>
+                        {
+                            SelectPack(_packManager.CareerPack);
+                        });
+                    }
+
+                    AddMenuItem("More Stories", "Play through custom stories made by the Socially Distant Community.",
+                        null,
+                        () =>
+                        {
+                            _history.Push(_menuState);
+                            _menuState = 1;
+                            UpdateMenuState();
+                        });
+                    AddMenuItem("Settings", "Adjust the game's settings.", null, OpenSettings);
+                    AddMenuItem("Quit", "Exit the game", null, Game.Exit);
+                    
+                    break;
+                case 1:
+                    _menuTitle.Text = "More Stories";
+                    _menuDescription.Text = "Play through custom stories made by the Socially Distant Community.";
+
+                    _packLogo.Image = null;
+
+                    foreach (var pack in _packManager.InstalledPacks)
+                    {
+                        AddMenuItem(pack.Name, pack.Author, pack.Icon, () =>
+                        {
+                            SelectPack(pack);
+                        });
+                    }
+                    
+                    break;
+                case 2:
+                    _packLogo.Image = _pack.Icon;
+                    _menuTitle.Text = _pack.Name;
+                    _menuDescription.Text = _pack.Description;
+
+                    AddMenuItem("New Game", "Start a new career.", null, () =>
+                    {
+                        _saveManager.NewGame(_pack);
+                        GoToScene<BootScreen>();
+                    });
+
+                    if (_saves.Any())
+                    {
+                        var first = _saves.First();
+                        AddMenuItem($"Continue ({first.Title})",
+                            "Last played: " + first.LastPlayed.ToShortDateString() + " " +
+                            first.LastPlayed.ToShortTimeString(), null,
+                            () =>
+                            {
+                                try
+                                {
+                                    _saveManager.LoadGame(first);
+                                }
+                                catch (Exception ex)
+                                {
+                                    #if DEBUG
+                                    _wm.ShowMessage("Corrupt Data",
+                                        "An error prevented the career save file from loading. This is possibly due to a corrupt, outdated, or unsupported save file." +
+                                        Environment.NewLine + Environment.NewLine + ex.ToString());
+                                    #else
+                                    _wm.ShowMessage("Corrupt Data",
+                                        "An error prevented the career save file from loading. This is possibly due to a corrupt, outdated, or unsupported save file." +
+                                        Environment.NewLine + Environment.NewLine + ex.Message);
+#endif
+                                }
+
+                                GoToScene<BootScreen>();
+                            });
+                        
+                        AddMenuItem("Load Game", "Select a different save file.", null, () =>
+                        {
+                            _history.Push(_menuState);
+                            _menuState = 3;
+                            UpdateMenuState();
+                        });
+                    }
+
+                    break;
+                case 3:
+                    _packLogo.Image = _pack.Icon;
+                    _menuTitle.Text = _pack.Name;
+                    _menuDescription.Text = _pack.Description;
+
+                    foreach (var save in _saves.OrderByDescending(x=>x.LastPlayed))
+                    {
+                        AddMenuItem($"Continue ({save.Title})",
+                            "Last played: " + save.LastPlayed.ToShortDateString() + " " +
+                            save.LastPlayed.ToShortTimeString(), null,
+                            () =>
+                            {
+                                _history.Pop();
+                                _saves.Remove(save);
+                                _saves.Insert(0, save);
+                                _menuState = 2;
+                                UpdateMenuState();
+                            });
+                    }
+                    
+                    break;
+            }
+
+            if (_menuState != 0)
+            {
+                _menuStack.Children.Add(_menuBack);
+            }
+        }
+
+        private void SelectPack(InstalledContentPack pack)
+        {
+            _history.Push(_menuState);
+            _pack = pack;
+
+            if (_pack == _packManager.CareerPack)
+            {
+                _saves = _saveManager.SaveDatabase.CareerSlots.ToList();
+            }
+            else
+            {
+                _saves = _saveManager.SaveDatabase.GetExtensionSaves(_pack).ToList();
+            }
+            
+            _menuState = 2;
+            UpdateMenuState();
+        }
+        
+        #endregion
+
+        #region Event Handlers
+
+        private void MenuBackOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                if (_history.Any())
+                {
+                    _menuState = _history.Pop();
+                }
+                else
+                {
+                    _menuState = 0;
+                }
+
+                UpdateMenuState();
+            }
+        }
+
+        
+        private void AnnouncementReadMoreOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                ThundershockPlatform.OpenFile(_announcement.Announcement.Link);
+            }
         }
 
         private void OpenSettings()
@@ -534,13 +445,23 @@ namespace SociallyDistant
             if (_settingsWindow == null)
             {
                 _settingsWindow = _wm.OpenWindow<SettingsWindow>();
-                _settingsWindow.WindowClosed += SettingsWindowOnWindowClosed;
+                _settingsWindow.WindowClosed += (_, _) =>
+                {
+                    _settingsWindow = null;
+                };
             }
         }
-
-        private void SettingsWindowOnWindowClosed(object sender, EventArgs e)
+        
+        #endregion
+        
+        
+        #region Static Methods
+        
+        internal static void ArmFirstDisplay()
         {
-            _settingsWindow = null;
+            _isFirstDisplay = true;
         }
+        
+        #endregion
     }
 }

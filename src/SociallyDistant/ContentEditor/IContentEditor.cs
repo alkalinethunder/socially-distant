@@ -26,6 +26,7 @@ namespace SociallyDistant.ContentEditor
         bool AskForFolder(string title, out string folder);
         void AddCategory(string name);
         void AddEditItem(string category, string name, string desc, IAssetPropertyEditor editor);
+        void AddEditAction(string category, string name, string description, Action action);
         void ClearCategories();
 
         void SetCustomViewElement(Element element);

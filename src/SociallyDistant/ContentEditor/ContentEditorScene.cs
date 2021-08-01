@@ -278,6 +278,13 @@ namespace SociallyDistant.ContentEditor
             _progressPanel.Visibility = Visibility.Collapsed;
             
             _packageProject.Activated += PackageProjectOnActivated;
+            
+            _editMetadata.Activated += EditMetadataOnActivated;
+        }
+
+        private void EditMetadataOnActivated(object? sender, EventArgs e)
+        {
+            ContentController.EditProjectMetadata();
         }
 
         private void ImageBrowseOnMouseUp(object? sender, MouseButtonEventArgs e)
@@ -411,6 +418,41 @@ namespace SociallyDistant.ContentEditor
 
             _editItems.Children.Add(text);
             _editItems.Children.Add(stacker);
+        }
+
+        public void AddEditAction(string category, string name, string description, Action action)
+        {
+            var stacker = _categories[category];
+
+            var hStacker = new Stacker();
+            hStacker.Direction = StackDirection.Horizontal;
+            hStacker.Padding = new Padding(10, 2);
+
+            var spacer = new Panel();
+            spacer.VerticalAlignment = VerticalAlignment.Center;
+            hStacker.ToolTip = description;
+            
+            spacer.Properties.SetValue(Stacker.FillProperty, new StackFill(2f /  3f));
+            spacer.Padding = new Padding(0, 0, 7.5f, 0);
+
+            var button = new Button();
+            button.Text = name;
+            button.VerticalAlignment = VerticalAlignment.Center;
+            button.HorizontalAlignment = HorizontalAlignment.Left;
+            button.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            button.MouseUp += (_, a) =>
+            {
+                if (a.Button == MouseButton.Primary)
+                {
+                    action?.Invoke();
+                }
+            };
+            
+            hStacker.Children.Add(spacer);
+            hStacker.Children.Add(button);
+
+            stacker.Children.Add(hStacker);
         }
 
         public void AddEditItem(string category, string name, string desc, IAssetPropertyEditor editor)

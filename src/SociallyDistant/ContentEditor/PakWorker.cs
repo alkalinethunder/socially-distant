@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using SociallyDistant.Core;
+using SociallyDistant.Core.ContentEditors;
 using StbImageSharp;
 using Thundershock.Content;
 using Thundershock.Core;
@@ -30,15 +31,17 @@ namespace SociallyDistant.ContentEditor
         private Dictionary<string, string> _textures = new();
         
         private ConcurrentProperty<PakWorkerProgress> _progress;
-
+        private ContentPackMetadata _metadata;
+        
         public PakWorkerProgress Progress => _progress.Value;
         
-        public PakWorker(FileSystem fs, AssetRegistry registry, string path, IContentEditor editor)
+        public PakWorker(FileSystem fs, AssetRegistry registry, string path, ContentPackMetadata metadata, IContentEditor editor)
         {
             _fs = fs;
             _out = path;
             _registry = registry;
             _editor = editor;
+            _metadata = metadata;
 
             _progress = new(new PakWorkerProgress());
         }
@@ -71,9 +74,15 @@ namespace SociallyDistant.ContentEditor
                     _progress.Value.Status = "Copying textures...";
                     CopyTextures();
 
+                    _progress.Value.Status = "Writing metadata...";
+                    WriteMetadata();
+                    
                     _progress.Value.Status = "Saving assets...";
                     CopyAssets();
 
+                    _progress.Value.Status = "Building vOS Skeleton...";
+                    BuildSkeleton();
+                    
                     _progress.Value.Status = "Running ThunderPak...";
                     PakUtils.MakePak(_work, _out);
                 }
@@ -267,6 +276,146 @@ namespace SociallyDistant.ContentEditor
             // We're done.
             binWriter.Close();
             assetDatabase.Close();
+        }
+
+        private void BuildSkeleton()
+        {
+            // create the skeleton directories. These directories are where userhome data is stored for the player and other
+            // devices.
+            //
+            // /skel            : Skeleton root.
+            // ├───player       : Default home data for the player.
+            // ├───base         : Default home data for  ALL USERS ON ALL DEVICES.
+            // └───dev.<guid>   : Data for a specific device, mapped by asset ID. 
+                
+            _workfs.CreateDirectory("/skel");
+            _workfs.CreateDirectory("/skel/player");
+            _workfs.CreateDirectory("/skel/base");
+            
+            // Copy base skeleton data.
+            if (_fs.DirectoryExists("/Homes/Base"))
+            {
+                CopySkeleton("/Homes/Base", "/skel/base");
+            }
+            
+            // Copy skeleton data for the player.
+            if (_fs.DirectoryExists("/Homes/Player"))
+            {
+                CopySkeleton("/Homes/Player", "/skel/player");
+            }
+            
+            // Go through all device assets.
+            foreach (var device in _registry.GetAssets().OfType<DeviceData>())
+            {
+                var id = device.Id.ToString();
+
+                var home = "/Homes/" + id;
+                var skelHome = "/skel/dev." + id;
+
+                _workfs.CreateDirectory(skelHome);
+                
+                if (_fs.DirectoryExists(home))
+                {
+                    CopySkeleton(home, skelHome);
+                }
+            }
+        }
+
+        private void CopySkeleton(string srcFolder, string destFolder)
+        {
+            foreach (var directory in _fs.GetDirectories(srcFolder))
+            {
+                var dname = PathUtils.GetFileName(directory);
+                var dpath = PathUtils.Combine(destFolder, dname);
+                
+                _workfs.CreateDirectory(dpath);
+
+                CopySkeleton(directory, dpath);
+            }
+
+            foreach (var file in _fs.GetFiles(srcFolder))
+            {
+                var fname = PathUtils.GetFileName(file);
+                var fpath = PathUtils.Combine(destFolder, fname);
+
+                using var source = _fs.OpenFile(file);
+                using var dest = _workfs.OpenFile(fpath);
+
+                source.CopyTo(dest);
+
+                dest.Close();
+                source.Close();
+            }
+        }
+
+        private void WriteMetadata()
+        {
+            // first we start with the eula.
+            if (_metadata.EnableEula && _fs.FileExists("/eula.txt"))
+            {
+                var eula = _fs.ReadAllText("/eula.txt");
+                _workfs.WriteAllText("/eula", eula);
+            }
+            
+            // Check the package name to make sure it's actually sane.
+            if (string.IsNullOrWhiteSpace(_metadata.Name))
+                throw new InvalidOperationException("Package name must not be blank.");
+
+            // Now for the rest of the metadata.
+            using var metaStream = _workfs.OpenFile("/meta");
+            using var writer = new BinaryWriter(metaStream, Encoding.UTF8);
+            
+            // Write the package name.
+            writer.Write(_metadata.Name);
+            
+            // Write the author and description if they're there.
+            var author = _metadata.Author;
+            var desc = _metadata.Description;
+
+            if (string.IsNullOrWhiteSpace(author))
+                author = "Socially Distant";
+
+            if (string.IsNullOrWhiteSpace(desc))
+                desc = "There is no description for this story.";
+            
+            writer.Write(author);
+            writer.Write(desc);
+            
+            // close the writer.
+            writer.Close();
+            metaStream.Close();
+            
+            // Images.
+            CopyMetaTexture(_metadata.Icon, "/meta.icon", "SociallyDistant.Resources.Icon.png");
+            CopyMetaTexture(_metadata.BootLogo, "/meta.boot", "SociallyDistant.Resources.LogoText.png");
+            CopyMetaTexture(_metadata.Wallpaper, "/wallpaper",
+                "SociallyDistant.Resources.Textures.DesktopBackgroundImage2.pmg");
+        }
+
+        private void CopyMetaTexture(ImageAssetReference reference, string dest, string fallbackResource)
+        {
+            if (reference != null && _fs.FileExists(reference.Path))
+            {
+                // the texture's been specified so we can just copy it to the destination.
+                CopyTexture(reference.Path, dest);
+            }
+            else
+            {
+                // This is annoying. We need to extract an embedded fallback texture AND THEN copy it.
+                var asm = this.GetType().Assembly;
+                using var resStream = asm.GetManifestResourceStream(fallbackResource);
+
+                using (var tempImage = _fs.OpenFile("/temp"))
+                    resStream.CopyTo(tempImage);
+
+                resStream.Close();
+                
+                // Now we can copy it.
+                CopyTexture("/temp", dest);
+
+                // Delete the temp texture now.
+                _fs.Delete("/temp");
+            }
         }
     }
 
