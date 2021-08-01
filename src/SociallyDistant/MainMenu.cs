@@ -46,6 +46,10 @@ namespace SociallyDistant
         
         #region UI elements
 
+        private Stacker _demoStacker = new();
+        private TextBlock _demoTitle = new();
+        private TextBlock _demoMessage = new();
+        private Button _buyGame = new();
         private Button _menuBack = new();
         private Panel _sidebarOverlay = new();
         private Stacker _mainMenuInterface = new();
@@ -145,10 +149,15 @@ namespace SociallyDistant
             _menuScroller.Children.Add(_menuStack);
             
             _menuScroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            _demoStacker.Children.Add(_demoTitle);
+            _demoStacker.Children.Add(_demoMessage);
+            _demoStacker.Children.Add(_buyGame);
             
             _mainMenuInterface.Children.Add(_mainLogo);
             _mainMenuInterface.Children.Add(_packStacker);
             _mainMenuInterface.Children.Add(_menuScroller);
+            _mainMenuInterface.Children.Add(_demoStacker);
 
             _sidebarOverlay.Children.Add(_mainMenuInterface);
             
@@ -169,6 +178,16 @@ namespace SociallyDistant
 
         private void StyleGui()
         {
+            _demoTitle.Properties.SetValue(FontStyle.Heading3);
+            
+            _demoTitle.Text = "Demo Mode";
+            _demoMessage.Text =
+                @"Your copy of Socially Distant was not officially released by the Thundershock Alliance. You are free to play community-made stories, but you must buy the game to play Career Mode.";
+            
+            _buyGame.Padding = new Padding(0, 5, 0, 0);
+            _buyGame.Text = "Buy Socially Distant!";
+            _buyGame.HorizontalAlignment = HorizontalAlignment.Left;
+
             _mainMenuInterface.Padding = 45;
 
             _menuTitle.Properties.SetValue(FontStyle.Heading2);
@@ -182,7 +201,8 @@ namespace SociallyDistant
             _packLogo.FixedHeight = 48;
 
             _menuScroller.Padding = new Padding(0, 45, 0, 0);
-            
+            _demoStacker.Padding = new Padding(0, 45, 0, 0);
+
             _menuBack.Text = " << Back";
             _menuBack.Padding = new Padding(0, 7.5f, 0, 0);
             _menuBack.HorizontalAlignment = HorizontalAlignment.Left;
@@ -206,6 +226,7 @@ namespace SociallyDistant
         {
             _announcementReadMore.MouseUp += AnnouncementReadMoreOnMouseUp;
             _menuBack.MouseUp += MenuBackOnMouseUp;
+            _buyGame.MouseUp += BuyGameOnMouseUp;
         }
         
         private void ClearMenu()
@@ -265,6 +286,15 @@ namespace SociallyDistant
         {
             ClearMenu();
 
+            if (_packManager.HasCareerMode)
+            {
+                _demoStacker.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                _demoStacker.Visibility = Visibility.Visible;
+            }
+            
             if (_menuState == 0)
             {
                 _mainLogo.Visibility = Visibility.Visible;
@@ -414,6 +444,20 @@ namespace SociallyDistant
 
         #region Event Handlers
 
+        private void BuyGameOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (e.Button == MouseButton.Primary)
+            {
+                _wm.ShowMessage("Looks like you found a missing feature.",
+                    "You clicked the Purchase Socially Distant button, but you shouldn't have been able to. This button "
+                    + "appears when the Career pak file can't be loaded by the game (either because of signature check failure, missing decryption "
+                    + "key, or a missing pak). This build is a techdemo build and comes with the career pak even without purchase. Thundershock Alliance "
+                    + "does not support purchasing of these builds. You may need to re-download the game."
+                );
+            }
+        }
+
+        
         private void MenuBackOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             if (e.Button == MouseButton.Primary)
