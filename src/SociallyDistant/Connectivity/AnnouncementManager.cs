@@ -13,7 +13,7 @@ namespace SociallyDistant.Connectivity
     {
         private AnnouncementState _state;
         private WebClient _webClient;
-        private AnnouncementJson _announcement;
+        private AnnouncementObject[] _announcement;
         private Announcement _shownAnnouncement;
 
         public Announcement Announcement => _shownAnnouncement;
@@ -31,14 +31,15 @@ namespace SociallyDistant.Connectivity
             switch (_state)
             {
                 case AnnouncementState.PreInit:
-                    var url = "https://aklnthndr.dev/wp-json/wp/v2/posts?per_page=1&categories=24";
+                    var url = "https://aklnthndr.dev/api/v1/socially-distant/announcements";
+                        
                     _webClient.DownloadProgressChanged += WebClientOnDownloadProgressChanged;
                     _webClient.DownloadStringCompleted += WebClientOnDownloadStringCompleted;
                     _webClient.DownloadStringAsync(new Uri(url));
                     _state = AnnouncementState.Checking;
                     break;
                 case AnnouncementState.Done:
-                    _shownAnnouncement = new Announcement(_announcement);
+                    _shownAnnouncement = new Announcement(_announcement.First());
                     App.Logger.Log("Retrieved announcement data.");
                     App.Logger.Log(
                         $"Title: {_shownAnnouncement.Title} ({_shownAnnouncement.Link}, {_shownAnnouncement.Date})");
@@ -70,37 +71,37 @@ namespace SociallyDistant.Connectivity
 
             try
             {
-                var announcementArray = JsonSerializer.Deserialize<AnnouncementJson[]>(json);
+                var drupalResponse = JsonSerializer.Deserialize<AnnouncementObject[]>(json);
 
                 // If we get null then something seriously broke on the server.
                 // Either that or it no longer runs WordPress.
                 //
                 // If we get an empty array it's a special case, I haven't posted announcements yet.
-                if (announcementArray == null || !announcementArray.Any())
+                if (drupalResponse == null || !drupalResponse.Any())
                 {
                     _state = AnnouncementState.Offline;
                     return;
                 }
                 
                 // Get the first announcement.
-                var announcement = announcementArray.First();
+                var announcement = drupalResponse.First();
                 
                 // Try to read the announcement cache.
-                if (TryReadAnnouncementCache(out AnnouncementJson oldAnnouncement))
+                if (TryReadAnnouncementCache(out var oldAnnouncement))
                 {
                     // Check the two post dates.
                     // If the new post is actually old then we won't display it to the user.
-                    var old = oldAnnouncement.Date;
-                    var newDate = announcement.Date;
+                    var old = oldAnnouncement.Created;
+                    var newDate = announcement.Created;
                     if (old >= newDate)
                     {
-                        _announcement = oldAnnouncement;
-                        _state = AnnouncementState.Done;
+                        _shownAnnouncement = new Announcement(oldAnnouncement);
+                        _state = AnnouncementState.Ready;
                         return;
                     }
                 }
 
-                _announcement = announcement;
+                _announcement = drupalResponse;
                 _state = AnnouncementState.Done;
             }
             catch (Exception ex)
@@ -110,7 +111,7 @@ namespace SociallyDistant.Connectivity
             }
         }
 
-        private bool TryReadAnnouncementCache(out AnnouncementJson announcement)
+        private bool TryReadAnnouncementCache(out AnnouncementObject announcement)
         {
             var path = Path.Combine(ThundershockPlatform.LocalDataPath, "announcement.cache");
 
@@ -119,7 +120,7 @@ namespace SociallyDistant.Connectivity
                 try
                 {
                     var json = File.ReadAllText(path);
-                    announcement = JsonSerializer.Deserialize<AnnouncementJson>(json);
+                    announcement = JsonSerializer.Deserialize<AnnouncementObject>(json);
                     return true;
                 }
                 catch (Exception ex)

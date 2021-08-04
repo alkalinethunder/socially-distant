@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace SociallyDistant.Connectivity
@@ -10,15 +11,13 @@ namespace SociallyDistant.Connectivity
         public string Excerpt { get; }
         public DateTime Date { get; }
         
-        public Announcement(AnnouncementJson json)
+        public Announcement(AnnouncementObject json)
         {
-            Title = json.Title.Rendered;
+            Title = json.Title;
             Link = json.Link;
-            if (!string.IsNullOrEmpty(json.Excerpt.Rendered))
-                Excerpt = Regex.Replace(json.Excerpt.Rendered, "<.*?>", string.Empty);
-            else
-                Excerpt = string.Empty;
-            Date = json.Date;
+            Excerpt = json.Content;
+
+            Date = json.Created;
         }
     }
 }
