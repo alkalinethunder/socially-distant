@@ -21,14 +21,14 @@ namespace SociallyDistant.Gui.Styles
         private Font _buttonFont;
 
         // Color palette...
-        private Color _bg = ThundershockPlatform.HtmlColor("#222222");
+        private Color _bg = Color.FromHtml("#222222");
         private Color _bgInset = Color.Black;
-        private Color _amber = ThundershockPlatform.HtmlColor("#ffbf00");
-        private Color _peace = ThundershockPlatform.HtmlColor("#1baaf7");
-        private Color _danger = ThundershockPlatform.HtmlColor("#ff0000");
-        private Color _dangerBright = ThundershockPlatform.HtmlColor("#f71b1b");
+        private Color _amber = Color.FromHtml("#ffbf00");
+        private Color _peace = Color.FromHtml("#1baaf7");
+        private Color _danger = Color.FromHtml("#ff0000");
+        private Color _dangerBright = Color.FromHtml("#f71b1b");
         private Color _warning = Color.Orange;
-        private Color _text = ThundershockPlatform.HtmlColor("#eeeeee");
+        private Color _text = Color.White * 0.9f;
         private Color _textBright = Color.White;
 
         public override int ProgressBarHeight => 5;
@@ -41,7 +41,7 @@ namespace SociallyDistant.Gui.Styles
         protected override void OnLoad()
         {
             _paragraph = Font.FromResource(Gui.Graphics, GetType().Assembly,
-                "SociallyDistant.Resources.Fonts.SourceSansPro-Regular.ttf");
+                "SociallyDistant.Resources.Fonts.AndikaNewBasic-Regular.ttf");
             _h1 = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
             _h2 = Font.FromResource(Gui.Graphics, GetType().Assembly,
@@ -55,9 +55,14 @@ namespace SociallyDistant.Gui.Styles
             _stringListFont = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
 
+            _paragraph.Size = 26;
+            _code.Size = _paragraph.Size;
             _h3.Size = _paragraph.Size + 2;
             _h2.Size = _h3.Size + 4;
             _h1.Size = _h2.Size + 8;
+
+            _buttonFont.Size = _paragraph.Size;
+            _stringListFont.Size = _buttonFont.Size;
             
             base.OnLoad();
         }

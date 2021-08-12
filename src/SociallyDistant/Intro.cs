@@ -23,7 +23,7 @@ namespace SociallyDistant
         private string _at = "Alkaline Thunder";
         private string _ts = "Thundershock Engine";
         private string _pb = "Powered by";
-        private Color _atColor = ThundershockPlatform.HtmlColor("#0376bd");
+        private Color _atColor = Color.FromHtml("#0376bd");
 
         #endregion
 

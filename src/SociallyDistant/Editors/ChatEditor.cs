@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SociallyDistant.ContentEditor;
 using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.Core.WorldObjects;
 using Thundershock.Core.Input;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;

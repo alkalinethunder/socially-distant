@@ -10,6 +10,7 @@ using SociallyDistant.Core.AssetPropertyEditors;
 using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Editors;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
@@ -364,6 +365,8 @@ namespace SociallyDistant.ContentEditor
                 _projectFS.CreateDirectory("/Images");
             if (!_projectFS.DirectoryExists("/Objects"))
                 _projectFS.CreateDirectory("/Objects");
+            if (!_projectFS.DirectoryExists("/Scripts"))
+                _projectFS.CreateDirectory("/Scripts");
 
             foreach (var assetType in AssetTypes)
             {
@@ -411,6 +414,16 @@ namespace SociallyDistant.ContentEditor
                             CreateAsset(assetType, name);
                         }
                     }
+                }
+            }
+
+            var scriptPath = "/Scripts/WorldHooks.js";
+            if (!_projectFS.FileExists(scriptPath))
+            {
+                if (Resource.TryGetString(typeof(ContentController).Assembly,
+                    "SociallyDistant.Resources.Editor.WorldHooks.js", out var res))
+                {
+                    _projectFS.WriteAllText(scriptPath, res);
                 }
             }
         }

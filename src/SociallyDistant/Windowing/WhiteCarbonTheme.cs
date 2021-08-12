@@ -14,7 +14,7 @@ namespace SociallyDistant.Windowing
 
         private Font _titleFont;
 
-        private Color _amber = ThundershockPlatform.HtmlColor("#ffb000");
+        private Color _amber = Color.FromHtml("#ffb000");
         
         private Texture2D _topLeftCorner;
         private Texture2D _topRightCorner;

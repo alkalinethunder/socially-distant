@@ -12,11 +12,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using SociallyDistant.Core;
 using SociallyDistant.Core.ContentEditors;
-using StbImageSharp;
 using Thundershock.Content;
 using Thundershock.Core;
 using Thundershock.IO;
-using Action = Gtk.Action;
 
 namespace SociallyDistant.ContentEditor
 {
@@ -54,23 +52,22 @@ namespace SociallyDistant.ContentEditor
             await Task.Run(() =>
             {
                 _progress.Value.Status = "Creating working directory...";
-
-                var work = _out + ".work";
-                if (Directory.Exists(work))
-                {
-                    throw new InvalidOperationException(
-                        "The working directory for the project build operation already exists.");
-                }
-
-                _work = work;
-
-                Directory.CreateDirectory(work);
-
-                _work = work;
-                _workfs = FileSystem.FromHostDirectory(_work);
-
                 try
                 {
+                    var work = _out + ".work";
+                    if (Directory.Exists(work))
+                    {
+                        throw new InvalidOperationException(
+                            "The working directory for the project build operation already exists.");
+                    }
+
+                    _work = work;
+
+                    Directory.CreateDirectory(work);
+
+                    _work = work;
+                    _workfs = FileSystem.FromHostDirectory(_work);
+
                     _progress.Value.Status = "Copying textures...";
                     CopyTextures();
 
@@ -80,6 +77,9 @@ namespace SociallyDistant.ContentEditor
                     _progress.Value.Status = "Saving assets...";
                     CopyAssets();
 
+                    _progress.Value.Status = "Writing scripts...";
+                    CopyScripts();
+                    
                     _progress.Value.Status = "Building vOS Skeleton...";
                     BuildSkeleton();
                     
@@ -389,15 +389,16 @@ namespace SociallyDistant.ContentEditor
             CopyMetaTexture(_metadata.Icon, "/meta.icon", "SociallyDistant.Resources.Icon.png");
             CopyMetaTexture(_metadata.BootLogo, "/meta.boot", "SociallyDistant.Resources.LogoText.png");
             CopyMetaTexture(_metadata.Wallpaper, "/wallpaper",
-                "SociallyDistant.Resources.Textures.DesktopBackgroundImage2.pmg");
+                "SociallyDistant.Resources.Textures.DesktopBackgroundImage2.png");
         }
 
         private void CopyMetaTexture(ImageAssetReference reference, string dest, string fallbackResource)
         {
-            if (reference != null && _fs.FileExists(reference.Path))
+            if (reference != null && !string.IsNullOrWhiteSpace(reference.Path))
             {
                 // the texture's been specified so we can just copy it to the destination.
-                CopyTexture(reference.Path, dest);
+                if (_fs.FileExists(reference.Path))
+                    CopyTexture(reference.Path, dest);
             }
             else
             {
@@ -405,8 +406,14 @@ namespace SociallyDistant.ContentEditor
                 var asm = this.GetType().Assembly;
                 using var resStream = asm.GetManifestResourceStream(fallbackResource);
 
+                // Null-check the resource stream.
+                if (resStream == null)
+                    throw new InvalidOperationException("Resource not found: " + fallbackResource);
+
                 using (var tempImage = _fs.OpenFile("/temp"))
+                {
                     resStream.CopyTo(tempImage);
+                }
 
                 resStream.Close();
                 
@@ -415,6 +422,28 @@ namespace SociallyDistant.ContentEditor
 
                 // Delete the temp texture now.
                 _fs.Delete("/temp");
+            }
+        }
+
+        private void CopyScripts()
+        {
+            if (!_workfs.DirectoryExists("/script"))
+                _workfs.CreateDirectory("/script");
+            
+            CopyScriptIfExists("/Scripts/WorldHooks.js", "/script/world.js");
+        }
+
+        private void CopyScriptIfExists(string source, string dest)
+        {
+            if (_fs.FileExists(source))
+            {
+                using var sourceStream = _fs.OpenFile(source);
+                using var destStream = _workfs.OpenFile(dest);
+                
+                sourceStream.CopyTo(destStream);
+
+                sourceStream.Close();
+                destStream.Close();
             }
         }
     }

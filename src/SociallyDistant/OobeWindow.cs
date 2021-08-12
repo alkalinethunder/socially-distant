@@ -1,3 +1,8 @@
+using System;
+using System.Linq;
+using SociallyDistant.Core;
+using SociallyDistant.Core.Gui.Elements;
+using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
 using Thundershock.Core;
 using Thundershock.Core.Input;
@@ -6,285 +11,336 @@ using Thundershock.Gui.Elements;
 
 namespace SociallyDistant
 {
-    public class OobeWindow : Window
+    public class Oobe
     {
-        #region STATE
+        #region Scenes
 
-        private int _oobeState;
-        private bool _done;
-        
+        private BootScreen _boot;
+
         #endregion
-        
-        #region GUI
 
-        private Panel _bg = new();
-        private Stacker _master = new();
+        #region Components
+
+        private SaveManager _saveManager;
+        private GuiSystem Gui => _boot.Gui;
+
+        #endregion
+
+        #region Gui
+
+        private Panel _overlay = new();
+        private Stacker _mainStacker = new();
+        private Picture _logo = new();
         private TextBlock _title = new();
-        private TextBlock _description = new();
+        private TextBlock _prompt = new();
         private ScrollPanel _scroller = new();
-        private Stacker _buttonList = new();
-        private Button _next = new();
-        private Button _back = new();
-        private CheckBox _agree = new();
-        private TextBlock _agreeText = new();
-        private TextEntry _username = new();
-        private TextEntry _passwd = new();
-        private TextEntry _passwdConfirm = new();
-        private TextEntry _hostname = new();
-        private TextBlock _passwdLabel = new();
-        private TextBlock _usernameLabel = new();
-        private TextBlock _hostnameLabel = new();
-        private TextBlock _usernameError = new();
-        private TextBlock _passwdError = new();
-        private TextBlock _hostnameError = new();
-        private Stacker _userStacker = new();
-        private Stacker _eulaStacker = new();
-        private Stacker _unameStacker = new();
-        private Stacker _passwdStacker = new();
-        private Stacker _hostnameStacker = new();
+        private Button _continue = new();
         
         #endregion
 
-        public bool IsComplete => _done;
-        public string Username => _username.Text;
-        public string Password => _passwd.Text;
-        public string Hostname => _hostname.Text;
+        #region State
+
+        private Pronoun _activePronoun;
+        private int _page;
+        private Func<bool> _validator;
+        private bool _transitioning;
+        private int _transState;
+        private float _transProgress;
         
-        protected override void OnOpened()
+        #endregion
+        
+        #region GUI - Page 1
+
+        private Stacker _pronounSelect = new();
+        private Stacker _pronounEdit = new();
+        private DropDownBox _pronoun = new();
+        private ChatLayout _chatLayout = new();
+
+        #endregion
+
+        #region GUI - Page 2
+
+        private TextEntry _fullName = new();
+
+        #endregion
+
+        #region Gui - Page 3
+
+        private ProgressBar _progress = new();
+
+        #endregion
+        
+        internal Oobe(BootScreen boot)
         {
+            _boot = boot;
+
+            _saveManager = _boot.Game.GetComponent<SaveManager>();
+            
             BuildGui();
-
-            SetupState();
-        }
-
-        protected override void OnUpdate(GameTime gameTime)
-        {
-            _next.Enabled = _agree.IsChecked || _agree.Visibility != Visibility.Visible;
-            _back.Enabled = _oobeState > 0;   
-            base.OnUpdate(gameTime);
+            UpdateGui();
         }
         
-        private void SetupState()
+        public void Update(float deltaTime)
         {
-            _agree.Visibility = Visibility.Collapsed;
-            _back.Text = "Back";
-            _next.Text = "Next";
+            if (_validator != null)
+            {
+                _continue.Enabled = _validator();
+            }
+            else
+            {
+                _continue.Enabled = true;
+            }
+
+            if (_page == 3 && !_transitioning)
+            {
+                _progress.Value = MathHelper.Clamp(_progress.Value + (deltaTime / 5), 0, 1);
+                if (_progress.Value >= 1)
+                {
+                    StartTransition();
+                }
+            }
+
+            if (_transitioning)
+            {
+                switch (_transState)
+                {
+                    case 0:
+                        _overlay.Opacity = MathHelper.Clamp(1 - _transProgress, 0, 1);
+                        _transProgress += deltaTime * 2;
+                        if (_transProgress >= 1)
+                        {
+                            _overlay.Opacity = 0;
+                            _transState++;
+                        }
+                        break;
+                    case 1:
+                        _page++;
+                        UpdateGui();
+                        _transProgress = 0;
+                        _transState++;
+                        break;
+                    case 2:
+                        _overlay.Opacity = MathHelper.Clamp(_transProgress, 0, 1);
+                        _transProgress += deltaTime * 2;
+                        if (_transProgress >= 1)
+                        {
+                            _overlay.Opacity = 1;
+                            _transitioning = false;
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void BuildGui()
+        {
+            _mainStacker.Children.Add(_logo);
+            _mainStacker.Children.Add(_title);
+            _mainStacker.Children.Add(_prompt);
+            _mainStacker.Children.Add(_scroller);
+            _mainStacker.Children.Add(_continue);
+
+            _overlay.Children.Add(_mainStacker);
+            Gui.AddToViewport(_overlay);
+            
+            _logo.FixedHeight = 96;
+            _logo.HorizontalAlignment = HorizontalAlignment.Left;
+            _logo.ImageMode = ImageMode.Fit;
+            _logo.Image = _saveManager.ContentPack.BootLogo;
+            
+            _continue.Text = "Continue >> ";
+            
+            _overlay.BackColor = Color.Black * 0.333333f;
+            _overlay.VerticalAlignment = VerticalAlignment.Center;
+
+            _mainStacker.Padding = 20;
+
+            _title.ForeColor = Color.Cyan;
+            _title.Properties.SetValue(FontStyle.Heading1);
+            
+            _continue.HorizontalAlignment = HorizontalAlignment.Left;
+
+            _title.Padding = new Padding(0, 1 * _prompt.FontSize);
+            _scroller.Padding = new Padding(0, 2 * _prompt.FontSize);
+            
+            _continue.MouseUp += ContinueOnMouseUp;
+            
+            _pronounEdit.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _chatLayout.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            
+            _pronounSelect.Children.Add(_pronounEdit);
+            _pronounSelect.Children.Add(_chatLayout);
+
+            _pronounEdit.Children.Add(_pronoun);
+
+            _pronoun.AddItem("Male (He/Him)");
+            _pronoun.AddItem("Female (She/Her)");
+            _pronoun.AddItem("Non-binary (They/Them)");
+            _pronoun.SelectedIndex = 0;
+            
+            _pronoun.SelectedIndexChanged += PronounOnSelectedIndexChanged;
+
+            _pronounEdit.VerticalAlignment = VerticalAlignment.Center;
+            _chatLayout.Padding = 15;
+
+            _progress.HorizontalAlignment = HorizontalAlignment.Left;
+            _progress.FixedWidth = 460;
+
+            _pronounSelect.Direction = StackDirection.Horizontal;
+        }
+
+        private void PronounOnSelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdatePronounDisplay();
+        }
+
+        private void ContinueOnMouseUp(object? sender, MouseButtonEventArgs e)
+        {
+            if (!_transitioning)
+                StartTransition();
+        }
+
+        private void StartTransition()
+        {
+            _transitioning = true;
+            _transState = 0;
+            _transProgress = 0;
+        }
+
+        private void UpdateGui()
+        {
+            _validator = null;
             _scroller.Children.Clear();
 
-            _usernameError.Visibility = Visibility.Collapsed;
-            _passwdError.Visibility = Visibility.Collapsed;
-            _hostnameError.Visibility = Visibility.Collapsed;
-            
-            
-            switch (_oobeState)
+            switch (_page)
             {
                 case 0:
                     _title.Text = "Welcome";
-                    _description.Text =
-                        "Welcome to the Red-OS Initial Setup Wizard.  This setup wizard will guide you through creating your UNIX user account and setting core system preferences. Click Next to continue.";
-                    break;
-                case 1:
-                    _title.Text = "License Agreement";
-                    _description.Text =
-                        "Your use of the Red-OS software is governed by the Agency End User License Agreement. Please carefully read and understand the below Terms and Conditions before continuing to use this operating system.";
-                    _agree.Visibility = Visibility.Visible;
-                    _scroller.Children.Add(_eulaStacker);
-                    break;
-                case 2:
-                    _title.Text = "User Creation";
-                    _description.Text = "Please choose a username, password, and hostname to use for your system.";
-                    _scroller.Children.Add(_userStacker);
-                    break;
-                case 3:
-                    if (!ValidateInformation())
-                    {
-                        _oobeState = 2;
-                        goto case 2; // Truttle1 now HATES me.
-                    }
+                    _prompt.Text = $"Welcome to {_saveManager.ContentPack.Name}. Enter your name to continue.";
 
-                    _done = true;
-                    Close();
+                    _scroller.Children.Add(_fullName);
+
+                    _validator = () => !string.IsNullOrWhiteSpace(_fullName.Text);
                     
                     break;
+                case 1:
+                    _title.Text = "Pronoun Select";
+                    _prompt.Text = "Choose which pronouns other people should use when communicating with you.";
+
+                    _scroller.Children.Add(_pronounSelect);
+
+                    _chatLayout.ConversationName = "Group DM";
+                    _chatLayout.ParticipantsText = "Two participants";
+
+                    UpdatePronounDisplay();
+                    
+                    break;
+                case 2:
+                    _title.Text = $"Welcome, {_fullName.Text}.";
+                    _prompt.Text = "Press [Continue] to begin setting up your desktop.";
+                    break;
+                case 3:
+                    _continue.Visibility = Visibility.Collapsed;
+
+                    _title.Text = "Please wait...";
+                    _prompt.Text = "Your virtual machine is being provisioned.";
+                    
+                    _scroller.Children.Add(_progress);
+
+                    break;
+                case 4:
+                    _overlay.Parent.Children.Remove(_overlay);
+                    _saveManager.CurrentGame.AutoCreatePlayer(_fullName.Text, _activePronoun);
+                    _saveManager.Save();
+                    break;
             }
         }
-        
-        private void BuildGui()
+
+        private void UpdatePronounDisplay()
         {
-            _usernameError.ForeColor = Color.Red;
-            _passwdError.ForeColor = Color.Red;
-            _hostnameError.ForeColor = Color.Red;
+            _chatLayout.ClearMessages();
 
-            _usernameLabel.ForeColor = Color.White;
-            _passwdLabel.ForeColor = Color.White;
-            _hostnameLabel.ForeColor = Color.White;
+            var pronoun = _pronoun.SelectedIndex switch
+            {
+                0 => Pronoun.Male,
+                1 => Pronoun.Female,
+                2 => Pronoun.Unisex
+            };
 
-            _usernameLabel.Text = "Username: ";
-            _passwdLabel.Text = "Password: ";
-            _hostnameLabel.Text = "Hostname: ";
-            
-            _title.ForeColor = Color.Cyan;
-            _description.ForeColor = Color.White;
-            
-            _agreeText.Text = "I agree to the Terms and Conditions outlined above.";
-            _agreeText.ForeColor = Color.White;
-            
-            _back.Padding = 2;
-            _next.Padding = 2;
+            _activePronoun = pronoun;
 
-            FixedWidth = 620;
-            FixedHeight = 460;
-            
-            _scroller.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            var m1 = $"Hey, have you met {_fullName.Text}?";
+            var m2 = $"Yeah, {Localization.GetPronounText(pronoun, PronounUsage.TheyAre)} pretty cool.";
+            var m3 =
+                $"Really? {Localization.GetPronounText(pronoun, PronounUsage.They, "seem").Capitalize()} a little... Ehhh... interesting...";
+            var m4 =
+                $"I guess. I suppose I wouldn't wanna be on {Localization.GetPronounText(pronoun, PronounUsage.Their)} bad side.";
+            var m5 = $"Yeah. I wouldn't piss {Localization.GetPronounText(pronoun, PronounUsage.Them)} off.";
 
-            _unameStacker.Direction = StackDirection.Horizontal;
-            _passwdStacker.Direction = StackDirection.Horizontal;
-            _hostnameStacker.Direction = StackDirection.Horizontal;
-
-            _usernameLabel.Properties.SetValue(Stacker.FillProperty, new StackFill(1f / 3f));
-            _passwdLabel.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _hostnameLabel.Properties.SetValue(Stacker.FillProperty, new StackFill(1f / 3f));
-
-            _username.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _hostname.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _passwd.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _passwdConfirm.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-
-            _buttonList.HorizontalAlignment = HorizontalAlignment.Right;
-            _buttonList.Direction = StackDirection.Horizontal;
-            
-            _bg.BackColor = Color.Black;
-            _master.Padding = 10;
-            _scroller.Padding = 5;
-            _buttonList.Padding = 5;
-            _title.Padding = new Padding(5, 5, 5, 2);
-            _description.Padding = new Padding(5, 0, 5, 10);
-
-            _unameStacker.Children.Add(_usernameLabel);
-            _unameStacker.Children.Add(_username);
-
-            _passwdStacker.Children.Add(_passwdLabel);
-            _passwdStacker.Children.Add(_passwd);
-            _passwdStacker.Children.Add(_passwdConfirm);
-            
-            _hostnameStacker.Children.Add(_hostnameLabel);
-            _hostnameStacker.Children.Add(_hostname);
-            
-            _userStacker.Children.Add(_unameStacker);
-            _userStacker.Children.Add(_usernameError);
-            _userStacker.Children.Add(_passwdStacker);
-            _userStacker.Children.Add(_passwdError);
-            _userStacker.Children.Add(_hostnameStacker);
-            _userStacker.Children.Add(_hostnameError);
-
-            _agree.Children.Add(_agreeText);
-            _buttonList.Children.Add(_back);
-            _buttonList.Children.Add(_next);
-            _master.Children.Add(_title);
-            _master.Children.Add(_description);
-            _master.Children.Add(_scroller);
-            _master.Children.Add(_agree);
-            _master.Children.Add(_buttonList);
-            _bg.Children.Add(_master);
-            Children.Add(_bg);
-            
-            _next.MouseUp += NextOnMouseUp;
-            _back.MouseUp += BackOnMouseUp;
+            _chatLayout.AddMessage(m1, false);
+            _chatLayout.AddMessage(m2, true);
+            _chatLayout.AddMessage(m3, false);
+            _chatLayout.AddMessage(m4, true);
+            _chatLayout.AddMessage(m5, false);
         }
+    }
 
-        private bool ValidateInformation()
+    public enum PronounUsage
+    {
+        Them,
+        They,
+        Their,
+        TheyAre
+    }
+
+    public static class Localization
+    {
+        public static string GetPronounText(Pronoun pronoun, PronounUsage usage)
         {
-            _username.Text = _username.Text.Trim();
-            _passwd.Text = _passwd.Text.Trim();
-            _passwdConfirm.Text = _passwdConfirm.Text.Trim();
-            _hostname.Text = _hostname.Text.Trim();
-
-            if (string.IsNullOrEmpty(_username.Text))
+            switch (pronoun)
             {
-                _usernameError.Visibility = Visibility.Visible;
-                _usernameError.Text = "Username cannot be blank.";
-                return false;
-            }
-            
-            if (string.IsNullOrEmpty(_passwd.Text))
-            {
-                _passwdError.Visibility = Visibility.Visible;
-                _passwdError.Text = "Password is required.";
-                return false;
-            }
-            
-            if (string.IsNullOrEmpty(_hostname.Text))
-            {
-                _hostnameError.Visibility = Visibility.Visible;
-                _hostnameError.Text = "Hostname is required./";
-                return false;
-            }
-
-            if (_passwd.Text != _passwdConfirm.Text)
-            {
-                _passwdError.Visibility = Visibility.Visible;
-                _passwdError.Text = "Passwords do not match.";
-                return false;
-            }
-
-            var unixUsername = Unixify(_username.Text);
-            var unixHostname = Unixify(_hostname.Text);
-
-            if (_username.Text != unixUsername)
-            {
-                _usernameError.Visibility = Visibility.Visible;
-                _usernameError.Text = "Username contains invalid characters.";
-                return false;
-            }
-
-            if (_hostname.Text != unixHostname)
-            {
-                _hostnameError.Visibility = Visibility.Visible;
-                _hostnameError.Text = "Hostname contains invalid characters.";
-                return false;
-            }
-            
-            return true;
-        }
-
-        private string Unixify(string text)
-        {
-            var s = string.Empty;
-
-            foreach (var ch in text)
-            {
-                if (char.IsLetterOrDigit(ch) || ch == '_')
-                {
-                    s += char.ToLower(ch);
-                }
-                else
-                {
-                    if (!s.EndsWith("-"))
+                case Pronoun.Male:
+                    return usage switch
                     {
-                        s += "-";
-                    }
-                }
+                        PronounUsage.Them => "him",
+                        PronounUsage.They => "he",
+                        PronounUsage.Their => "his",
+                        PronounUsage.TheyAre => "he's",
+                    };
+                case Pronoun.Female:
+                    return usage switch
+                    {
+                        PronounUsage.Them => "her",
+                        PronounUsage.They => "she",
+                        PronounUsage.Their => "her",
+                        PronounUsage.TheyAre => "she's",
+                    };
+                case Pronoun.Unisex:
+                    return usage switch
+                    {
+                        PronounUsage.Them => "them",
+                        PronounUsage.They => "they",
+                        PronounUsage.Their => "their",
+                        PronounUsage.TheyAre => "they're",
+                    };
             }
-            
-            return s;
-        }
-        
-        private void BackOnMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.Button == MouseButton.Primary)
-            {
-                _oobeState--;
-                SetupState();
-            }
+
+            return string.Empty;
         }
 
-        private void NextOnMouseUp(object sender, MouseButtonEventArgs e)
+        public static string GetPronounText(Pronoun pronoun, PronounUsage usage, string word)
         {
-            if (e.Button == MouseButton.Primary)
-            {
-                _oobeState++;
-                SetupState();
-            }
+            var prefix = GetPronounText(pronoun, usage);
+
+            if (pronoun != Pronoun.Unisex)
+                word += "s";
+
+            return $"{prefix} {word}";
+        }
+
+        public static string Capitalize(this string text)
+        {
+            return $"{char.ToUpper(text[0])}{text.Substring(1)}";
         }
     }
 }

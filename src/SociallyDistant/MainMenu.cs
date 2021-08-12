@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using Gtk;
 using SociallyDistant.Connectivity;
 using SociallyDistant.Core;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.Gui.Elements;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
 using Thundershock;
 using Thundershock.Audio;
+using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Input;
 using Thundershock.Core.Rendering;
@@ -29,7 +26,7 @@ namespace SociallyDistant
         #region State
 
         private Stack<int> _history = new();
-        private List<SaveSlot> _saves = new();
+        private List<ProfileSlot> _saves = new();
         private int _menuState = 0;
         private InstalledContentPack _pack;
         private SettingsWindow _settingsWindow;
@@ -110,7 +107,23 @@ namespace SociallyDistant
                 _wm.ShowMessage("Corrupt Data",
                     "An error prevented the career save file from loading. This is due to possibly corrupt world information. (403)" + Environment.NewLine + Environment.NewLine + "You have been returned to the main menu.");
 #endif
+
+                var myEntity = SpawnObject();
+                var scriptComponent = new ScriptComponent
+                {
+                    Script = "Scripts/hello.js"
+                };
+
+                myEntity.AddComponent(scriptComponent);
             }
+      
+            // Let's create a script!
+            var scriptEntity = SpawnObject();
+            var script = new ScriptComponent()
+            {
+                Script = "Scripts/hello.js"
+            };
+            scriptEntity.AddComponent(script);
             
             base.OnLoad();
         }
@@ -136,7 +149,7 @@ namespace SociallyDistant
 
         private void BuildGui()
         {
-            _sidebarOverlay.FixedWidth = 404;
+            _sidebarOverlay.FixedWidth = 440;
             
             _packInfoStacker.Children.Add(_menuTitle);
             _packInfoStacker.Children.Add(_menuDescription);
@@ -304,6 +317,11 @@ namespace SociallyDistant
             {
                 _mainLogo.Visibility = Visibility.Collapsed;
                 _packStacker.Visibility = Visibility.Visible;
+
+                if (_pack != null)
+                {
+                    _packLogo.Image = _pack.Icon;
+                }
             }
             
             switch (_menuState)
@@ -359,14 +377,15 @@ namespace SociallyDistant
                     if (_saves.Any())
                     {
                         var first = _saves.First();
-                        AddMenuItem($"Continue ({first.Title})",
-                            "Last played: " + first.LastPlayed.ToShortDateString() + " " +
-                            first.LastPlayed.ToShortTimeString(), null,
+                        AddMenuItem($"Continue ({first.PlayerName})",
+                            "Last played: " + first.LastPlayDate.ToShortDateString() + " " +
+                            first.LastPlayDate.ToShortTimeString(), null,
                             () =>
                             {
                                 try
                                 {
                                     _saveManager.LoadGame(first);
+                                    GoToScene<BootScreen>();
                                 }
                                 catch (Exception ex)
                                 {
@@ -380,8 +399,6 @@ namespace SociallyDistant
                                         Environment.NewLine + Environment.NewLine + ex.Message);
 #endif
                                 }
-
-                                GoToScene<BootScreen>();
                             });
                         
                         AddMenuItem("Load Game", "Select a different save file.", null, () =>
@@ -398,11 +415,11 @@ namespace SociallyDistant
                     _menuTitle.Text = _pack.Name;
                     _menuDescription.Text = _pack.Description;
 
-                    foreach (var save in _saves.OrderByDescending(x=>x.LastPlayed))
+                    foreach (var save in _saves.OrderByDescending(x=>x.LastPlayDate))
                     {
-                        AddMenuItem($"Continue ({save.Title})",
-                            "Last played: " + save.LastPlayed.ToShortDateString() + " " +
-                            save.LastPlayed.ToShortTimeString(), null,
+                        AddMenuItem($"Continue ({save.PlayerName})",
+                            "Last played: " + save.LastPlayDate.ToShortDateString() + " " +
+                            save.LastPlayDate.ToShortTimeString(), null,
                             () =>
                             {
                                 _history.Pop();
@@ -433,7 +450,8 @@ namespace SociallyDistant
             }
             else
             {
-                _saves = _saveManager.SaveDatabase.GetExtensionSaves(_pack).ToList();
+                // FIXME
+                // _saves = _saveManager.SaveDatabase.GetExtensionSaves(_pack).ToList();
             }
             
             _menuState = 2;

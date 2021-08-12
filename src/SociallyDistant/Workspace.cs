@@ -1,6 +1,8 @@
 using System;
 using SociallyDistant.Core;
+using SociallyDistant.Core.Components;
 using SociallyDistant.Core.Config;
+using SociallyDistant.Core.Game;
 using SociallyDistant.Core.Net;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
@@ -25,7 +27,6 @@ namespace SociallyDistant
         #region SCENE COMPONENTS
 
         private WindowManager _windowManager;
-        private NetworkSimulation _network;
         private Shell _shell;
 
         #endregion
@@ -75,12 +76,6 @@ namespace SociallyDistant
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();
             
-            // Add scene components.
-            _network = RegisterSystem<NetworkSimulation>();
-            
-            // Set up the Player Context.
-            SetupPlayerContext();
-            
             // Build the workspace GUI.
             BuildGui();
 
@@ -127,8 +122,6 @@ namespace SociallyDistant
             _frameTime = gameTime.ElapsedGameTime;
             _uptime = gameTime.TotalGameTime;
             
-            _playerInfo.Text =
-                $"{_context.UserName}@{_context.HostName} ({NetworkHelpers.ToIPv4String(_context.Network.LocalAddress)})";
             base.OnUpdate(gameTime);
 
             // TODO: Somehow get Thundershock to do this. Maybe there's a way to set up
@@ -155,28 +148,23 @@ namespace SociallyDistant
         
         private void StartShell()
         {
-            var sh = new Shell(_console, _context.Vfs, _context);
-            _shell = sh;
-
-            _shell.BootUp();
+            // Start the game's simulation.
+            var simulation = RegisterSystem<Simulation>();
             
-            _shell.RegisterBuiltin("save", "Save the current game.", TrySave);
+            // Register the shell as a system.
+            _shell = RegisterSystem<Shell>();
+
+            // Attach a shell to the player entity.
+            var playerEntity = simulation.GetPlayerEntity();
+            Registry.AddComponent(playerEntity, (IConsole) _console);
+            Registry.AddComponent(playerEntity, new ShellStateComponent
+            {
+                UserId = 1 // uses the player's  normal user account instead of root.
+            });
         }
         
         private void SetupPlayerContext()
         {
-            // Get the player agent controller from Save System.
-            var agent = _saveManager.GetPlayerAgent();
-            
-            // Create a Network Interface inside the Network Simulation for the player's
-            // device.
-            var nic = _network.GetNetworkInterface(agent.Device);
-
-            // Create the player's Red Team Context.
-            var ctx = new DeviceContext(this, agent, nic);
-            
-            // Store the context.
-            _context = ctx;
         }
 
         private void BuildGui()
@@ -205,20 +193,8 @@ namespace SociallyDistant
             _tray.Direction = StackDirection.Horizontal;
             _statusStacker.Direction = StackDirection.Horizontal;
             _workspaceStacker.Direction = StackDirection.Horizontal;
-            
-            // GUI tree
-            _tray.Children.Add(_time);
-            _tray.Children.Add(_settings);
-            _tray.Children.Add(_exit);
-            _statusStacker.Children.Add(_playerInfo);
-            _statusStacker.Children.Add(_tray);
-            _statusBg.Children.Add(_statusStacker);
-            _workspaceStacker.Children.Add(_console);
-            _workspaceStacker.Children.Add(_sidebar);
-            _master.Children.Add(_statusBg);
-            _master.Children.Add(_workspaceStacker);
-            _bgOverlay.Children.Add(_master);
-            Gui.AddToViewport(_bgOverlay);
+
+            Gui.AddToViewport(_console);
         }
 
         private void StyleGui()
@@ -226,11 +202,11 @@ namespace SociallyDistant
             // Status panel.
             if (_palette.BackgroundImage != null)
             {
-                _statusBg.BackColor = ThundershockPlatform.HtmlColor("#222222") * 0.5f;
+                _statusBg.BackColor = Color.FromHtml("#222222") * 0.5f;
             }
             else
             {
-                _statusBg.BackColor = ThundershockPlatform.HtmlColor("#222222");
+                _statusBg.BackColor = Color.FromHtml("#222222");
             }
             
             // Backdrop.

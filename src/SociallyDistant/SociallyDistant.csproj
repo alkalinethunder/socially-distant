@@ -24,6 +24,12 @@
     <None Remove="Icon.bmp" />
     <None Remove="Content\bin\**" />
     <None Remove="Content\obj\**" />
+    <None Update="Scripts\hello.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Career.pak">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -41,5 +47,8 @@
   <ItemGroup>
     <Folder Include="Resources\Fonts\Console" />
     <Folder Include="Resources\Textures" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Editor\WorldHooks.js" />
   </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@ namespace SociallyDistant.Connectivity
         private Announcement _shownAnnouncement;
 
         public Announcement Announcement => _shownAnnouncement;
-        public bool IsReady => Announcement != null && _state == AnnouncementState.Ready;
+        public bool IsReady => Announcement != null;
         
         protected override void OnLoad()
         {
@@ -55,8 +55,20 @@ namespace SociallyDistant.Connectivity
             if (e.Error != null)
             {
                 App.Logger.Log("Couldn't fetch community announcement.", LogLevel.Warning);
+                App.Logger.Log("Falling back to the cache.", LogLevel.Warning);
                 App.Logger.LogException(e.Error);
-                _state = AnnouncementState.Offline;
+
+                if (TryReadAnnouncementCache(out var ann))
+                {
+                    _shownAnnouncement = new Announcement(ann);
+                    _state = AnnouncementState.Ready;
+                }
+                else
+                {
+                    App.Logger.Log("Cache not readable, switching to offline mode.", LogLevel.Warning);
+                    _state = AnnouncementState.Offline;
+                }
+
                 return;
             }
 
