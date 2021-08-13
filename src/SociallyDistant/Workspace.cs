@@ -33,18 +33,18 @@ namespace SociallyDistant
         
         #region USER INTERFACE
 
+        private TextBlock _fps = new();
+        private Stacker _infoLeft = new();
         private Stacker _master = new();
-        private Panel _statusBg = new();
-        private Stacker _statusStacker = new();
-        private ConsoleControl _console = new();
-        private TextBlock _playerInfo = new();
-        private Stacker _workspaceStacker = new();
-        private Stacker _sidebar = new();
-        private Stacker _tray = new();
+        private Panel _infoBanner = new();
+        private Stacker _infoMaster = new();
+        private Stacker _infoProfileCard = new();
+        private Picture _playerAvatar = new();
+        private TextBlock _playerName = new();
+        private Stacker _playerInfoStacker = new();
+        private Stacker _infoRight = new();
         private Button _settings = new();
-        private Button _exit = new();
-        private TextBlock _time = new();
-        private Panel _bgOverlay = new();
+        private ConsoleControl _console = new();
         
         #endregion
         
@@ -90,14 +90,13 @@ namespace SociallyDistant
             
             // Bind to configuration reloads.
             _redConf.ConfigUpdated += RedConfOnConfigUpdated;
-
-            // Bind to settings click.
-            _settings.MouseUp += SettingsOnMouseUp;
-
+            
             // Window manager.
             _windowManager = RegisterSystem<WindowManager>();
             
             base.OnLoad();
+
+            _settings.MouseUp += SettingsOnMouseUp;
         }
 
         private void SettingsOnMouseUp(object sender, MouseButtonEventArgs e)
@@ -121,13 +120,11 @@ namespace SociallyDistant
         {
             _frameTime = gameTime.ElapsedGameTime;
             _uptime = gameTime.TotalGameTime;
+
+            _playerName.Text = _saveManager.CurrentGame.PlayerName;
+            _fps.Text = $"FPS: {Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds)}";
             
             base.OnUpdate(gameTime);
-
-            // TODO: Somehow get Thundershock to do this. Maybe there's a way to set up
-            // the shell with the ECS somehow? I mean it's not an entity, more of a system,
-            // but hmmm.
-            _shell.Update(gameTime);
         }
 
         private void RedConfOnConfigUpdated(object sender, EventArgs e)
@@ -163,55 +160,60 @@ namespace SociallyDistant
             });
         }
         
-        private void SetupPlayerContext()
-        {
-        }
-
         private void BuildGui()
         {
-            // Static text.
-            _exit.Text = "Shut down";
-            _settings.Text = "Options";
+            _playerInfoStacker.Children.Add(_playerName);
             
-            // Alignments.
-            _tray.VerticalAlignment = VerticalAlignment.Center;
-            _playerInfo.VerticalAlignment = VerticalAlignment.Center;
-            
-            // Padding.
-            _exit.Padding = 1;
-            _settings.Padding = 1;
-            _sidebar.Padding = 5;
-            _statusStacker.Padding = 2;
-            _tray.Padding = 1;
-            
-            // Fills.
-            _console.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _playerInfo.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
-            _workspaceStacker.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _infoProfileCard.Children.Add(_playerAvatar);
+            _infoProfileCard.Children.Add(_playerInfoStacker);
 
-            // Stacker directions.
-            _tray.Direction = StackDirection.Horizontal;
-            _statusStacker.Direction = StackDirection.Horizontal;
-            _workspaceStacker.Direction = StackDirection.Horizontal;
+            _infoRight.Children.Add(_settings);
+            _infoRight.Children.Add(_infoProfileCard);
 
-            Gui.AddToViewport(_console);
+            _infoLeft.Children.Add(_fps);
+            
+            _infoMaster.Children.Add(_infoLeft);
+            _infoMaster.Children.Add(_infoRight);
+
+            _infoBanner.Children.Add(_infoMaster);
+
+            _master.Children.Add(_infoBanner);
+            _master.Children.Add(_console);
+            
+            Gui.AddToViewport(_master);
         }
 
         private void StyleGui()
         {
-            // Status panel.
-            if (_palette.BackgroundImage != null)
-            {
-                _statusBg.BackColor = Color.FromHtml("#222222") * 0.5f;
-            }
-            else
-            {
-                _statusBg.BackColor = Color.FromHtml("#222222");
-            }
+            _settings.Text = "Settings";
             
-            // Backdrop.
+            _playerAvatar.VerticalAlignment = VerticalAlignment.Center;
+            _playerInfoStacker.VerticalAlignment = VerticalAlignment.Center;
+            _settings.VerticalAlignment = VerticalAlignment.Center;
+            _fps.VerticalAlignment = VerticalAlignment.Center;
+
+            _settings.Padding = new Padding(4, 0, 4, 0);
+            
+            _playerAvatar.FixedWidth = 24;
+            _playerAvatar.FixedHeight = 24;
+            _playerAvatar.ImageMode = ImageMode.Rounded;
+
+            _infoMaster.Direction = StackDirection.Horizontal;
+            _infoProfileCard.Direction = StackDirection.Horizontal;
+            _infoRight.Direction = StackDirection.Horizontal;
+            _infoLeft.Direction = StackDirection.Horizontal;
+
+            _infoRight.HorizontalAlignment = HorizontalAlignment.Right;
+            
+            // Fills.
+            _console.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _infoRight.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+            _infoLeft.Properties.SetValue(Stacker.FillProperty, StackFill.Fill);
+
+            _playerInfoStacker.Padding = new Padding(3, 0, 0, 0);
+            _infoMaster.Padding = new Padding(4, 2, 4, 2);
+
             _console.DrawBackgroundImage = false;
-            _bgOverlay.BackColor = _palette.GetColor(ConsoleColor.Black);
         }
 
         private void TrySave(IConsole console)

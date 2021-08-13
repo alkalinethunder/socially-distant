@@ -49,7 +49,7 @@ namespace SociallyDistant.Gui.Styles
             _h3 = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
             _buttonFont = Font.FromResource(Gui.Graphics, GetType().Assembly,
-                "SociallyDistant.Resources.Fonts.Console.Bold.ttf");
+                "SociallyDistant.Resources.Fonts.AndikaNewBasic-Regular.ttf");
             _code = Font.FromResource(Gui.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
             _stringListFont = Font.FromResource(Gui.Graphics, GetType().Assembly,
