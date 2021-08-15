@@ -33,7 +33,6 @@ namespace SociallyDistant
         
         #region USER INTERFACE
 
-        private TextBlock _fps = new();
         private Stacker _infoLeft = new();
         private Stacker _master = new();
         private Panel _infoBanner = new();
@@ -122,7 +121,6 @@ namespace SociallyDistant
             _uptime = gameTime.TotalGameTime;
 
             _playerName.Text = _saveManager.CurrentGame.PlayerName;
-            _fps.Text = $"FPS: {Math.Round(1 / gameTime.ElapsedGameTime.TotalSeconds)}";
             
             base.OnUpdate(gameTime);
         }
@@ -170,8 +168,6 @@ namespace SociallyDistant
             _infoRight.Children.Add(_settings);
             _infoRight.Children.Add(_infoProfileCard);
 
-            _infoLeft.Children.Add(_fps);
-            
             _infoMaster.Children.Add(_infoLeft);
             _infoMaster.Children.Add(_infoRight);
 
@@ -190,7 +186,6 @@ namespace SociallyDistant
             _playerAvatar.VerticalAlignment = VerticalAlignment.Center;
             _playerInfoStacker.VerticalAlignment = VerticalAlignment.Center;
             _settings.VerticalAlignment = VerticalAlignment.Center;
-            _fps.VerticalAlignment = VerticalAlignment.Center;
 
             _settings.Padding = new Padding(4, 0, 4, 0);
             

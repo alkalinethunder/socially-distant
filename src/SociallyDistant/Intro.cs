@@ -216,8 +216,8 @@ namespace SociallyDistant
                         PrimaryCameraSettings.SkyColor = Color.Black;
                         _atLogoSprite.Color = Color.Transparent;
                         _atText.Color = Color.Transparent;
-                        _poweredBy.Color = Color.Red;
-                        StartTyping(_tsText, _ts, Color.Red);
+                        _poweredBy.Color = Color.Cyan;
+                        StartTyping(_tsText, _ts, Color.Cyan);
                     }
                     break;
                 case 6:
@@ -236,7 +236,7 @@ namespace SociallyDistant
                     {
                         var realFade = (_atFade - 0.5f) * 2;
                         
-                        _tsText.Color = Color.Red * (1 - realFade);
+                        _tsText.Color = Color.Cyan * (1 - realFade);
                         _poweredBy.Color = _tsText.Color;
 
                         PrimaryCameraSettings.SkyColor = Color.Lerp(Color.Black, Color.White, realFade);

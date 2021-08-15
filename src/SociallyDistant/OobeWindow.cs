@@ -249,7 +249,7 @@ namespace SociallyDistant
 
                     break;
                 case 4:
-                    _overlay.Parent.Children.Remove(_overlay);
+                    _overlay.RemoveFromParent();
                     _saveManager.CurrentGame.AutoCreatePlayer(_fullName.Text, _activePronoun);
                     _saveManager.Save();
                     break;

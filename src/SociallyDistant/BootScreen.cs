@@ -108,7 +108,9 @@ namespace SociallyDistant
 
             Gui.AddToViewport(_bootThrobber);
 
-            _bootThrobber.Properties.SetValue(FreePanel.AnchorProperty, new FreePanel.CanvasAnchor(0.5f, 0.75f, 0, 0));
+            _bootThrobber.ViewportAnchor = FreePanel.CanvasAnchor.Fill;
+            _bootThrobber.ViewportAlignment = new Vector2(0.5f, 0.5f);
+            _bootThrobber.ViewportPosition = new Vector2(0.5f, 0.8f);
             _bootThrobber.ThrobberSize = 48;
             
             base.OnLoad();
