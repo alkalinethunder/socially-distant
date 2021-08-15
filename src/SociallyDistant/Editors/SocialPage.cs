@@ -92,7 +92,7 @@ namespace SociallyDistant.Editors
             }
         }
 
-        protected override void OnUpdate(GameTime gameTime)
+        /* protected override void OnUpdate(GameTime gameTime)
         {
             _fullName.Text = Asset.Name;
             _tag.Text = "@" + Asset.UserName ?? Asset.Name.ToUnixUsername();
@@ -133,7 +133,7 @@ namespace SociallyDistant.Editors
             }
             
             base.OnUpdate(gameTime);
-        }
+        } */
 
         private void AddSocialPOst(AgentSocialPost post)
         {
