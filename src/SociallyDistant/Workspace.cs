@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Linq;
+using System.Numerics;
 using SociallyDistant.Core;
 using SociallyDistant.Core.Components;
 using SociallyDistant.Core.Config;
@@ -44,11 +47,23 @@ namespace SociallyDistant
         private Stacker _infoRight = new();
         private Button _settings = new();
         private ConsoleControl _console = new();
-        
+
+        private Panel _notificationBanner = new();
+        private TextBlock _noteTitle = new();
+        private TextBlock _noteMessage = new();
+        private WrapPanel _noteButtonWrapper = new();
+        private Picture _noteIcon = new();
+        private Stacker _noteStacker = new();
+        private Stacker _noteInfoStacker = new();
+
         #endregion
         
         #region STATE
 
+        private int _noteState = 0;
+        private float _noteTransition = 0;
+        private double _noteTimer = 0;
+        private bool _noteAutoDismiss = false;
         private TimeSpan _uptime;
         private TimeSpan _frameTime;
         private IRedTeamContext _context;
@@ -121,6 +136,97 @@ namespace SociallyDistant
             _uptime = gameTime.TotalGameTime;
 
             _playerName.Text = _saveManager.CurrentGame.PlayerName;
+
+            if (_noteState == 0)
+            {
+                if (NotificationManager.TryGetNotification(out var note))
+                {
+                    _noteTitle.Text = note.Title;
+                    _noteMessage.Text = note.Message;
+                    _noteIcon.Image = note.Icon;
+
+                    _noteIcon.Visibility = note.Icon == null ? Visibility.Collapsed : Visibility.Visible;
+
+                    _noteButtonWrapper.Children.Clear();
+
+                    _noteTransition = 0;
+                    _noteTimer = note.Time;
+                    _noteAutoDismiss = _noteTimer > 0;
+
+                    if (!_noteAutoDismiss && !note.Actions.Any())
+                    {
+                        note.AddButton("OK");
+                    }
+                    
+                    foreach (var key in note.Actions.Keys)
+                    {
+                        var action = note.Actions[key];
+                        
+                        var btn = new Button();
+                        btn.Text = key;
+                        btn.MouseUp += (o, a) =>
+                        {
+                            if (_noteState == 2)
+                            {
+                                if (a.Button == MouseButton.Primary)
+                                {
+                                    action?.Invoke();
+
+                                    _noteState = 3;
+                                }
+                            }
+                        };
+
+                        btn.Padding = new Padding(0, 1, 2, 1);
+
+                        _noteButtonWrapper.Children.Add(btn);
+                    }
+
+                    _noteState = 1;
+                    Gui.AddToViewport(_notificationBanner);
+                }
+            }
+
+            switch (_noteState)
+            {
+                case 1:
+                    _noteTransition =
+                        MathHelper.Clamp(_noteTransition + (float) gameTime.ElapsedGameTime.TotalSeconds * 4, 0, 1);
+
+                    _notificationBanner.Opacity = _noteTransition;
+                    _notificationBanner.ViewportPosition = new Vector2(0, 0 - (200 * (1 - _noteTransition)));
+
+                    if (_noteTransition >= 1)
+                    {
+                        _noteState++;
+                    }
+                    
+                    break;
+                case 2:
+                    if (_noteAutoDismiss)
+                    {
+                        _noteTimer -= gameTime.ElapsedGameTime.TotalSeconds;
+                        if (_noteTimer <= 0)
+                        {
+                            _noteState++;
+                        }
+                    }
+                    break;
+                case 3:
+                    _noteTransition =
+                        MathHelper.Clamp(_noteTransition - (float) gameTime.ElapsedGameTime.TotalSeconds * 4, 0, 1);
+
+                    _notificationBanner.Opacity = _noteTransition;
+                    _notificationBanner.ViewportPosition = new Vector2(0, 0 - (200 * (1 - _noteTransition)));
+
+                    if (_noteTransition <= 0)
+                    {
+                        _noteState = 0;
+                        _notificationBanner.RemoveFromParent();
+                    }
+
+                    break;
+            }
             
             base.OnUpdate(gameTime);
         }
@@ -160,6 +266,13 @@ namespace SociallyDistant
         
         private void BuildGui()
         {
+            _noteInfoStacker.Children.Add(_noteTitle);
+            _noteInfoStacker.Children.Add(_noteMessage);
+            _noteInfoStacker.Children.Add(_noteButtonWrapper);
+            _noteStacker.Children.Add(_noteIcon);
+            _noteStacker.Children.Add(_noteInfoStacker);
+            _notificationBanner.Children.Add(_noteStacker);
+            
             _playerInfoStacker.Children.Add(_playerName);
             
             _infoProfileCard.Children.Add(_playerAvatar);
@@ -181,6 +294,26 @@ namespace SociallyDistant
 
         private void StyleGui()
         {
+            _notificationBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0.5f, 0, 0, 0);
+            _notificationBanner.ViewportAlignment = new Vector2(0.5f, 0);
+            _notificationBanner.FixedWidth = 460;
+            
+            _noteIcon.ImageMode = ImageMode.Rounded;
+            _noteIcon.FixedHeight = 24;
+            _noteIcon.FixedWidth = 24;
+            _noteIcon.VerticalAlignment = VerticalAlignment.Top;
+
+            _noteTitle.Properties.SetValue(FontStyle.Heading3);
+            _noteTitle.ForeColor = Color.Cyan;
+
+            _noteStacker.Direction = StackDirection.Horizontal;
+            _noteButtonWrapper.Orientation = StackDirection.Horizontal;
+
+            _noteStacker.Padding = 10;
+            _noteIcon.Padding = 2;
+            _noteInfoStacker.Padding = 2;
+            _noteButtonWrapper.Padding = new Padding(0, 4, 0, 0);
+            
             _settings.Text = "Settings";
             
             _playerAvatar.VerticalAlignment = VerticalAlignment.Center;
