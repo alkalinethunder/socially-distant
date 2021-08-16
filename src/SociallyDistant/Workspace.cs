@@ -8,7 +8,9 @@ using SociallyDistant.Core.Config;
 using SociallyDistant.Core.Game;
 using SociallyDistant.Core.Net;
 using SociallyDistant.Core.SaveData;
+using SociallyDistant.Core.Social;
 using SociallyDistant.Core.Windowing;
+using StbTrueTypeSharp;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Input;
@@ -55,7 +57,8 @@ namespace SociallyDistant
         private Picture _noteIcon = new();
         private Stacker _noteStacker = new();
         private Stacker _noteInfoStacker = new();
-
+        private Mailbox _playerMailbox;
+        
         #endregion
         
         #region STATE
@@ -132,6 +135,24 @@ namespace SociallyDistant
 
         protected override void OnUpdate(GameTime gameTime)
         {
+            // Try to find the player mailbox if we lack it.
+            if (_playerMailbox == null)
+            {
+                var playerEntities = Registry.View<PlayerState>();
+                if (playerEntities.Any())
+                {
+                    var first = playerEntities.First();
+                    var mailbox = Registry.GetComponent<Mailbox>(first);
+                    _playerMailbox = mailbox;
+                }
+            }
+            
+            // Check for in-coming email messages.
+            if (_playerMailbox != null)
+            {
+                ReadMail();
+            }
+            
             _frameTime = gameTime.ElapsedGameTime;
             _uptime = gameTime.TotalGameTime;
 
@@ -186,7 +207,7 @@ namespace SociallyDistant
                     Gui.AddToViewport(_notificationBanner);
                 }
             }
-
+            
             switch (_noteState)
             {
                 case 1:
@@ -231,6 +252,18 @@ namespace SociallyDistant
             base.OnUpdate(gameTime);
         }
 
+        private void ReadMail()
+        {
+            if (_playerMailbox.TryGetUnreadMessage(out var unread))
+            {
+                var note = NotificationManager.CreateNotification("Email received.", unread.Message.Subject, 5);
+                    
+                note.AddButton("View"); // TODO: mail open action.
+                note.AddButton("Dismiss");
+            }
+        }
+
+        
         private void RedConfOnConfigUpdated(object sender, EventArgs e)
         {
             LoadConfig();
@@ -252,6 +285,9 @@ namespace SociallyDistant
             // Start the game's simulation.
             var simulation = RegisterSystem<Simulation>();
             
+            // With the simulation started, we can start Mailer.
+            RegisterSystem<MailboxManager>();
+
             // Register the shell as a system.
             _shell = RegisterSystem<Shell>();
 
