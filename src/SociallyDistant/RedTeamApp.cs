@@ -26,9 +26,6 @@ namespace SociallyDistant
             
             // Use our own UI skin for the UI
             GuiSystem.SetDefaultStyle<HackerStyle>();
-
-            // Register the KmsgLogOutput now so that the user can see the thundershock log in /dev/kmsg.
-            Logger.AddOutput(new KmsgLogOutput());
             
             // Announcement manager will pull community updates from aklnthndr.dev
             RegisterComponent<AnnouncementManager>();
