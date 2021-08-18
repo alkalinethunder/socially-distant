@@ -62,6 +62,9 @@ namespace SociallyDistant
 
         protected override void OnLoad()
         {
+            // Turn off FXAA.
+            PrimaryCameraSettings.EnableFXAA = false;
+            
             // This scene works a lot better in perspective mode.
             PrimaryCameraSettings.ProjectionType = CameraProjectionType.Perspective;
             

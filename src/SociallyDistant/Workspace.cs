@@ -89,6 +89,9 @@ namespace SociallyDistant
         
         protected override void OnLoad()
         {
+            // Turn off FXAA.
+            PrimaryCameraSettings.EnableFXAA = false;
+            
             // Grab app references.
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();

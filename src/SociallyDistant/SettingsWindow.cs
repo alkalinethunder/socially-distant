@@ -15,7 +15,6 @@ namespace SociallyDistant
 {
     public class SettingsWindow : Window
     {
-        private ConfigurationManager _config;
         private RedConfigManager _redConfig;
         
         private BasicSettingsCategory _currentCategory;
@@ -60,7 +59,6 @@ namespace SociallyDistant
         
         protected override void OnOpened()
         {
-            _config = Scene.Game.GetComponent<ConfigurationManager>();
             _redConfig = Scene.Game.GetComponent<RedConfigManager>();
             
             FixedWidth = 720;
@@ -187,14 +185,14 @@ namespace SociallyDistant
             _graphicsStacker.Children.Add(guiHeader);
             _graphicsStacker.Children.Add(guiStacker);
             
-            _windowMode.IsChecked = _config.ActiveConfig.IsFullscreen;
-            _vsync.IsChecked = _config.ActiveConfig.VSync;
-            _bloom.IsChecked = _config.ActiveConfig.Effects.Bloom;
-            _shadowmask.IsChecked = _config.ActiveConfig.Effects.ShadowMask;
+            _windowMode.IsChecked = ConfigurationManager.ActiveConfig.IsFullscreen;
+            _vsync.IsChecked = ConfigurationManager.ActiveConfig.VSync;
+            _bloom.IsChecked = ConfigurationManager.ActiveConfig.Effects.Bloom;
+            _shadowmask.IsChecked = ConfigurationManager.ActiveConfig.Effects.ShadowMask;
 
             var i = 0;
-            var current = $"{_config.GetDisplayMode().Width}x{_config.GetDisplayMode().Height}";
-            foreach (var displayMode in _config.GetAvailableDisplayModes()
+            var current = $"{ConfigurationManager.GetDisplayMode().Width}x{ConfigurationManager.GetDisplayMode().Height}";
+            foreach (var displayMode in ConfigurationManager.GetAvailableDisplayModes()
                 .Select(x=>$"{x.Width}x{x.Height}"))
             {
                 _resolution.AddItem(displayMode);
@@ -301,26 +299,26 @@ namespace SociallyDistant
 
         private void VsyncOnCheckStateChanged(object sender, EventArgs e)
         {
-            _config.ActiveConfig.VSync = _vsync.IsChecked;
-            _config.ApplyChanges();
+            ConfigurationManager.ActiveConfig.VSync = _vsync.IsChecked;
+            ConfigurationManager.ApplyChanges();
         }
 
         private void ShadowmaskOnCheckStateChanged(object sender, EventArgs e)
         {
-            _config.ActiveConfig.Effects.ShadowMask = _shadowmask.IsChecked;
-            _config.ApplyChanges();
+            ConfigurationManager.ActiveConfig.Effects.ShadowMask = _shadowmask.IsChecked;
+            ConfigurationManager.ApplyChanges();
         }
 
         private void BloomOnCheckStateChanged(object sender, EventArgs e)
         {
-            _config.ActiveConfig.Effects.Bloom = _bloom.IsChecked;
-            _config.ApplyChanges();
+            ConfigurationManager.ActiveConfig.Effects.Bloom = _bloom.IsChecked;
+            ConfigurationManager.ApplyChanges();
         }
 
         private void WindowModeOnCheckStateChanged(object sender, EventArgs e)
         {
-            _config.ActiveConfig.IsFullscreen = _windowMode.IsChecked;
-            _config.ApplyChanges();
+            ConfigurationManager.ActiveConfig.IsFullscreen = _windowMode.IsChecked;
+            ConfigurationManager.ApplyChanges();
         }
 
         private void ResolutionOnSelectedIndexChanged(object sender, EventArgs e)
@@ -329,8 +327,8 @@ namespace SociallyDistant
             var res = _resolution.SelectedItem;
             
             // Give it to Thundershock!
-            _config.SetDisplayMode(res);
-            _config.ApplyChanges();
+            ConfigurationManager.SetDisplayMode(res);
+            ConfigurationManager.ApplyChanges();
         }
 
         private void UpdateCategories()

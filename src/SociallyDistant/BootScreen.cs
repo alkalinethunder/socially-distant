@@ -69,6 +69,9 @@ namespace SociallyDistant
         
         protected override void OnLoad()
         {
+            // Turn off FXAA.
+            PrimaryCameraSettings.EnableFXAA = false;
+            
             // Stop playing music.
             MusicPlayer.Stop();
             

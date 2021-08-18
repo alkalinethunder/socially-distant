@@ -75,6 +75,9 @@ namespace SociallyDistant
         
         protected override void OnLoad()
         {
+            // Turn off FXAA.
+            PrimaryCameraSettings.EnableFXAA = false;
+            
             _announcement = Game.GetComponent<AnnouncementManager>();
             _packManager = Game.GetComponent<ContentManager>();
             _saveManager = Game.GetComponent<SaveManager>();
