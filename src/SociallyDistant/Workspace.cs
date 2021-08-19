@@ -50,9 +50,9 @@ namespace SociallyDistant
         private Stacker _infoRight = new();
         private Button _settings = new();
         private ConsoleControl _console = new();
-        private Panel _terminalsPanel = new();
-        private Panel _displaysPanel = new();
-        private Panel _sidePanel = new();
+        private WindowFrame _terminalsPanel;
+        private WindowFrame _displaysPanel;
+        private WindowFrame _sidePanel;
 
         // notification UI
         private Panel _notificationBanner = new();
@@ -101,6 +101,9 @@ namespace SociallyDistant
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();
             
+            // Window manager.
+            _windowManager = RegisterSystem<WindowManager>();
+
             // Build the workspace GUI.
             BuildGui();
 
@@ -116,9 +119,6 @@ namespace SociallyDistant
             // Bind to configuration reloads.
             _redConf.ConfigUpdated += RedConfOnConfigUpdated;
             
-            // Window manager.
-            _windowManager = RegisterSystem<WindowManager>();
-            
             base.OnLoad();
 
             _settings.MouseUp += SettingsOnMouseUp;
@@ -130,7 +130,7 @@ namespace SociallyDistant
             {
                 if (_settingsWindow == null)
                 {
-                    _settingsWindow = _windowManager.OpenWindow<SettingsWindow>();
+                    _settingsWindow = _windowManager.OpenWindow<SettingsWindow>(WindowStyle.Dialog);
                     _settingsWindow.WindowClosed += SettingsWindowOnWindowClosed;
                 }
             }
@@ -310,6 +310,11 @@ namespace SociallyDistant
         
         private void BuildGui()
         {
+            _terminalsPanel = _windowManager.CreateFloatingPane("Terminal", WindowStyle.Tile);
+            _sidePanel = _windowManager.CreateFloatingPane("Untitled", WindowStyle.Tile);
+            _displaysPanel = _windowManager.CreateFloatingPane("Placeholder", WindowStyle.Tile);
+            
+            
             _noteInfoStacker.Children.Add(_noteTitle);
             _noteInfoStacker.Children.Add(_noteMessage);
             _noteInfoStacker.Children.Add(_noteButtonWrapper);
@@ -330,16 +335,19 @@ namespace SociallyDistant
 
             _infoBanner.Children.Add(_infoMaster);
 
-            _terminalsPanel.Children.Add(_console);
+            _terminalsPanel.Content.Add(_console);
             
             Gui.AddToViewport(_infoBanner);
-            Gui.AddToViewport(_terminalsPanel);
-            Gui.AddToViewport(_sidePanel);
-            Gui.AddToViewport(_displaysPanel);
         }
 
         private void StyleGui()
         {
+            // Set the alignments of the tiles.
+            _terminalsPanel.ViewportAlignment = Vector2.Zero;
+            _sidePanel.ViewportAlignment = Vector2.Zero;
+            _displaysPanel.ViewportAlignment = Vector2.Zero;
+            
+            
             // Set viewport anchors for the desktop UIs.
             var h = Gui.GetScaledHeight(ViewportBounds.Height);
             _infoBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0, 0, 1, 0);

@@ -518,7 +518,7 @@ namespace SociallyDistant
         {
             if (_settingsWindow == null)
             {
-                _settingsWindow = _wm.OpenWindow<SettingsWindow>();
+                _settingsWindow = _wm.OpenWindow<SettingsWindow>(WindowStyle.Dialog);
                 _settingsWindow.WindowClosed += (_, _) =>
                 {
                     _settingsWindow = null;
