@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SociallyDistant.Connectivity;
 using SociallyDistant.Core;
+using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Windowing;
@@ -35,6 +36,7 @@ namespace SociallyDistant
         
         #region App References
 
+        private RedConfigManager _config;
         private AnnouncementManager _announcement;
         private ContentManager _packManager;
         private SaveManager _saveManager;
@@ -81,6 +83,7 @@ namespace SociallyDistant
             _announcement = Game.GetComponent<AnnouncementManager>();
             _packManager = Game.GetComponent<ContentManager>();
             _saveManager = Game.GetComponent<SaveManager>();
+            _config = Game.GetComponent<RedConfigManager>();
             
             BuildGui();
             
@@ -119,20 +122,26 @@ namespace SociallyDistant
 
                 myEntity.AddComponent(scriptComponent);
             }
-      
-            // Let's create a script!
-            var scriptEntity = SpawnObject();
-            var script = new ScriptComponent()
-            {
-                Script = "Scripts/hello.js"
-            };
-            scriptEntity.AddComponent(script);
             
             base.OnLoad();
         }
 
         protected override void OnUpdate(GameTime gameTime)
         {
+            if (!string.IsNullOrWhiteSpace(_config.ActiveConfig.AutoLoadSave))
+            {
+                try
+                {
+                    _saveManager.LoadGame(_config.ActiveConfig.AutoLoadSave);
+                    GoToScene<BootScreen>();
+                }
+                catch (Exception ex)
+                {
+                    _wm.ShowMessage("Auto-start Error",
+                        $"Failed to automatically start the save file.\r\n\r\n" + ex.ToString());
+                }
+            }
+
             if (_announcement.IsReady)
             {
                 _announcementStacker.Visibility = Visibility.Visible;

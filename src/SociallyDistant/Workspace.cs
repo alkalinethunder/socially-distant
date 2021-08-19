@@ -13,6 +13,7 @@ using SociallyDistant.Core.Windowing;
 using StbTrueTypeSharp;
 using Thundershock;
 using Thundershock.Core;
+using Thundershock.Core.Ecs;
 using Thundershock.Core.Input;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
@@ -38,8 +39,8 @@ namespace SociallyDistant
         
         #region USER INTERFACE
 
+        // main UI
         private Stacker _infoLeft = new();
-        private Stacker _master = new();
         private Panel _infoBanner = new();
         private Stacker _infoMaster = new();
         private Stacker _infoProfileCard = new();
@@ -49,7 +50,11 @@ namespace SociallyDistant
         private Stacker _infoRight = new();
         private Button _settings = new();
         private ConsoleControl _console = new();
+        private Panel _terminalsPanel = new();
+        private Panel _displaysPanel = new();
+        private Panel _sidePanel = new();
 
+        // notification UI
         private Panel _notificationBanner = new();
         private TextBlock _noteTitle = new();
         private TextBlock _noteMessage = new();
@@ -325,14 +330,30 @@ namespace SociallyDistant
 
             _infoBanner.Children.Add(_infoMaster);
 
-            _master.Children.Add(_infoBanner);
-            _master.Children.Add(_console);
+            _terminalsPanel.Children.Add(_console);
             
-            Gui.AddToViewport(_master);
+            Gui.AddToViewport(_infoBanner);
+            Gui.AddToViewport(_terminalsPanel);
+            Gui.AddToViewport(_sidePanel);
+            Gui.AddToViewport(_displaysPanel);
         }
 
         private void StyleGui()
         {
+            // Set viewport anchors for the desktop UIs.
+            var h = Gui.GetScaledHeight(ViewportBounds.Height);
+            _infoBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0, 0, 1, 0);
+            _terminalsPanel.ViewportAnchor = new FreePanel.CanvasAnchor(0.17f, 0.7f, 0.83f, 0.3f);
+            _sidePanel.ViewportAnchor = new FreePanel.CanvasAnchor(0, 28f / h, 0.17f, 1 - (28f / h));
+            _displaysPanel.ViewportAnchor = new FreePanel.CanvasAnchor(0.17f, 28f / h, 0.83f, 0.7f - (28f / h));
+            
+            // Fixed height for the status panell.
+            _infoBanner.FixedHeight = 28;
+            
+            _sidePanel.BackColor = Color.Green;
+            _terminalsPanel.BackColor = Color.Transparent;
+            _displaysPanel.BackColor = Color.Red;
+            
             _notificationBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0.5f, 0, 0, 0);
             _notificationBanner.ViewportAlignment = new Vector2(0.5f, 0);
             _notificationBanner.FixedWidth = 460;
@@ -388,5 +409,7 @@ namespace SociallyDistant
             _saveManager.Save();
             _console.WriteLine($"&b * save successful * &B");
         }
+        
+        
     }
 }
