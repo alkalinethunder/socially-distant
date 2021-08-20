@@ -5,6 +5,8 @@ using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Audio;
 using Thundershock.Core.Rendering;
+using Thundershock.Gui;
+using Thundershock.Gui.Elements;
 using Thundershock.Rendering;
 
 namespace SociallyDistant
@@ -60,13 +62,24 @@ namespace SociallyDistant
         
         #endregion
 
+        #region UI
+
+        private TextBlock _tsCopyright = new();
+
+        #endregion
+        
         protected override void OnLoad()
         {
+            // Copyright text.
+            _tsCopyright.Text =
+                "Thundershock Engine is free and open-source software written with <3 by Michael VanOverbeek. License information and a link to the source code can be found in [System Settings] > [About].";
+            _tsCopyright.Opacity = 0;
+            
             // Turn off FXAA.
             PrimaryCameraSettings.EnableFXAA = false;
             
             // This scene works a lot better in perspective mode.
-            PrimaryCameraSettings.ProjectionType = CameraProjectionType.Perspective;
+            PrimaryCameraSettings.ProjectionType = CameraProjectionType.Orthographic;
             
             _introBg = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Intro.ogg");
             _glitch1 = Sound.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Audio.ThundershockGlitch.ogg");
@@ -99,6 +112,8 @@ namespace SociallyDistant
             atSpriteEntity.AddComponent(_atSpriteTransform);
             atSpriteEntity.AddComponent(_atLogoSprite);
 
+            _atLogoSprite.Size = new Vector2(256, 256);
+            
             _atLogoSprite.Texture = _atCircle;
             _atText.Font = _atFont;
 
@@ -106,12 +121,10 @@ namespace SociallyDistant
 
             _atText.Font.Size = (int)(_atLogoSprite.Size.Y - (_atLogoSprite.Size.Y / 4));
 
-            _atTextTransform.Position.X += (_atLogoSprite.Size.X / 2) + 3;
-            
-            PrimaryCamera.GetComponent<Transform>().Scale = Vector3.One * 312;
+            _atTextTransform.Position.X += (_atLogoSprite.Size.X / 2) + 16;
 
             var measure = _atFont.MeasureString(_at).X;
-            _atSpriteTransform.Position.X -= (measure / 2) + 3;
+            _atSpriteTransform.Position.X -= (measure / 2) + 16;
 
             _poweredBy.Text = _pb;
             _tsText.Text = _ts;
@@ -122,12 +135,12 @@ namespace SociallyDistant
             _tsText.Font = _tsFont;
             _poweredBy.Font = _pbFont;
 
-            _tsFont.Size = 20;
-            _pbFont.Size = 12;
+            _tsFont.Size = 72;
+            _pbFont.Size = 48;
 
             var tsMeasure = _tsFont.MeasureString(_ts);
             
-            _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2f);
+            // _poweredByTransform.Position.Y -= (_pbFont.LineHeight / 2f);
             _poweredByTransform.Position.Y -= (tsMeasure.Y / 2);
             
             _tsTransform.Position.Y += _pbFont.LineHeight / 2f;
@@ -136,6 +149,15 @@ namespace SociallyDistant
             _tsTransform.Position.X -= tsMeasure.X / 2;
             _poweredByTransform.Position.X = _tsTransform.Position.X;
 
+            // Add the copyright text to the UI.
+            Gui.AddToViewport(_tsCopyright);
+            
+            // Layout for the copyright text.
+            _tsCopyright.MaximumWidth = 720;
+            _tsCopyright.ViewportAlignment = new Vector2(0.5f, 1);
+            _tsCopyright.ViewportAnchor = new FreePanel.CanvasAnchor(0.5f, 1, 0.5f, 0);
+            _tsCopyright.ViewportPosition = new Vector2(0, -60f);
+            
             base.OnLoad();
         }
 
@@ -196,11 +218,6 @@ namespace SociallyDistant
 
                     break;
                 case 4:
-                    var scale = PrimaryCamera.GetComponent<Transform>().Scale;
-                    scale.X -= (float) gameTime.ElapsedGameTime.TotalSeconds * 8;
-                    scale.Y = scale.X;
-                    PrimaryCamera.GetComponent<Transform>().Scale = scale;
-
                     _atTime += gameTime.ElapsedGameTime.TotalSeconds;
                     
                     if (_atTime >= 4)
@@ -232,6 +249,15 @@ namespace SociallyDistant
                     }
                     break;
                 case 7:
+                    _tsCopyright.Opacity += (float) gameTime.ElapsedGameTime.TotalSeconds * 4;
+                    if (_tsCopyright.Opacity >= 1)
+                    {
+                        _tsCopyright.Opacity = 1;
+                        _atFade = 0;
+                        _state++;
+                    }
+                    break;
+                case 8:
                     _atFade += (float) gameTime.ElapsedGameTime.TotalSeconds / 8;
                     _atFade = MathHelper.Clamp(_atFade, 0, 1);
 
