@@ -2,14 +2,17 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Numerics;
+using Microsoft.VisualBasic;
 using SociallyDistant.Core;
 using SociallyDistant.Core.Components;
 using SociallyDistant.Core.Config;
+using SociallyDistant.Core.Displays;
 using SociallyDistant.Core.Game;
 using SociallyDistant.Core.Net;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.Social;
 using SociallyDistant.Core.Windowing;
+using SociallyDistant.Displays;
 using StbTrueTypeSharp;
 using Thundershock;
 using Thundershock.Core;
@@ -32,6 +35,7 @@ namespace SociallyDistant
 
         #region SCENE COMPONENTS
 
+        private DisplayManager _displayManager;
         private WindowManager _windowManager;
         private Shell _shell;
 
@@ -39,6 +43,9 @@ namespace SociallyDistant
         
         #region USER INTERFACE
 
+        // dynamic UI
+        private Stacker _launcherList = new();
+        
         // main UI
         private Stacker _infoLeft = new();
         private Panel _infoBanner = new();
@@ -51,7 +58,6 @@ namespace SociallyDistant
         private Button _settings = new();
         private ConsoleControl _console = new();
         private WindowFrame _terminalsPanel;
-        private WindowFrame _displaysPanel;
         private WindowFrame _sidePanel;
 
         // notification UI
@@ -115,6 +121,9 @@ namespace SociallyDistant
             
             // Start the command shell.
             StartShell();
+            
+            // Refresh dynamic UI elements.
+            this.RefreshDynamicGui();
             
             // Bind to configuration reloads.
             _redConf.ConfigUpdated += RedConfOnConfigUpdated;
@@ -266,7 +275,10 @@ namespace SociallyDistant
             {
                 var note = NotificationManager.CreateNotification("Email received.", unread.Message.Subject, 5);
                     
-                note.AddButton("View"); // TODO: mail open action.
+                note.AddButton("View", () =>
+                {
+                    OpenMail(unread);
+                });
                 note.AddButton("Dismiss");
             }
         }
@@ -290,6 +302,11 @@ namespace SociallyDistant
         
         private void StartShell()
         {
+            // Start the display manager.
+            var h = Gui.GetScaledHeight(ViewportBounds.Height);
+            _displayManager = RegisterSystem<DisplayManager>();
+            _displayManager.DisplayAnchor = new FreePanel.CanvasAnchor(0.17f, 28f / h, 0.83f, 0.7f - (28f / h));
+            
             // Start the game's simulation.
             var simulation = RegisterSystem<Simulation>();
             
@@ -312,9 +329,8 @@ namespace SociallyDistant
         {
             _terminalsPanel = _windowManager.CreateFloatingPane("Terminal", WindowStyle.Tile);
             _sidePanel = _windowManager.CreateFloatingPane("Untitled", WindowStyle.Tile);
-            _displaysPanel = _windowManager.CreateFloatingPane("Placeholder", WindowStyle.Tile);
-            
-            
+
+
             _noteInfoStacker.Children.Add(_noteTitle);
             _noteInfoStacker.Children.Add(_noteMessage);
             _noteInfoStacker.Children.Add(_noteButtonWrapper);
@@ -327,6 +343,8 @@ namespace SociallyDistant
             _infoProfileCard.Children.Add(_playerAvatar);
             _infoProfileCard.Children.Add(_playerInfoStacker);
 
+            _infoLeft.Children.Add(_launcherList);
+            
             _infoRight.Children.Add(_settings);
             _infoRight.Children.Add(_infoProfileCard);
 
@@ -345,23 +363,27 @@ namespace SociallyDistant
             // Set the alignments of the tiles.
             _terminalsPanel.ViewportAlignment = Vector2.Zero;
             _sidePanel.ViewportAlignment = Vector2.Zero;
-            _displaysPanel.ViewportAlignment = Vector2.Zero;
-            
-            
+
             // Set viewport anchors for the desktop UIs.
             var h = Gui.GetScaledHeight(ViewportBounds.Height);
             _infoBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0, 0, 1, 0);
             _terminalsPanel.ViewportAnchor = new FreePanel.CanvasAnchor(0.17f, 0.7f, 0.83f, 0.3f);
             _sidePanel.ViewportAnchor = new FreePanel.CanvasAnchor(0, 28f / h, 0.17f, 1 - (28f / h));
-            _displaysPanel.ViewportAnchor = new FreePanel.CanvasAnchor(0.17f, 28f / h, 0.83f, 0.7f - (28f / h));
+
+            // If the display manager's been started, set its anchor.
+            if (_displayManager != null)
+            {
+                _displayManager.DisplayAnchor = new FreePanel.CanvasAnchor(0.17f, 28f / h, 0.83f, 0.7f - (28f / h));
+            }
+
+
             
             // Fixed height for the status panell.
             _infoBanner.FixedHeight = 28;
             
             _sidePanel.BackColor = Color.Green;
             _terminalsPanel.BackColor = Color.Transparent;
-            _displaysPanel.BackColor = Color.Red;
-            
+
             _notificationBanner.ViewportAnchor = new FreePanel.CanvasAnchor(0.5f, 0, 0, 0);
             _notificationBanner.ViewportAlignment = new Vector2(0.5f, 0);
             _notificationBanner.FixedWidth = 460;
@@ -410,14 +432,60 @@ namespace SociallyDistant
             _infoMaster.Padding = new Padding(4, 2, 4, 2);
 
             _console.DrawBackgroundImage = false;
+
+            _launcherList.Direction = StackDirection.Horizontal;
+            _launcherList.VerticalAlignment = VerticalAlignment.Center;
+            
         }
 
+        private void OpenMail(UnreadEmail message)
+        {
+            var ctx = _shell.CreatePlayerContext();
+            var mailViewer = _displayManager.OpenDisplay<MailViewer>(ctx);
+        }
+        
         private void TrySave(IConsole console)
         {
             _saveManager.Save();
             _console.WriteLine($"&b * save successful * &B");
         }
-        
-        
+
+        private void RefreshDynamicGui()
+        {
+            _launcherList.Children.Clear();
+
+            foreach (var launcher in _displayManager.GetLaunchers())
+            {
+                var icon = new Picture();
+                icon.Image = launcher.Icon;
+                icon.FixedWidth = 24;
+                icon.FixedHeight = 24;
+                icon.Padding = new Padding(0, 0, 2, 0);
+
+                icon.Tint = Color.White * 0.8f;
+                icon.MouseEnter += (o, a) =>
+                {
+                    icon.Tint = Color.White;
+                };
+                icon.MouseLeave += (o, a) =>
+                {
+                    icon.Tint = Color.White * 0.8f;
+                };
+
+                icon.ToolTip = launcher.Name;
+
+                icon.MouseUp += (o, a) =>
+                {
+                    if (a.Button == MouseButton.Primary)
+                    {
+                        launcher.Open(_shell.CreatePlayerContext());
+                    }
+                };
+
+                icon.IsInteractable = true;
+                
+                _launcherList.Children.Add(icon);
+            }
+        }
     }
 }

@@ -128,7 +128,9 @@ namespace SociallyDistant.Windowing
                 new Rectangle(bounds.Left + padding.Left, bounds.Top + padding.Top, bounds.Width - padding.Width,
                     bounds.Height - padding.Height), Color.Black);
             
-            
+            // Title paint.
+            var titlePos = new Vector2(bounds.Left + 8, bounds.Top + ((padding.Top - _titleFont.LineHeight) / 2));
+            renderer.DrawString(_titleFont, win.TitleText, titlePos, Color.Black, 2, Color.Gray * 0.7f);
         }
 
         private void PaintBannerFrame(GameTime gameTime, GuiRenderer renderer, WindowFrame win, Rectangle bounds,
