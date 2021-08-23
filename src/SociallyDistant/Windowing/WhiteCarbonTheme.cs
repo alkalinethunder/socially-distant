@@ -20,7 +20,7 @@ namespace SociallyDistant.Windowing
         private Texture2D _winBG;
         
         private Color _amber = Color.FromHtml("#ffb000");
-        private Color _peace = Color.Green;
+        private Color _peace = Color.FromHtml("#0054E3");
         
         protected override void OnLoad(GraphicsProcessor gpu)
         {
@@ -130,7 +130,7 @@ namespace SociallyDistant.Windowing
             
             // Title paint.
             var titlePos = new Vector2(bounds.Left + 8, bounds.Top + ((padding.Top - _titleFont.LineHeight) / 2));
-            renderer.DrawString(_titleFont, win.TitleText, titlePos, Color.Black, 2, Color.Gray * 0.7f);
+            renderer.DrawString(_titleFont, win.TitleText, titlePos, Color.White, 2, Color.Gray * 0.7f);
         }
 
         private void PaintBannerFrame(GameTime gameTime, GuiRenderer renderer, WindowFrame win, Rectangle bounds,
