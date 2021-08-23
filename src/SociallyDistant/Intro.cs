@@ -22,12 +22,9 @@ namespace SociallyDistant
         
         #region Resources
 
-        private Song _mmTheme;
-        private Sound _typeSound;
         private Font _tsFont;
         private Font _pbFont;
         private Font _atFont;
-        private Song _introBg;
         private Texture2D _atCircle;
         private string _at = "Alkaline Thunder";
         private string _ts = "Thundershock Engine";
@@ -47,13 +44,7 @@ namespace SociallyDistant
         private string _textToType;
         
         #endregion
-
-        #region Audio
-
-        private Sound _glitch1;
-
-        #endregion
-
+        
         #region Components
 
         private Transform2D _poweredByTransform = new();
@@ -90,13 +81,6 @@ namespace SociallyDistant
             
             // This scene works a lot better in perspective mode.
             PrimaryCameraSettings.ProjectionType = CameraProjectionType.Orthographic;
-            
-            _introBg = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Intro.ogg");
-            _glitch1 = Sound.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Audio.ThundershockGlitch.ogg");
-            _typeSound = Sound.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Audio.Typing.ogg");
-            _mmTheme = Song.FromOggResource(GetType().Assembly, "SociallyDistant.Resources.Bgm.Menu.ogg");
-            
-            MusicPlayer.PlaySong(_introBg);
             
             _atFont = Font.FromResource(Game.Graphics, GetType().Assembly,
                 "SociallyDistant.Resources.Fonts.AlkalineThunder.ttf");
@@ -234,28 +218,26 @@ namespace SociallyDistant
                     {
                         _atTime = 0;
                         _state++;
-                        _glitch1.Play();
                     }
                     
                     break;
                 case 5:
                     // TODO: glitch effect
-                    if (_glitch1.State != AudioState.Playing)
-                    {
+                    // if (_glitch1.State != AudioState.Playing)
+                    // {
                         _state++;
                         PrimaryCameraSettings.SkyColor = Color.Black;
                         _atLogoSprite.Color = Color.Transparent;
                         _atText.Color = Color.Transparent;
                         _poweredBy.Color = Color.Cyan;
                         StartTyping(_tsText, _ts, Color.Cyan);
-                    }
+                    // }
                     break;
                 case 6:
                     if (_typer == null)
                     {
                         _atFade = 0;
                         _state++;
-                        MusicPlayer.PlaySong(_mmTheme, 8);
                     }
                     break;
                 case 7:
@@ -324,11 +306,9 @@ namespace SociallyDistant
             _textToType = text;
             _typer = component;
             _typeTime = 0;
-            _typeLength = _typeSound.Length.TotalSeconds;
 
             _typer.Text = string.Empty;
             _typer.Color = color;
-            _typeSound.Play();
         }
     }
 }
