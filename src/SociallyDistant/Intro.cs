@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using SociallyDistant.Core.SaveData;
 using Thundershock;
 using Thundershock.Audio;
 using Thundershock.Components;
@@ -13,6 +14,12 @@ namespace SociallyDistant
 {
     public class Intro : Scene
     {
+        #region App Components
+
+        private SaveManager _saveManager;
+
+        #endregion
+        
         #region Resources
 
         private Song _mmTheme;
@@ -70,6 +77,9 @@ namespace SociallyDistant
         
         protected override void OnLoad()
         {
+            // Save Manager!
+            _saveManager = Game.GetComponent<SaveManager>();
+            
             // Copyright text.
             _tsCopyright.Text =
                 "Thundershock Engine is free and open-source software written with <3 by Michael VanOverbeek. License information and a link to the source code can be found in [System Settings] > [About].";
@@ -273,8 +283,16 @@ namespace SociallyDistant
 
                     if (_atFade >= 1)
                     {
-                        MainMenu.ArmFirstDisplay();
-                        GoToScene<MainMenu>();
+                        if (_saveManager.HasAnySaves)
+                        {
+                            _saveManager.LoadMostRecentSave();
+                        }
+                        else
+                        {
+                            _saveManager.CreateNew();
+                        }
+
+                        GoToScene<BootScreen>();
                     }
                     
                     break;

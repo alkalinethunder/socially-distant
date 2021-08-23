@@ -43,20 +43,8 @@ namespace SociallyDistant
 
         protected override void OnLoad()
         {
-            // Users are able to disable the in-game splash screen should they find it
-            // annoying.
-            //
-            // This is where that option is honoured.
-            if (GetComponent<RedConfigManager>().ActiveConfig.SkipIntro)
-            {
-                // Skip straight to the console scene.
-                LoadScene<MainMenu>();
-            }
-            else
-            {
-                // load the intro scene!
-                LoadScene<Intro>();
-            }
+            // Launch us straight into the v-OS boot screen.
+            LoadScene<Intro>();
         }
     }
 }

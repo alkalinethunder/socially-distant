@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Numerics;
 using Microsoft.VisualBasic;
+using SociallyDistant.Connectivity;
 using SociallyDistant.Core;
 using SociallyDistant.Core.Components;
 using SociallyDistant.Core.Config;
@@ -28,6 +29,7 @@ namespace SociallyDistant
     {
         #region APP REFERENCES
 
+        private AnnouncementManager _announcement;
         private SaveManager _saveManager;
         private RedConfigManager _redConf;
         
@@ -104,6 +106,7 @@ namespace SociallyDistant
             PrimaryCameraSettings.EnableFXAA = false;
             
             // Grab app references.
+            _announcement = Game.GetComponent<AnnouncementManager>();
             _saveManager = Game.GetComponent<SaveManager>();
             _redConf = Game.GetComponent<RedConfigManager>();
             
@@ -131,6 +134,8 @@ namespace SociallyDistant
             base.OnLoad();
 
             _settings.MouseUp += SettingsOnMouseUp;
+
+            CheckForAnnouncement();
         }
 
         private void SettingsOnMouseUp(object sender, MouseButtonEventArgs e)
@@ -485,6 +490,14 @@ namespace SociallyDistant
                 icon.IsInteractable = true;
                 
                 _launcherList.Children.Add(icon);
+            }
+        }
+
+        private void CheckForAnnouncement()
+        {
+            if (_redConf.ActiveConfig.ShowWhatsNew && _announcement.IsReady)
+            {
+                _displayManager.OpenDisplay<AnnouncementDisplay>(_shell.CreatePlayerContext());
             }
         }
     }

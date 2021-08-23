@@ -127,7 +127,7 @@ namespace SociallyDistant
 
             if (_saveManager.PreloadException != null)
             {
-                GoToScene<MainMenu>();
+                GoToScene<SaveErrorScene>();
                 return;
             }
 
@@ -212,7 +212,8 @@ namespace SociallyDistant
                             LogLevel.Error);
                         Logger.GetLogger().LogException(ex);
 
-                        GoToScene<MainMenu>();
+                        SaveErrorScene.SetException(ex);
+                        GoToScene<SaveErrorScene>();
                     }
                     
                     if (_simulationPreload.IsCompleted)
