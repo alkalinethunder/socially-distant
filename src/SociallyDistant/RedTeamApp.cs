@@ -1,4 +1,5 @@
-﻿using SociallyDistant.Connectivity;
+﻿using System.IO;
+using SociallyDistant.Connectivity;
 using SociallyDistant.Core;
 using SociallyDistant.Core.Config;
 using SociallyDistant.Core.ContentEditors;
@@ -16,6 +17,14 @@ namespace SociallyDistant
     {
         protected override void OnPreInit()
         {
+            // Create the skindata  folder if it doesn't exist. This allows us to load theme assets.
+            var skindata = Path.Combine(ThundershockPlatform.LocalDataPath, "skindata");
+            if (!Directory.Exists(skindata))
+                Directory.CreateDirectory(skindata);
+            
+            // Mount the skindata folder in the asset manager.
+            AssetManager.AddDirectory("skindata", skindata);
+            
             // module manager init
             ModuleManager.Initialize();
 

@@ -496,7 +496,8 @@ namespace SociallyDistant.ContentEditor
             {
                 using var stream = _projectFS.OpenFile(imagePath);
                 var texture = Texture2D.FromStream(gpu, stream);
-
+                stream.Close();
+                
                 var asset = new ImageAsset(texture, imagePath);
                 _registry.AddImage(asset);
             }

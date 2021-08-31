@@ -45,6 +45,10 @@ namespace SociallyDistant
         
         #region USER INTERFACE
 
+        // background.
+        private Panel _wallpaperPanel = new();
+        private Picture _wallpaperDisplay = new();
+        
         // dynamic UI
         private Stacker _launcherList = new();
         
@@ -332,9 +336,11 @@ namespace SociallyDistant
         
         private void BuildGui()
         {
+            _wallpaperPanel.Children.Add(_wallpaperDisplay);
+            Gui.AddToViewport(_wallpaperPanel);
+
             _terminalsPanel = _windowManager.CreateFloatingPane("Terminal", WindowStyle.Tile);
             _sidePanel = _windowManager.CreateFloatingPane("Untitled", WindowStyle.Tile);
-
 
             _noteInfoStacker.Children.Add(_noteTitle);
             _noteInfoStacker.Children.Add(_noteMessage);
@@ -365,6 +371,36 @@ namespace SociallyDistant
 
         private void StyleGui()
         {
+            // Wallpapers are weird.
+            _wallpaperDisplay.ImageMode = ImageMode.Zoom;
+            
+            // Destroy the previous wallpaper if there's one loaded.
+            if (_wallpaperDisplay.Image != null)
+            {
+                _wallpaperDisplay.Image.Dispose();
+                _wallpaperDisplay.Image = null;
+            }
+            
+            // What type of wallpaper should we display?
+            switch (_redConf.ActiveConfig.WallpaperSettings.Type)
+            {
+                case WallpaperType.SolidColor:
+                    _wallpaperDisplay.Visibility = Visibility.Collapsed;
+                    _wallpaperPanel.BackColor =
+                        Color.FromHtml(_redConf.ActiveConfig.WallpaperSettings.Color ?? "#000000");
+                    break;
+                case WallpaperType.Image:
+                    _wallpaperDisplay.Visibility = Visibility.Visible;
+                    _wallpaperPanel.BackColor = Color.Black;
+
+                    if (AssetManager.TryLoadImage(_redConf.ActiveConfig.WallpaperSettings.WallpaperPath, out var tex))
+                    {
+                        _wallpaperDisplay.Image = tex;
+                    }
+                    break;
+            }
+            
+            
             // Set the alignments of the tiles.
             _terminalsPanel.ViewportAlignment = Vector2.Zero;
             _sidePanel.ViewportAlignment = Vector2.Zero;

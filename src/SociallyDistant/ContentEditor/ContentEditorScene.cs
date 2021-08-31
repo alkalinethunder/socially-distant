@@ -151,6 +151,11 @@ namespace SociallyDistant.ContentEditor
 
         protected override void OnLoad()
         {
+            // Turn off all post-processing.
+            PrimaryCameraSettings.EnableFXAA = false;
+            PrimaryCameraSettings.EnableBloom = false;
+            PrimaryCameraSettings.EnableCrt = false;
+            
             Gui.LoadStyle<HackerStyle>();
             
             BuildGui();
