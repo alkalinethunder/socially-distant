@@ -3,6 +3,7 @@ using System.Numerics;
 using SociallyDistant.Core;
 using Thundershock;
 using Thundershock.Core;
+using Thundershock.Core.Rendering;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 using Thundershock.Gui.Styling;
@@ -211,10 +212,10 @@ namespace SociallyDistant.Gui.Styles
             renderer.FillRectangle(element.BoundingBox, backColor.GetColor(_bg));
         }
 
-        public override void PaintMenuItemText(Element element, GameTime gameTime, GuiRenderer renderer, string text, Font font,
+        public override TextRenderBuffer PaintMenuItemText(Element element, GameTime gameTime, GuiRenderer renderer, string text, Font font,
             Vector2 textPos, SelectionStyle selectionStyle)
         {
-            renderer.DrawString(font, text, textPos, _text);
+            return font.Draw(text, textPos, _text, renderer.Layer);
         }
     }
 }
