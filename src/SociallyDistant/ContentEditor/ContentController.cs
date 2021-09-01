@@ -428,6 +428,16 @@ namespace SociallyDistant.ContentEditor
             }
         }
 
+        public static IEnumerable<IAsset> GetAssetsOfType(Type type)
+        {
+            foreach (var assetType in _registry.GetAssetTypes())
+            {
+                foreach (var asset in _registry.GetAssets(assetType).Where(x=>x.GetType().IsAssignableTo(type)))
+                    yield return asset;
+            }
+
+        }
+        
         public static IEnumerable<T> GetAssetsOfType<T>() where T : IAsset
         {
             foreach (var assetType in _registry.GetAssetTypes())
