@@ -2,7 +2,7 @@
 using System.Reflection;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.AssetPropertyEditors
+namespace SociallyDistant.AssetPropertyEditors
 {
     public sealed class EnumEditor : IAssetPropertyEditor
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class gColorHelp : Command
     {

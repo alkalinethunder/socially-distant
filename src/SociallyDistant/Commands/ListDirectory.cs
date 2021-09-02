@@ -1,6 +1,6 @@
 ﻿using Thundershock.IO;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class ListDirectory : Command
     {

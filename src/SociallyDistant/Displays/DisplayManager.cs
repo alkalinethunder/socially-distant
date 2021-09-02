@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Displays
+namespace SociallyDistant.Displays
 {
     public class DisplayManager : ISystem
     {

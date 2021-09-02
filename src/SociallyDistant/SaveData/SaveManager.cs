@@ -6,19 +6,16 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using BinaryPack;
-using Silk.NET.OpenGL;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.Net;
+using SociallyDistant.ContentEditors;
+using SociallyDistant.WorldObjects;
 using Thundershock;
 using Thundershock.Content;
 using Thundershock.Core;
 using Thundershock.Core.Debugging;
 using Thundershock.Core.Rendering;
-using Thundershock.Debugging;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     public class SaveManager : GlobalComponent
     {

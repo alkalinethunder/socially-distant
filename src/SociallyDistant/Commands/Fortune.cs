@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class Fortune : Command
     {

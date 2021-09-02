@@ -1,6 +1,6 @@
 ﻿using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public sealed class BadPropertyEditor : AssetPropertyEditor<object>
     {

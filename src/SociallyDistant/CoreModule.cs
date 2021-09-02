@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.WorldObjects;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public sealed class CoreModule : Module
     {

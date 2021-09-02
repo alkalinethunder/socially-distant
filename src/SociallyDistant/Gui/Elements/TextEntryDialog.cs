@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core.Gui.Elements
+namespace SociallyDistant.Gui.Elements
 {
     public class TextEntryDialog
     {

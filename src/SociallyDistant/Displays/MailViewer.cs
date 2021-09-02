@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core;
-using SociallyDistant.Core.Displays;
-using SociallyDistant.Core.Social;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.Social;
 using StbTrueTypeSharp;
 using Thundershock.Core;
 using Thundershock.Core.Input;

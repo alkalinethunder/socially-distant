@@ -1,12 +1,9 @@
 ﻿using System.IO;
+using SociallyDistant.Config;
 using SociallyDistant.Connectivity;
-using SociallyDistant.Core;
-using SociallyDistant.Core.Config;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.IO;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.ContentEditors;
 using SociallyDistant.Gui.Styles;
+using SociallyDistant.SaveData;
 using SociallyDistant.Windowing;
 using Thundershock;
 using Thundershock.Gui;

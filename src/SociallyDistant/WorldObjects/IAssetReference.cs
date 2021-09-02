@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.WorldObjects
 {
     public interface IAssetReference
     {

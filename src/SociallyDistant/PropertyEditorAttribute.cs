@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public sealed class PropertyEditorAttribute : Attribute

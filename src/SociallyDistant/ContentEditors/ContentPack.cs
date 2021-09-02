@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Text.Json;
 using LiteDB;
+using SociallyDistant.WorldObjects;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     public class ContentPack
     {

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using SociallyDistant.Core.AssetPropertyEditors;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.AssetPropertyEditors;
+using SociallyDistant.ContentEditors;
 using Thundershock;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class AssetProperty
     {

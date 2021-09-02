@@ -1,9 +1,8 @@
 ﻿using System;
-using SociallyDistant.Core.Net;
-using SociallyDistant.Core.Social;
+using SociallyDistant.Social;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public interface IRedTeamContext
     {

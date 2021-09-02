@@ -1,8 +1,8 @@
-﻿using SociallyDistant.Core.Windowing;
+﻿using SociallyDistant.Windowing;
 using Thundershock.Core;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Gui.Elements
+namespace SociallyDistant.Gui.Elements
 {
     public class Pane : LayoutElement
     {

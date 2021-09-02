@@ -1,11 +1,10 @@
 ﻿using System;
-using SociallyDistant.Core.Net;
 using Thundershock.Core;
 using Thundershock.Core.Debugging;
 using Thundershock.Gui.Elements.Console;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public abstract class Command
     {

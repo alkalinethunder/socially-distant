@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.ContentEditors;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     public class ExtensionSaveData
     {

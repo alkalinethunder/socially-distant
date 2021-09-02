@@ -1,6 +1,5 @@
 ﻿using SociallyDistant.ContentEditor;
-using SociallyDistant.Core;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.ContentEditors;
 using Thundershock;
 
 namespace SociallyDistant

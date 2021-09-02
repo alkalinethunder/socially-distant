@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using SociallyDistant.Core.SaveData;
-using Thundershock;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class HomeNode : Node
     {

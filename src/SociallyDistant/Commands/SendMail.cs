@@ -1,7 +1,4 @@
-﻿using System.Xml.Schema;
-using SociallyDistant.Core.Social;
-
-namespace SociallyDistant.Core.Commands
+﻿namespace SociallyDistant.Commands
 {
     public class SendMail : Command
     {

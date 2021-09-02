@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.ContentEditors;
+using SociallyDistant.SaveData;
 
-namespace SociallyDistant.Core.WorldObjects
+namespace SociallyDistant.WorldObjects
 {
     [CustomView("SociallyDistant.Editors.SocialPage")]
     public class AgentData : IAsset

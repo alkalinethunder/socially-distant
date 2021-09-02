@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Numerics;
-using SociallyDistant.Core.Gui.Elements;
+using SociallyDistant.Gui.Elements;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Debugging;
-using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Windowing
+namespace SociallyDistant.Windowing
 {
     public class WindowManager : ISystem
     {

@@ -2,11 +2,11 @@
 using System.IO;
 using System.Numerics;
 using System.Threading.Tasks;
-using SociallyDistant.Core.Config;
-using SociallyDistant.Core.Game;
-using SociallyDistant.Core.Gui.Elements;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.Config;
+using SociallyDistant.Game;
+using SociallyDistant.Gui.Elements;
+using SociallyDistant.SaveData;
+using SociallyDistant.Windowing;
 using Thundershock;
 using Thundershock.Audio;
 using Thundershock.Components;

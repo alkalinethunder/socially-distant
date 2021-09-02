@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core
+﻿namespace SociallyDistant
 {
     public class ImageAssetReference
     {

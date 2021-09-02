@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using SociallyDistant.ContentEditors;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.WorldObjects
 {
     [AutoCreate("City Map")]
     [UserCreatable(false)]

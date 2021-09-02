@@ -1,7 +1,7 @@
 ﻿using System;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.ContentEditors;
 
-namespace SociallyDistant.Core.WorldObjects
+namespace SociallyDistant.WorldObjects
 {
     public class IspData : IAsset
     {

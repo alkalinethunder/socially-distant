@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public static class GameHelpers
     {

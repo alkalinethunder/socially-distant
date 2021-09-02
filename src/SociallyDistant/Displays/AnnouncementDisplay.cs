@@ -1,8 +1,6 @@
 ﻿using System;
+using SociallyDistant.Config;
 using SociallyDistant.Connectivity;
-using SociallyDistant.Core;
-using SociallyDistant.Core.Config;
-using SociallyDistant.Core.Displays;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Input;

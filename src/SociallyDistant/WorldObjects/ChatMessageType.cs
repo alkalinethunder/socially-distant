@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.ContentEditors
+﻿namespace SociallyDistant.WorldObjects
 {
     public enum ChatMessageType
     {

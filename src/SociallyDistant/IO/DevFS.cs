@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class DevFs : Node
     {

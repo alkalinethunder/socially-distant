@@ -1,7 +1,7 @@
 ﻿using System;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     public interface IAssetView
     {

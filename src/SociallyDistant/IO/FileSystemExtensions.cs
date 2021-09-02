@@ -1,7 +1,7 @@
 ﻿using Thundershock.Gui.Elements.Console;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public static class FileSystemExtensions
     {

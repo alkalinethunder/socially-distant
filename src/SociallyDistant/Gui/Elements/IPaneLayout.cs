@@ -1,7 +1,7 @@
-﻿using SociallyDistant.Core.Windowing;
+﻿using SociallyDistant.Windowing;
 using Thundershock.Core;
 
-namespace SociallyDistant.Core.Gui.Elements
+namespace SociallyDistant.Gui.Elements
 {
     public interface IPaneLayout
     {

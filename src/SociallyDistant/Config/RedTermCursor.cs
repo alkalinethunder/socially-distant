@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SociallyDistant.Core.Config
+namespace SociallyDistant.Config
 {
     public class RedTermCursor
     {

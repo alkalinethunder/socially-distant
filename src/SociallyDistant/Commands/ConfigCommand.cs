@@ -4,7 +4,7 @@ using System.Linq;
 using Thundershock.Config;
 using Thundershock.Core;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class ConfigurationManagerCommand : Command
     {

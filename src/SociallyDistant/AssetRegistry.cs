@@ -8,7 +8,7 @@ using System.Text.Json;
 using Thundershock.Core.Debugging;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public sealed class AssetRegistry
     {

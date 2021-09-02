@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class Cowsay : Command
     {

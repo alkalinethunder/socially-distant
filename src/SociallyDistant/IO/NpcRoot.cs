@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class NpcRoot : Node
     {

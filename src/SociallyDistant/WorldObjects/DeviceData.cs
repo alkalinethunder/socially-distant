@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using SociallyDistant.Core.Game;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.ContentEditors;
+using SociallyDistant.Game;
+using SociallyDistant.SaveData;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.WorldObjects
 {
     [EditableData("Hackable Devices")]
     public class DeviceData : IAsset

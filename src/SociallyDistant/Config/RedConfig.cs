@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.Config
+﻿namespace SociallyDistant.Config
 {
     public class RedConfig
     {

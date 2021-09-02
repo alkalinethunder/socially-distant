@@ -6,7 +6,7 @@ using Thundershock.Core;
 using Thundershock.Debugging;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class DebugNode : Node
     {

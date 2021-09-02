@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.WorldObjects
 {
     public class ChatMessageData
     {

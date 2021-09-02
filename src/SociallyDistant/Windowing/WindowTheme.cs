@@ -2,7 +2,7 @@ using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui;
 
-namespace SociallyDistant.Core.Windowing
+namespace SociallyDistant.Windowing
 {
     public abstract class WindowTheme
     {

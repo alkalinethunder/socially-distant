@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using SociallyDistant.Core.Windowing;
-using Thundershock;
+using SociallyDistant.Windowing;
 using Thundershock.Core;
 
-namespace SociallyDistant.Core.Displays
+namespace SociallyDistant.Displays
 {
     public abstract class DisplayWindow
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public abstract class Module
     {

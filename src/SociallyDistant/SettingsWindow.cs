@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using SociallyDistant.Core;
-using SociallyDistant.Core.Config;
-using SociallyDistant.Core.Gui.Elements;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.Config;
+using SociallyDistant.Gui.Elements;
+using SociallyDistant.Windowing;
 using Thundershock;
 using Thundershock.Config;
 using Thundershock.Core;

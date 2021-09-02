@@ -1,6 +1,5 @@
-﻿using SociallyDistant.Core;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.WorldObjects;
+﻿using SociallyDistant.ContentEditors;
+using SociallyDistant.WorldObjects;
 using Thundershock.Gui.Elements;
 using Thundershock.Core;
 

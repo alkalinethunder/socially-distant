@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.SaveData
+﻿namespace SociallyDistant.SaveData
 {
     public enum Difficulty
     {

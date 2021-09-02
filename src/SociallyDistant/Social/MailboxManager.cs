@@ -3,17 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.Linq;
-using System.Runtime.InteropServices;
-using Esprima;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.SaveData;
+using SociallyDistant.WorldObjects;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
 
-namespace SociallyDistant.Core.Social
+namespace SociallyDistant.Social
 {
     public class MailboxManager : ISystem
     {

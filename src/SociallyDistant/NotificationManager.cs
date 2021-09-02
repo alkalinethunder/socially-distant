@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public static class NotificationManager
     {

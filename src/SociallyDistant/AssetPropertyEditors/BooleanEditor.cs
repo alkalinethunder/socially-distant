@@ -1,7 +1,7 @@
 ﻿using System;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.AssetPropertyEditors
+namespace SociallyDistant.AssetPropertyEditors
 {
     [PropertyEditor(typeof(bool))]
     public sealed class BooleanEditor : AssetPropertyEditor<bool>

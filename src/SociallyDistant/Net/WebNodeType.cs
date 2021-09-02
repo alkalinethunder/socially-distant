@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.Net
+﻿namespace SociallyDistant.Net
 {
     public enum WebNodeType
     {

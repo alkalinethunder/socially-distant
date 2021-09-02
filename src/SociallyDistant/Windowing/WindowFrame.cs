@@ -1,11 +1,10 @@
 using System;
-using System.Numerics;
 using Thundershock.Core;
 using Thundershock.Core.Input;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Windowing
+namespace SociallyDistant.Windowing
 {
     public class WindowFrame : Element
     {

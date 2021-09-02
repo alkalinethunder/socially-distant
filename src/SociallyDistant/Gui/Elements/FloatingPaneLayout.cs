@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
-using SociallyDistant.Core.Windowing;
+using SociallyDistant.Windowing;
 using Thundershock.Core;
 using Thundershock.Core.Input;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Gui.Elements
+namespace SociallyDistant.Gui.Elements
 {
     public class FloatingPaneLayout : LayoutElement, IPaneLayout
     {

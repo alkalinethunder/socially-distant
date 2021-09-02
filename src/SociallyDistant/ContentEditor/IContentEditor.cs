@@ -1,5 +1,4 @@
 ﻿using System;
-using SociallyDistant.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.Gui.Elements;
 

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
 
-namespace SociallyDistant.Core.Net
+namespace SociallyDistant.Net
 {
     public class NetworkNode : WebNode
     {

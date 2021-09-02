@@ -1,6 +1,6 @@
 ﻿using Thundershock.Core.Rendering;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class ImageAsset
     {

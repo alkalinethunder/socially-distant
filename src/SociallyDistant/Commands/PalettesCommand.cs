@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using SociallyDistant.Core.Config;
+using SociallyDistant.Config;
 using Thundershock.Core;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class PalettesCommand : Command
     {

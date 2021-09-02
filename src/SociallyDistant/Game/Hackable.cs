@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
 
-namespace SociallyDistant.Core.Game
+namespace SociallyDistant.Game
 {
     public class HackableDefinition
     {

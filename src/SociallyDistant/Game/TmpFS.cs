@@ -2,7 +2,7 @@
 using System.Linq;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.Game
+namespace SociallyDistant.Game
 {
     public class TmpFS : Node
     {

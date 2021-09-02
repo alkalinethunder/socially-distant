@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Thundershock;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public static class ModuleManager
     {

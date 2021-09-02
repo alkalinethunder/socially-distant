@@ -1,6 +1,6 @@
 ﻿using Thundershock.Gui.Elements.Console;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public interface IPayload
     {

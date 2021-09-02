@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.WorldObjects;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class RedEtc : Node
     {

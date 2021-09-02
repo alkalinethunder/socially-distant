@@ -2,22 +2,20 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using MimeTypes.Core;
-using SociallyDistant.Core.Commands;
-using SociallyDistant.Core.Components;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.Displays;
-using SociallyDistant.Core.Game;
-using SociallyDistant.Core.IO;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.Social;
+using SociallyDistant.Commands;
+using SociallyDistant.Components;
+using SociallyDistant.Displays;
+using SociallyDistant.Game;
+using SociallyDistant.IO;
+using SociallyDistant.SaveData;
+using SociallyDistant.Social;
+using SociallyDistant.WorldObjects;
 using Thundershock;
 using Thundershock.Core;
-using Thundershock.Core.Ecs;
 using Thundershock.Gui.Elements.Console;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class Shell : IAutoCompleteSource, ISystem
     {

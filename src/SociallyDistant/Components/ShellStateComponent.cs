@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace SociallyDistant.Core.Components
+namespace SociallyDistant.Components
 {
     /// <summary>
     /// Contains data necessary for the v-OS Shell to run on an entity.

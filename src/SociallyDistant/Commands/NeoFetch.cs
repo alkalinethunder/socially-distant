@@ -5,7 +5,7 @@ using System.Text;
 using Thundershock;
 using Thundershock.Core;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class NeoFetch : Command
     {

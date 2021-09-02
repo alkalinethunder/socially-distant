@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
+using SociallyDistant.WorldObjects;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Debugging;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     public class ContentManager : GlobalComponent
     {

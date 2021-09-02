@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.Commands
+﻿namespace SociallyDistant.Commands
 {
     public class PrintWorkingDirectory : Command
     {

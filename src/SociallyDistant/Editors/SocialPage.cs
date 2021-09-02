@@ -1,9 +1,8 @@
 ﻿using System.Linq;
 using SociallyDistant.ContentEditor;
-using SociallyDistant.Core;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.Gui.Elements;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.ContentEditors;
+using SociallyDistant.Gui.Elements;
+using SociallyDistant.WorldObjects;
 using Thundershock.Gui.Elements;
 using Thundershock.Core;
 using Thundershock.Core.Input;

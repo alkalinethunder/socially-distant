@@ -1,7 +1,7 @@
 ﻿using System;
 using Thundershock.Gui.Elements.Console;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class BufferConsole : IConsole
     {

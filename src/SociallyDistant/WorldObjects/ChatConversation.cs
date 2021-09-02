@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using SociallyDistant.ContentEditors;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.WorldObjects
 {
     [CustomView("SociallyDistant.Editors.ChatEditor")]
     public class ChatConversation : IAsset

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SociallyDistant.Core.Net
+namespace SociallyDistant.Net
 {
     public abstract class WebNode
     {

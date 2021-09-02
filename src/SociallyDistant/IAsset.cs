@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public interface IAsset
     {

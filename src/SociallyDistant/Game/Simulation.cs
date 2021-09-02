@@ -1,17 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.SaveData;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.SaveData;
+using SociallyDistant.WorldObjects;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Gui.Elements;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.Game
+namespace SociallyDistant.Game
 {
     public class Simulation : ISystem
     {

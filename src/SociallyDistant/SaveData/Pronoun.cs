@@ -1,6 +1,6 @@
 ﻿using Thundershock.Core.Scripting;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     [ScriptType]
     public enum Pronoun

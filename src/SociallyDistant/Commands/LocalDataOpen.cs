@@ -1,6 +1,6 @@
 ﻿using Thundershock;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class LocalDataOpen : Command
     {

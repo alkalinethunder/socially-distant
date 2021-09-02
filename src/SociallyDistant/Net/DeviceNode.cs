@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
 
-namespace SociallyDistant.Core.Net
+namespace SociallyDistant.Net
 {
     public class DeviceNode : WebNode
     {

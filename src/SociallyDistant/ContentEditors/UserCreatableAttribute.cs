@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class UserCreatableAttribute : Attribute

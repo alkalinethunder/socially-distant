@@ -2,7 +2,7 @@
 using System.Reflection;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public abstract class AssetPropertyEditor<T> : IAssetPropertyEditor
     {

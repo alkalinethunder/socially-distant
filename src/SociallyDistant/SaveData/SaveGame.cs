@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.Social;
-using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.WorldObjects;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     public class SaveGame
     {

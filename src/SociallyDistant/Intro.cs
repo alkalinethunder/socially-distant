@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.SaveData;
 using Thundershock;
 using Thundershock.Audio;
 using Thundershock.Components;

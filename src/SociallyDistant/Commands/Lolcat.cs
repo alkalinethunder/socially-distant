@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Thundershock.Gui.Elements.Console;
 
-namespace SociallyDistant.Core.Commands
+namespace SociallyDistant.Commands
 {
     public class Lolcat : Command
     {

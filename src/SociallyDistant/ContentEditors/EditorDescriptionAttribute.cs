@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class EditorDescriptionAttribute : Attribute

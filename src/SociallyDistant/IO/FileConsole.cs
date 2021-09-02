@@ -2,7 +2,7 @@
 using System.IO;
 using Thundershock.Gui.Elements.Console;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class FileConsole : IConsole, IDisposable
     {

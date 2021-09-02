@@ -7,7 +7,7 @@ using Thundershock.Core.Rendering;
 using Thundershock.Gui.Elements.Console;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.Config
+namespace SociallyDistant.Config
 {
     public class RedTermPalette
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using SociallyDistant.Core.Windowing;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;

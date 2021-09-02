@@ -4,13 +4,14 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SociallyDistant.WorldObjects;
 using Thundershock.Content;
 using Thundershock.Core;
 using Thundershock.Core.Rendering;
 using Thundershock.IO;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace SociallyDistant.Core.ContentEditors
+namespace SociallyDistant.ContentEditors
 {
     public class InstalledContentPack
     {

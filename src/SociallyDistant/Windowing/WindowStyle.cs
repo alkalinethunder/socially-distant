@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.Windowing
+﻿namespace SociallyDistant.Windowing
 {
     public enum WindowStyle
     {

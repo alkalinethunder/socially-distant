@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LiteDB;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.ContentEditors;
 using Thundershock;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     public class SaveDatabase
     {

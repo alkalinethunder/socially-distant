@@ -2,7 +2,7 @@ using System;
 using Thundershock;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Windowing
+namespace SociallyDistant.Windowing
 {
     public abstract class Window : ContentElement
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Thundershock.Core.Rendering;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class Notification
     {

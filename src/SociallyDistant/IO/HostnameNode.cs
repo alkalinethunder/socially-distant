@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SociallyDistant.Core.ContentEditors;
-using SociallyDistant.Core.SaveData;
+using SociallyDistant.WorldObjects;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.IO
+namespace SociallyDistant.IO
 {
     public class HostnameNode : Node
     {

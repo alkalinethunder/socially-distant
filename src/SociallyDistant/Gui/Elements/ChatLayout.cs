@@ -3,7 +3,7 @@ using Thundershock.Core.Rendering;
 using Thundershock.Gui;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Core.Gui.Elements
+namespace SociallyDistant.Gui.Elements
 {
     public class ChatLayout : LayoutElement
     {

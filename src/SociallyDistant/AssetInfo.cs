@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using SociallyDistant.Core.ContentEditors;
+using SociallyDistant.ContentEditors;
 using Thundershock;
 
-namespace SociallyDistant.Core
+namespace SociallyDistant
 {
     public class AssetInfo
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Core.SaveData
+namespace SociallyDistant.SaveData
 {
     public class RegionLInk
     {
