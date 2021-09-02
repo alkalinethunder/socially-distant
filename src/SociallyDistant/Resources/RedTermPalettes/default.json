@@ -1,0 +1,34 @@
+﻿{
+  "name": "Default Palette",
+  "description": "The default color scheme for Terminal.",
+  "author": "",
+  "cursor": {
+    "bg": "#101010",
+    "fg": "white"
+  },
+  "completions": {
+    "bg": "#808080",
+    "border": "cyan",
+    "text": "#fff",
+    "textHighlight": "#000",
+    "highlight": "cyan"
+  },
+  "colors": {
+    "black": "#101010",
+    "darkBlue": "#0000bb",
+    "darkGreen": "#00bb00",
+    "darkCyan": "#00bbbb",
+    "darkRed": "#bb0000",
+    "darkMagenta": "#bb00bb",
+    "darkYellow": "#bbbb00",
+    "gray": "#ddd",
+    "darkGray": "#bbbbbb",
+    "blue": "#0000ff",
+    "green": "#00ff00",
+    "cyan": "#00ffff",
+    "red": "#ff0000",
+    "magenta": "#ff00ff",
+    "yellow": "#ffff00",
+    "white": "#ffffff"
+  }
+}

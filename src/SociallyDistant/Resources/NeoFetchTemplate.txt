@@ -1,0 +1,25 @@
+﻿/// ASCII ART CREDITS:
+/// https://www.asciiart.eu/logos/biohazards
+#c                         __    _                                   &0#e{user}&0
+#c                    _wr""        "-q__                             &0{line}
+#c                 _dP                 9m_                           &0#e&bOS&0: Socially Distant {version}
+#c               _#P                     9#_                         &0#e&bHost&0: {host}
+#c              d#@                       9#m                        &0#e&bKernel&0: {kernelname} {kernelversion}
+#c             d###                         ####                       &0#e&bUptime&0: {uptime}
+#c            J####                         ####L                      &0#e&bPackages&0: {pkgs}
+#c            {####K                       J####K                      &0#e&bDE&0: {de}
+#c            ]#####K      ___aaa___      J#####F                      &0#e&bWM&0: {wm}
+#c        __gmM#######_  w#P""   ""9#m  _d######Mmw__                  &0#e&bShell&0: {shell}
+#c     _g###############mZ_         __g###############m_               &0#e&bTerminal&0: {term}
+#c   _d####M@PPPP@@M########Mmp gm#########@@PPP9@M#####m_             &0#e&bCPU&0: {cpu}
+#c  a####""          ,Z"######@" '#######"\g          ""M###m            &0#e&bGPU&0: {gpu}
+#c J#@"             0L  "*###     ###@"  J#              *#K           &0#e&bDisplay Mode&0: {width}x{height}
+#c #"               `#    "_gmwgm_~    dF               `#_          &0#e&bFrames per second&0: {fps}
+#c7F                 "#_   ]######F   _dK                 JE          &0#e&bMemory&0: {memUsed}MiB / {memTotal}MiB
+#c]                    *m__ ##### __g@"                   F          
+#c                       "PJ######LP"                                 &0$0   $1   $2   $3   $4   $5   $6   $7   &0
+#c `                       0#######_                      '           &0$8   $9   $a   $b   $c   $d   $e   $f   &0
+#c                       _0########_                                   
+#c     .               _d#####^#####m__              ,              
+#c      "*w_________am#####P"   ~9#####mw_________w*"                  
+#c          ""9@#####@M""           ""P@#####@M""                    
