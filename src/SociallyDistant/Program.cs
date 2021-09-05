@@ -12,6 +12,7 @@ namespace SociallyDistant
         static void Main(string[] args)
         {
             AssertCriticalFileExists("Assets", "osicons.pak");
+            AssertCriticalFileExists("Assets", "world-base.pak");
 
             AssetManager.AddThirdPartyPak("icon", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "osicons.pak"));
             

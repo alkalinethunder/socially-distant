@@ -27,10 +27,10 @@
     <None Update="Scripts\hello.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Career.pak">
+    <None Update="Assets\osicons.pak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Assets\osicons.pak">
+    <None Update="Assets\world-base.pak">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

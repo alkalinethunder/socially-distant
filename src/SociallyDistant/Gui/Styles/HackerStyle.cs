@@ -56,7 +56,7 @@ namespace SociallyDistant.Gui.Styles
                 "SociallyDistant.Resources.Fonts.Console.Regular.ttf");
 
             _paragraph.Size = 26;
-            _code.Size = _paragraph.Size;
+            _code.Size = _paragraph.Size - 6;
             _h3.Size = _paragraph.Size + 2;
             _h2.Size = _h3.Size + 4;
             _h1.Size = _h2.Size + 8;

@@ -137,7 +137,7 @@ namespace SociallyDistant.SaveData
         {
             if (IsCareerMode)
             {
-                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Career.pak");
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "world-base.pak");
             }
             else
             {

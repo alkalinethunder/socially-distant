@@ -189,6 +189,7 @@ namespace SociallyDistant.SaveData
 
         public void DisarmPreloaderCrash()
         {
+            this.ResetState();
             _preloadException = null;
         }
         
@@ -317,6 +318,16 @@ namespace SociallyDistant.SaveData
             }
             
             base.OnLoad();
+        }
+
+        public void ResetState()
+        {
+            _currentGame = null;
+            _registry = null;
+            _fs = null;
+            this._currentSavePath = string.Empty;
+            this._slot = null;
+            this._currentPack = null;
         }
 
         
@@ -454,21 +465,6 @@ namespace SociallyDistant.SaveData
 
                 _registry = registry;
             });
-        }
-
-        public bool GetEula(out string eulaText)
-        {
-            ThrowIfPreloading();
-            ThrowIfNotLoaded();
-
-            if (_fs.FileExists("/eula"))
-            {
-                eulaText = _fs.ReadAllText("/eula");
-                return true;
-            }
-
-            eulaText = string.Empty;
-            return false;
         }
         
         public Stream OpenWorldScript()

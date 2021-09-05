@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using SociallyDistant.SaveData;
 using Thundershock;
 using Thundershock.Audio;
@@ -267,7 +268,16 @@ namespace SociallyDistant
                     {
                         if (_saveManager.HasAnySaves)
                         {
-                            _saveManager.LoadMostRecentSave();
+                            try
+                            {
+                                _saveManager.LoadMostRecentSave();
+                            }
+                            catch (Exception ex)
+                            {
+                                SaveErrorScene.SetException(ex);
+                                GoToScene<SaveErrorScene>();
+                                return;
+                            }
                         }
                         else
                         {

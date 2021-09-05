@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Numerics;
 using System.Threading.Tasks;
 using SociallyDistant.SaveData;
@@ -19,7 +21,7 @@ namespace SociallyDistant.Game
         private Stacker _traceStacker = new();
         private TextBlock _traceTimer = new();
         private TextBlock _traceLabel = new();
-        
+
         public void Init(Scene scene)
         {
             _scene = scene;

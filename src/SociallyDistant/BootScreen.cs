@@ -149,7 +149,6 @@ namespace SociallyDistant
                         
                         if (_worldScript.IsDefined("onCreate") && _saveManager.CurrentGame.IsNewGame)
                         {
-                            _worldScript.CallIfDefined("onCreate", _saveManager.CurrentGame);
                             _saveManager.CurrentGame.IsNewGame = false;
                             _saveManager.Save();
                         }

@@ -51,7 +51,7 @@ namespace SociallyDistant.ContentEditors
             // since this is a very early version of the game.
             // 
             // So we'll just look for career.pak and try to load it.
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "career.pak");
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "world-base.pak");
 
             try
             {
