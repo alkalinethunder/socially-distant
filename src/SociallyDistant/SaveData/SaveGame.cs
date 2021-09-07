@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using SociallyDistant.WorldObjects;
 
@@ -9,6 +10,8 @@ namespace SociallyDistant.SaveData
     {
         private PlayerProgress _progress = null;
 
+        internal List<NetworkAddress> ReservedAddresses { get; set; } = new();
+        
         public List<SavedEmailConversation> Emails { get; set; } = new();
         
         [JsonIgnore]
@@ -37,6 +40,32 @@ namespace SociallyDistant.SaveData
         public PlayerProgress Progress { get => _progress; set => _progress = value; }
         
         public DeviceData PlayerDevice { get; set; }
+
+        public bool GetIspNetworkAddress(Guid id, out uint address)
+        {
+            address = 0;
+
+            var netAddress = ReservedAddresses.FirstOrDefault(x => x.Owner == id && x.Type == AddressType.Isp);
+
+            if (netAddress == null)
+                return false;
+
+            address = netAddress.Address;
+            return true;
+        }
+
+        public void SetIspAddress(Guid id, uint address)
+        {
+            var netAddress = new NetworkAddress();
+            netAddress.Address = address;
+            netAddress.Owner = id;
+            ReservedAddresses.Add(netAddress);
+        }
+
+        public bool IsAddressReserved(uint address)
+        {
+            return ReservedAddresses.Any(x => x.Type != AddressType.Device && x.Address == address);
+        }
         
         public void AutoCreatePlayer(string playerName, Pronoun pronoun)
         {
@@ -90,6 +119,21 @@ namespace SociallyDistant.SaveData
         public int Level { get; set; }
     }
 
+    public class NetworkAddress
+    {
+        public uint Address { get; set; }
+        public AddressType Type { get; set; }
+        public Guid Owner { get; set; }
+        public Guid Parent { get; set; }
+    }
+
+    public enum AddressType
+    {
+        Isp,
+        Network,
+        Device
+    }
+    
     public class PlayerState
     {
         private PlayerProgress _playerProgress;

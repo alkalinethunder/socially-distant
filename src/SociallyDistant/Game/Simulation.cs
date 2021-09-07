@@ -15,6 +15,7 @@ namespace SociallyDistant.Game
 {
     public class Simulation : ISystem
     {
+        private Random _random = new();
         private Scene _scene;
         private SaveManager _saveManager;
 
@@ -41,6 +42,8 @@ namespace SociallyDistant.Game
             _traceStacker.ViewportPosition = new Vector2(-25, -25);
             
             _scene.Gui.AddToViewport(_traceStacker);
+
+            PrepareIsps();
         }
 
         public void Unload()
@@ -161,6 +164,36 @@ namespace SociallyDistant.Game
                     homefs.CreateDirectory("/" + user);
                 pakfs.BulkCopy(homefs, "/skel/base", "/" + user);
             }
+        }
+
+        private void PrepareIsps()
+        {
+            foreach (var isp in _saveManager.GetAssetRegistry().GetAssets().OfType<IspData>())
+            {
+                var entity = _scene.Registry.Create();
+
+                if (!_saveManager.CurrentGame.GetIspNetworkAddress(isp.Id, out var ip))
+                {
+                    ip = GenerateGlobalIpAddress();
+                    _saveManager.CurrentGame.SetIspAddress(isp.Id, ip);
+                }
+            }
+        }
+
+        private uint GenerateGlobalIpAddress()
+        {
+            var address = 0u;
+            while (address == IpUtils.Zero || address == IpUtils.Loopback || _saveManager.CurrentGame.IsAddressReserved(address))
+            {
+                var b1 = (byte) _random.Next(10, 240);
+                var b2 = (byte) _random.Next(10, 240);
+                var b3 = (byte) _random.Next(10, 240);
+                var b4 = (byte) _random.Next(10, 240);
+
+                address = IpUtils.AddressFromOctets(b1, b2, b3, b4);
+            }
+
+            return address;
         }
     }
 }
