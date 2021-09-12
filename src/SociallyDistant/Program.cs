@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using SociallyDistant.Core;
+using SociallyDistant.Editor;
 using Thundershock;
 using Thundershock.Core;
 using Thundershock.Gui;

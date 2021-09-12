@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-using SociallyDistant.Windowing;
+using SociallyDistant.Gui.Windowing;
 using Thundershock.Core;
 using Thundershock.Core.Input;
 using Thundershock.Gui;

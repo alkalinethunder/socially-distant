@@ -49,6 +49,7 @@
     <ProjectReference Include="..\..\thundershock\src\Thundershock\Thundershock.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Online" />
     <Folder Include="Resources\Fonts\Console" />
     <Folder Include="Resources\Textures" />
   </ItemGroup>

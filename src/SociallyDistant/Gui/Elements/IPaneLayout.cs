@@ -1,4 +1,4 @@
-﻿using SociallyDistant.Windowing;
+﻿using SociallyDistant.Gui.Windowing;
 using Thundershock.Core;
 
 namespace SociallyDistant.Gui.Elements
