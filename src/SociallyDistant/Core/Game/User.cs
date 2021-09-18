@@ -1,18 +1,5 @@
-﻿using System.Collections.Generic;
-using SociallyDistant.Core.SaveData;
-
-namespace SociallyDistant.Core.Game
+﻿namespace SociallyDistant.Core.Game
 {
-    public class HackableDefinition
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public HackableType Type { get; set; }
-        public int DefaultPort { get; set; }
-        public Difficulty MinimumDifficulty { get; set; }
-        public List<DeviceType> PossibleDeviceTypes { get; set; }
-    }
-
     public class User
     {
         public string UserName { get; set; }
@@ -35,14 +22,5 @@ namespace SociallyDistant.Core.Game
             HomeDirectory = "/tmp",
             Type = UserType.Nobody
         };
-    }
-
-    public enum UserType
-    {
-        Root,
-        SudoNoPasswd,
-        Sudo,
-        User,
-        Nobody
     }
 }

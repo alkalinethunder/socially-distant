@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using SociallyDistant.Core.IO;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.WorldObjects;
 using Thundershock.IO;
 
-namespace SociallyDistant.Core.Game
+namespace SociallyDistant.Core.IO
 {
     public class VOSRootNode : Node
     {

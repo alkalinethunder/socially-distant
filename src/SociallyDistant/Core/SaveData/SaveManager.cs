@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using SociallyDistant.Core.Game;
 using SociallyDistant.Core.WorldObjects;
 using SociallyDistant.Editor;
 using Thundershock;

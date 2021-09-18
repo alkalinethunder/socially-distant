@@ -1,4 +1,4 @@
-﻿namespace SociallyDistant.Core.SaveData
+﻿namespace SociallyDistant.Core.Game
 {
     public enum DeviceType
     {

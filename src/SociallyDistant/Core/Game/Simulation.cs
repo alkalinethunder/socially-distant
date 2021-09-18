@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using SociallyDistant.Core.IO;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Core.WorldObjects;
 using SociallyDistant.Editor;
