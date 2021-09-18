@@ -219,8 +219,9 @@ namespace SociallyDistant.Editor
                 // Null-check it.
                 if (type == null)
                 {
-                    throw new InvalidOperationException("Missing necessary C# assembly for loading world asset " + id +
-                                                        " of type " + typeName);
+                    Logger.GetLogger().Log("Missing necessary C# assembly for loading world asset " + id +
+                                           " of type " + typeName, LogLevel.Error);
+                    continue;
                 }
                 
                 // Deserialize the JSON asset.

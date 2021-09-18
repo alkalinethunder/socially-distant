@@ -428,15 +428,6 @@ namespace SociallyDistant.Core.SaveData
             });
         }
         
-        public Stream OpenWorldScript()
-        {
-            ThrowIfPreloading();
-
-            if (_fs.FileExists("/script/world.js"))
-                return _fs.OpenFile("/script/world.js");
-            else return Stream.Null;
-        }
-
         public FileSystem GetWorldData()
         {
             ThrowIfPreloading();

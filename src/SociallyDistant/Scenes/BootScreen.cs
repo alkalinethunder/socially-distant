@@ -24,12 +24,6 @@ namespace SociallyDistant.Scenes
         private RedConfigManager _redConf;
 
         #endregion
-
-        #region Script
-
-        private ScriptEngine _worldScript = null;
-
-        #endregion
         
         #region COMPONENTS
 
@@ -125,10 +119,7 @@ namespace SociallyDistant.Scenes
                 GoToScene<SaveErrorScene>();
                 return;
             }
-
-            if (_worldScript == null)
-                InitWorldScript();
-
+            
             switch (_bootState)
             {
                 case 0:
@@ -141,12 +132,6 @@ namespace SociallyDistant.Scenes
                     if (_transition >= 2)
                     {
                         _transition = 0;
-                        
-                        if (_worldScript.IsDefined("onCreate") && _saveManager.CurrentGame.IsNewGame)
-                        {
-                            _saveManager.CurrentGame.IsNewGame = false;
-                            _saveManager.Save();
-                        }
                         
                         _bootState++;
                     }
@@ -252,17 +237,6 @@ namespace SociallyDistant.Scenes
         private void CreateOobe()
         {
             _oobe = new Oobe(this);
-        }
-        
-        private void InitWorldScript()
-        {
-            _worldScript = new();
-
-            using var stream = _saveManager.OpenWorldScript();
-
-            _worldScript.ExecuteStream(stream);
-
-            stream.Close();
         }
     }
 }
