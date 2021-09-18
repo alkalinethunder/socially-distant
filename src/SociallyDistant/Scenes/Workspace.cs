@@ -300,10 +300,6 @@ namespace SociallyDistant.Scenes
         {
             // console fonts.
             _redConf.SetConsoleFonts(_console);
-            
-            // Color palette.
-            _palette = _redConf.GetPalette();
-            _console.ColorPalette = _palette;
         }
         
         private void StartShell()
