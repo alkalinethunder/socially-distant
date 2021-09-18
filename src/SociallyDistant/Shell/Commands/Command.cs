@@ -10,7 +10,7 @@ namespace SociallyDistant.Shell.Commands
     public abstract class Command
     {
         private string _home;
-        private IRedTeamContext _userContext;
+        private IProgramContext _userContext;
         private bool _completed;
         private bool _running = false;
         private IConsole _console;
@@ -21,7 +21,7 @@ namespace SociallyDistant.Shell.Commands
         
         public abstract string Name { get; }
         public virtual string Description => string.Empty;
-        protected IRedTeamContext Context => _userContext;
+        protected IProgramContext Context => _userContext;
         protected IConsole Console => _console;
         protected string[] Arguments => _args;
         protected string WorkingDirectory => _workingDirectory;
@@ -39,7 +39,7 @@ namespace SociallyDistant.Shell.Commands
             return PathUtils.Resolve(resolved);
         }
         
-        public void Run(string[] args, string work, IConsole console, IRedTeamContext ctx, bool disposeConsole = true)
+        public void Run(string[] args, string work, IConsole console, IProgramContext ctx, bool disposeConsole = true)
         {
             if (_running)
                 throw new InvalidOperationException("Command has already been run.");

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LiteDB;
@@ -11,7 +10,6 @@ namespace SociallyDistant.Core.SaveData
     public class SaveDatabase
     {
         private List<ProfileSlot> _careerSlots = new();
-        private readonly List<ExtensionSaveData> _extensions = new();
         private string _path;
 
         public IEnumerable<ProfileSlot> CareerSlots => _careerSlots.OrderByDescending(x => x.LastPlayDate);
@@ -23,11 +21,6 @@ namespace SociallyDistant.Core.SaveData
             return _careerSlots.First(x => x.SaveSlotName == slotId);
         }
         
-        public IEnumerable<SaveSlot> GetExtensionSaves(InstalledContentPack pack)
-        {
-            return _extensions.First(x => x.GameData == pack).Slots;
-        }
-
         public void UpdateSlot(ProfileSlot slot)
         {
             using var ldb = new LiteDatabase(_path);
@@ -54,11 +47,6 @@ namespace SociallyDistant.Core.SaveData
             _careerSlots.Add(slot);
         }
         
-        internal void AddExtension(ExtensionSaveData ext)
-        {
-            _extensions.Add(ext);
-        }
-
         private void Restore(string path)
         {
             _path = path;
@@ -115,34 +103,6 @@ namespace SociallyDistant.Core.SaveData
             }
             
             return sdb;
-        }
-    }
-
-    public class ProfileSlot
-    {
-        public int Id { get; set; }
-        
-        public string SaveSlotName { get; set; }
-        
-        public string PlayerName { get; set; }
-        public DateTime CreationDate { get; set; }
-        public DateTime LastPlayDate { get; set; }
-        
-        public string PlayerDataHash { get; set; }
-        
-        public bool IsCareerMode { get; set; }
-        public string RelativeCustomPackPath { get; set; }
-
-        public string GetWorldDataPath()
-        {
-            if (IsCareerMode)
-            {
-                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "world-base.pak");
-            }
-            else
-            {
-                return Path.Combine(ThundershockPlatform.LocalDataPath, "packs", RelativeCustomPackPath);
-            }
         }
     }
 }

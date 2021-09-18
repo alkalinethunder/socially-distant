@@ -13,13 +13,18 @@ namespace SociallyDistant
         [STAThread]
         static void Main(string[] args)
         {
+            // Check for required PAK data files and exit with error if they're not found.
             AssertCriticalFileExists("Assets", "osicons.pak");
             AssertCriticalFileExists("Assets", "world-base.pak");
 
+            // Load in the OS Icons package.
             AssetManager.AddThirdPartyPak("icon", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "osicons.pak"));
             
+            // Register the entry point for the Socially Distant Editor.
             EntryPoint.RegisterApp<ContentEditorApp>("editor");
-            EntryPoint.Run<RedTeamApp>(args);
+            
+            // Run the game.
+            EntryPoint.Run<SociallyDistantApp>(args);
         }
 
         private static void AssertCriticalFileExists(params string[] path)

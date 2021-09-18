@@ -98,7 +98,7 @@ namespace SociallyDistant.Shell.Displays
             }
         }
 
-        public T OpenDisplay<T>(IRedTeamContext userContext) where T : DisplayWindow, new()
+        public T OpenDisplay<T>(IProgramContext userContext) where T : DisplayWindow, new()
         {
             var windowManager = _scene.GetSystem<WindowManager>();
 
@@ -128,7 +128,7 @@ namespace SociallyDistant.Shell.Displays
             }
         }
 
-        private void OpenDisplay(IRedTeamContext ctx, Type winType)
+        private void OpenDisplay(IProgramContext ctx, Type winType)
         {
             // TODO: Switching to opened single-instance displays.
             
@@ -162,7 +162,7 @@ namespace SociallyDistant.Shell.Displays
                 _icon = icon;
             }
 
-            public void Open(IRedTeamContext ctx)
+            public void Open(IProgramContext ctx)
             {
                 _dm.OpenDisplay(ctx, _win);
             }

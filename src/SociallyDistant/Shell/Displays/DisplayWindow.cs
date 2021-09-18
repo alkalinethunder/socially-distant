@@ -8,17 +8,17 @@ namespace SociallyDistant.Shell.Displays
     public abstract class DisplayWindow
     {
         private WindowFrame _window;
-        private IRedTeamContext _ctx;
+        private IProgramContext _ctx;
         
         protected DisplayWindow() {}
 
-        protected IRedTeamContext Context => _ctx;
+        protected IProgramContext Context => _ctx;
         
         public WindowFrame Window => _window;
 
         protected abstract void Main();
 
-        public static DisplayWindow Create(WindowFrame window, IRedTeamContext ctx, Type self)
+        public static DisplayWindow Create(WindowFrame window, IProgramContext ctx, Type self)
         {
             var display = (DisplayWindow) Activator.CreateInstance(self, true);
             
@@ -30,7 +30,7 @@ namespace SociallyDistant.Shell.Displays
             return display;
         }
         
-        public static T Create<T>(WindowFrame window, IRedTeamContext ctx) where T : DisplayWindow, new()
+        public static T Create<T>(WindowFrame window, IProgramContext ctx) where T : DisplayWindow, new()
         {
             var display = new T();
 

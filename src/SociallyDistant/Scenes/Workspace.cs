@@ -83,7 +83,7 @@ namespace SociallyDistant.Scenes
         private bool _noteAutoDismiss = false;
         private TimeSpan _uptime;
         private TimeSpan _frameTime;
-        private IRedTeamContext _context;
+        private IProgramContext _context;
         private ColorPalette _palette;
         
         #endregion

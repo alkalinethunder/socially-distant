@@ -28,7 +28,7 @@ namespace SociallyDistant.Shell
 
         public event EventHandler<DisplayRequestedEventArgs> DisplayRequested;
         
-        public void RegisterBuiltin(string name, string desc, Action<IRedTeamContext, IConsole, string, string[]> action)
+        public void RegisterBuiltin(string name, string desc, Action<IProgramContext, IConsole, string, string[]> action)
         {
             var builtin = _builtins.FirstOrDefault(x => x.Name == name);
             if (builtin != null)
@@ -200,7 +200,7 @@ namespace SociallyDistant.Shell
             return resolved;
         }
         
-        private void ChangeWorkingDirectory(IRedTeamContext ctx, IConsole console, string name, string[] args)
+        private void ChangeWorkingDirectory(IProgramContext ctx, IConsole console, string name, string[] args)
         {
             if (args.Length < 1)
                 throw new SyntaxErrorException($"{name}: usage: {name} <path>");
@@ -243,7 +243,7 @@ namespace SociallyDistant.Shell
             
         }
 
-        public IRedTeamContext CreatePlayerContext()
+        public IProgramContext CreatePlayerContext()
         {
             var shells = _scene.Registry.View<IConsole, ShellStateComponent, PlayerState>();
 
@@ -378,7 +378,7 @@ namespace SociallyDistant.Shell
             console.WriteLine(string.Join(" ", args));
         }
         
-        private bool ProcessBuiltin(IRedTeamContext ctx, IConsole console, string name, string[] args)
+        private bool ProcessBuiltin(IProgramContext ctx, IConsole console, string name, string[] args)
         {
             var builtin = _builtins.FirstOrDefault(x => x.Name == name);
             if (builtin != null)
@@ -521,7 +521,7 @@ namespace SociallyDistant.Shell
         {
             public string Name;
             public string Description;
-            public Action<IRedTeamContext, IConsole, string, string[]> Action;
+            public Action<IProgramContext, IConsole, string, string[]> Action;
         }
 
         private class CommandInfo
@@ -556,11 +556,11 @@ namespace SociallyDistant.Shell
 
     public sealed class DisplayRequestedEventArgs : EventArgs
     {
-        public IRedTeamContext Context { get; }
+        public IProgramContext Context { get; }
         public string FilePath { get; }
         public DisplayWindow DisplayWindow { get; }
 
-        public DisplayRequestedEventArgs(IRedTeamContext ctx, string file)
+        public DisplayRequestedEventArgs(IProgramContext ctx, string file)
         {
             Context = ctx;
             FilePath = file;
@@ -568,7 +568,7 @@ namespace SociallyDistant.Shell
         }
     }
 
-    public sealed class UserContext : IRedTeamContext
+    public sealed class UserContext : IProgramContext
     {
         private Shell _shell;
         private ShellStateComponent _shellState;

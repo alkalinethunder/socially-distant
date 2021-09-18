@@ -12,7 +12,7 @@ using Thundershock.Gui;
 
 namespace SociallyDistant.Core
 {
-    public class RedTeamApp : NewGameAppBase
+    public class SociallyDistantApp : NewGameAppBase
     {
         protected override void OnPreInit()
         {

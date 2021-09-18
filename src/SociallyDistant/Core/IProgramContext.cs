@@ -4,7 +4,7 @@ using Thundershock.IO;
 
 namespace SociallyDistant.Core
 {
-    public interface IRedTeamContext
+    public interface IProgramContext
     {
         Mailbox Mailbox { get; }
         public string WorkingDirectory { get; }

@@ -294,28 +294,9 @@ namespace SociallyDistant.Core.SaveData
             if (!Directory.Exists(_savesFolder))
                 Directory.CreateDirectory(_savesFolder);
             
-            // Initialize the saves database.
-            // Start by going through the saves folder for all sub-folders.
-            foreach (var dir in Directory.GetDirectories(_savesFolder))
-            {
-                var dname = Path.GetFileName(dir);
-                
-                // Is this the career mode folder?
-                if (_contentManager.HasCareerMode && _contentManager.CareerPack.Id == dname)
-                {
-                    LoadCareerSaveData(dir);
-                    continue;
-                }
-                
-                // Check for a valid content pack.
-                if (_contentManager.InstalledPacks.Any(x => x.Id == dname))
-                {
-                    var ext = new ExtensionSaveData(_contentManager.InstalledPacks.First(x => x.Id == dname));
-                    LoadExtensionSaveData(dir, ext);
-
-                    _saveDb.AddExtension(ext);
-                }
-            }
+            // Initialize the save database with slots that are inside the saves folder.
+            // Note that we do not care about custom stories.
+            LoadCareerSaveData(_savesFolder);
             
             base.OnLoad();
         }
@@ -397,19 +378,7 @@ namespace SociallyDistant.Core.SaveData
         private void LoadCareerSaveData(string path)
         {
         }
-
-        private void LoadExtensionSaveData(string path, ExtensionSaveData saves)
-        {
-            App.Logger.Log($"Finding save files for extension: \"{saves.GameData.Name}\"", LogLevel.Message);
-
-            foreach (var save in LoadSaveSlots(path))
-            {
-                App.Logger.Log(save.Path + " - detected.");
-                save.GameData = saves.GameData;
-                saves.AddSave(save);
-            }
-        }
-
+        
         private Task StartPreloadBackgroundTask()
         {
             return Task.Run(() =>
