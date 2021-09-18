@@ -15,7 +15,6 @@ namespace SociallyDistant.Editor
     public class ContentManager : GlobalComponent
     {
         private List<InstalledContentPack> _installedPacks = new();
-        private List<ContentPack> _packs = new();
         private string _contentPath;
         private string _installPath;
         private bool _hasCareerMode;
@@ -23,7 +22,6 @@ namespace SociallyDistant.Editor
         
         public bool HasCareerMode => _hasCareerMode;
         public InstalledContentPack CareerPack => _career;
-        public IEnumerable<ContentPack> Packs => _packs;
         public IEnumerable<InstalledContentPack> InstalledPacks => _installedPacks;
         
         protected override void OnLoad()
@@ -37,7 +35,6 @@ namespace SociallyDistant.Editor
             if (!Directory.Exists(_installPath))
                 Directory.CreateDirectory(_installPath);
             
-            LoadPackData();
             LoadInstalledPacks();
         }
 
@@ -94,20 +91,6 @@ namespace SociallyDistant.Editor
             }
         }
         
-        private void LoadPackData()
-        {
-            foreach (var dir in Directory.GetDirectories(_contentPath))
-            {
-                var dirname = Path.GetFileName(dir);
-                var jsonPath = Path.Combine(dir, "redteam.meta");
-                var dbPath = Path.Combine(dir, "content.db");
-                if (File.Exists(jsonPath) && File.Exists(dbPath))
-                {
-                    LoadPack(dirname, jsonPath, dbPath);
-                }
-            }
-        }
-
         public InstalledContentPack GetPackInfo(ProfileSlot slot)
         {
             if (slot.IsCareerMode)
@@ -118,13 +101,6 @@ namespace SociallyDistant.Editor
             {
                 return _installedPacks.First(x => x.PakName == slot.RelativeCustomPackPath);
             }
-        }
-
-        private void LoadPack(string dirname, string jsonPath, string dbPath)
-        {
-            var pack = new ContentPack(dirname, jsonPath, dbPath);
-
-            _packs.Add(pack);
         }
     }
 }
