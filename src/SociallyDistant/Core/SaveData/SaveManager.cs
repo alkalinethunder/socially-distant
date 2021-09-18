@@ -36,15 +36,6 @@ namespace SociallyDistant.Core.SaveData
         private Exception _preloadException;
         public InstalledContentPack ContentPack => _currentPack;
         
-        #region Events
-
-        public event Action<RegionNetwork> RegionAdded;
-        public event Action<InternetServiceProvider> IspAdded;
-        public event Action<Network> NetworkAdded;
-        public event Action<Device> DeviceAdded;
-        public event Action<RegionNetwork, RegionNetwork> RegionLinked;
-        #endregion
-
         public bool IsPreloading => _preloadTask != null;
         public Exception PreloadException => _preloadException;
         
