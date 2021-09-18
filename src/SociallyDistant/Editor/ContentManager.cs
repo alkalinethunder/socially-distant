@@ -119,39 +119,7 @@ namespace SociallyDistant.Editor
                 return _installedPacks.First(x => x.PakName == slot.RelativeCustomPackPath);
             }
         }
-        
-        public void CreatePack(string id)
-        {
-            if (!_packs.Any(x => x.Id == id))
-            {
-                var fullPath = Path.Combine(_contentPath, id);
-                Directory.CreateDirectory(fullPath);
-                    
-                var jsonPath = Path.Combine(fullPath, "redteam.meta");
-                var dbPath = Path.Combine(fullPath, "content.db");
 
-                using var dbStream = File.Create(dbPath);
-                using var jsonStream = File.Create(jsonPath);
-
-                var jsonData = JsonSerializer.Serialize(new ContentPackMetadata(),
-                    new JsonSerializerOptions
-                    {
-                        IncludeFields = true,
-                        WriteIndented = true
-                    });
-
-                    var liteDb = new LiteDB.LiteDatabase(dbStream);
-
-                var bytes = Encoding.UTF8.GetBytes(jsonData);
-                jsonStream.Write(bytes, 0, bytes.Length);
-
-                liteDb.Dispose();
-
-                LoadPack(id, jsonPath, dbPath);
-            }
-        }
-
-        
         private void LoadPack(string dirname, string jsonPath, string dbPath)
         {
             var pack = new ContentPack(dirname, jsonPath, dbPath);
