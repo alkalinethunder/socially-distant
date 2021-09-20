@@ -1,15 +1,17 @@
 ﻿using System;
 using SociallyDistant.Editor;
+using SociallyDistant.Editor.Attributes;
+using Thundershock.Tweaker.Attributes;
 
 namespace SociallyDistant.Core.WorldObjects
 {
     public class IspData : IAsset
     {
-        [EditorHidden]
+        [TweakHidden]
         public Guid Id { get; set; }
         
-        [EditorCategory("Internet Service Provider")]
-        [EditorName("ISP Name")]
+        [TweakCategory("Internet Service Provider")]
+        [TweakName("ISP Name")]
         public string Name { get; set; }
     }
 }

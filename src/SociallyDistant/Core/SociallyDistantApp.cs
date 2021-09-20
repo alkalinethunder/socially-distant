@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Editor;
 using SociallyDistant.Gui.Styles;
@@ -8,11 +7,12 @@ using SociallyDistant.Modding;
 using SociallyDistant.Online.CommunityAnnouncements;
 using SociallyDistant.Scenes;
 using Thundershock;
+using Thundershock.Core;
 using Thundershock.Gui;
 
 namespace SociallyDistant.Core
 {
-    public class SociallyDistantApp : NewGameAppBase
+    public class SociallyDistantApp : GameApplication
     {
         protected override void OnPreInit()
         {
@@ -35,24 +35,19 @@ namespace SociallyDistant.Core
             // Use our own UI skin for the UI
             GuiSystem.SetDefaultStyle<HackerStyle>();
             
-            // Announcement manager will pull community updates from aklnthndr.dev
-            RegisterComponent<AnnouncementManager>();
-            
             base.OnPreInit();
         }
-
-        protected override void OnInit()
-        {
-            // register red team components
-            RegisterComponent<ContentManager>();
-            RegisterComponent<RedConfigManager>();
-            RegisterComponent<SaveManager>();
-        }
-
+        
         protected override void OnLoad()
         {
             // Launch us straight into the v-OS boot screen.
             LoadScene<Intro>();
+        }
+
+        protected override void BeforeFrame(GameTime gameTime)
+        {
+            AnnouncementManager.Instance.OnUpdate(gameTime);
+            SaveManager.Instance.OnUpdate(gameTime);
         }
     }
 }

@@ -25,7 +25,6 @@ namespace SociallyDistant.Core.IO
             get
             {
                 yield return new NullNode(this);
-                yield return new DebugNode(this);
             }
         }
 

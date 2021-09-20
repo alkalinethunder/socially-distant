@@ -18,8 +18,21 @@ using Thundershock.IO;
 
 namespace SociallyDistant.Core.SaveData
 {
-    public class SaveManager : GlobalComponent
+    public class SaveManager
     {
+        private static SaveManager _instance;
+
+        internal static SaveManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new();
+                return _instance;
+            }
+        }
+        
+        
         private readonly string _metadataFileName = "metadata.rtch";
         private readonly string _gameDataFileName = "database.reddb";
         private readonly byte[] _ritchie = Encoding.UTF8.GetBytes("_31hct1R");
@@ -189,7 +202,7 @@ namespace SociallyDistant.Core.SaveData
         {
             ThrowIfNotLoaded();
 
-            App.Logger.Log("Saving the game...", LogLevel.Message);
+            Logger.Log("Saving the game...", LogLevel.Message);
             
             // Serialize and save the game state.
             var json = JsonSerializer.Serialize(_currentGame);
@@ -207,7 +220,7 @@ namespace SociallyDistant.Core.SaveData
             // Save the changes made to the slot.
             _saveDb.UpdateSlot(_slot);
 
-            App.Logger.Log("Completed.", LogLevel.Message);
+            Logger.Log("Completed.", LogLevel.Message);
         }
 
         public void LoadGame(string slotId)
@@ -254,7 +267,7 @@ namespace SociallyDistant.Core.SaveData
             _preloadTask = StartPreloadBackgroundTask();
         }
         
-        protected override void OnUpdate(GameTime gameTime)
+        internal void OnUpdate(GameTime gameTime)
         {
             if (IsPreloading)
             {
@@ -265,18 +278,16 @@ namespace SociallyDistant.Core.SaveData
                 }
                 else if (_preloadTask.IsCompleted)
                 {
-                    Logger.GetLogger().Log("Preloading has completed.");
+                    Logger.Log("Preloading has completed.");
                     _preloadTask = null;
                 }
             }
-            
-            base.OnUpdate(gameTime);
         }
 
-        protected override void OnLoad()
+        private SaveManager()
         {
             // Retrieve a reference to the content manager.
-            _contentManager = App.GetComponent<ContentManager>();
+            _contentManager = ContentManager.Instance;
          
             // Set up the save database.
             _saveDb = SaveDatabase.Load(_contentManager);
@@ -289,8 +300,6 @@ namespace SociallyDistant.Core.SaveData
             // Initialize the save database with slots that are inside the saves folder.
             // Note that we do not care about custom stories.
             LoadCareerSaveData(_savesFolder);
-            
-            base.OnLoad();
         }
 
         public void ResetState()
@@ -308,7 +317,7 @@ namespace SociallyDistant.Core.SaveData
         {
             foreach (var dir in Directory.GetDirectories(path))
             {
-                App.Logger.Log("Loading data for: " + dir, LogLevel.Message);
+                Logger.Log("Loading data for: " + dir, LogLevel.Message);
                 
                 var saveSlot = new SaveSlot(dir);
 
@@ -322,7 +331,7 @@ namespace SociallyDistant.Core.SaveData
                 var paths = new[] {metadataFile, metaSig, database, dataSig};
                 if (!paths.All(x => File.Exists(x)))
                 {
-                    App.Logger.Log("Save file is missing some data.", LogLevel.Error);
+                    Logger.Log("Save file is missing some data.", LogLevel.Error);
                     saveSlot.IsCorrupted = true;
                 }
                 else
@@ -336,7 +345,7 @@ namespace SociallyDistant.Core.SaveData
                     if (!Crypto.Sha256CompareFile(metadataFile, metaSigHash) ||
                         !Crypto.Sha256CompareFile(database, dataSigHash))
                     {
-                        App.Logger.Log("Save data didn't pass signature checks... Tampered with, maybe?",
+                        Logger.Log("Save data didn't pass signature checks... Tampered with, maybe?",
                             LogLevel.Error);
                         saveSlot.IsCorrupted = true;
                     }
@@ -359,7 +368,7 @@ namespace SociallyDistant.Core.SaveData
 
                 if (saveSlot.IsCorrupted)
                 {
-                    App.Logger.Log("Considering the save file corrupt.", LogLevel.Warning);
+                    Logger.Log("Considering the save file corrupt.", LogLevel.Warning);
                 }
                 
                 yield return saveSlot;
@@ -407,7 +416,7 @@ namespace SociallyDistant.Core.SaveData
                         // Make sure that we create the texture ON THE RENDER THREAD.
                         EntryPoint.CurrentApp.EnqueueAction(() =>
                         {
-                            var tex = new Texture2D((this.App as GraphicalAppBase).Graphics, width, height, TextureFilteringMode.Linear);
+                            var tex = new Texture2D(GamePlatform.GraphicsProcessor, width, height, TextureFilteringMode.Linear);
                             tex.Upload(pixels);
                             texture = tex;
                             done.Set();

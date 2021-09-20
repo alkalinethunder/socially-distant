@@ -18,7 +18,7 @@ namespace SociallyDistant.Shell.Commands
 
             var uptime = $"{(int) gameUptime.TotalHours} hours, {gameUptime.Minutes} minutes, {gameUptime.Seconds} seconds";
             var template = GetTemplate();
-            var xnaAsm = typeof(GraphicalAppBase).Assembly;
+            var xnaAsm = typeof(GraphicalApplication).Assembly;
             var user = $"{Context.UserName}@{Context.HostName}";
             var line = Repeat('-', user.Length);
             var host = ThundershockPlatform.OsName;

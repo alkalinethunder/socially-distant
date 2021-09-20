@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using SociallyDistant.Editor.Attributes;
 using SociallyDistant.Editor.PropertyEditors;
 using Thundershock;
+using Thundershock.Tweaker.Attributes;
 
 namespace SociallyDistant.Editor
 {
@@ -18,10 +20,10 @@ namespace SociallyDistant.Editor
         {
             Property = prop;
 
-            Name = (prop.GetCustomAttributes(true).OfType<EditorNameAttribute>().FirstOrDefault()?.Name) ?? prop.Name;
-            Category = (prop.GetCustomAttributes(true).OfType<EditorCategoryAttribute>().FirstOrDefault()?.Category) ?? "Uncategorized";
+            Name = (prop.GetCustomAttributes(true).OfType<TweakNameAttribute>().FirstOrDefault()?.Name) ?? prop.Name;
+            Category = (prop.GetCustomAttributes(true).OfType<TweakCategoryAttribute>().FirstOrDefault()?.Category) ?? "Uncategorized";
             Description =
-                (prop.GetCustomAttributes(true).OfType<EditorDescriptionAttribute>().FirstOrDefault()?.Description) ??
+                (prop.GetCustomAttributes(true).OfType<TweakDescriptionAttribute>().FirstOrDefault()?.Description) ??
                 string.Empty;
 
             CustomEditor = prop.GetCustomAttributes(true).OfType<CustomEditorAttribute>().FirstOrDefault();

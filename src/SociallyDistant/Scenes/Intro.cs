@@ -67,7 +67,7 @@ namespace SociallyDistant.Scenes
         protected override void OnLoad()
         {
             // Save Manager!
-            _saveManager = Game.GetComponent<SaveManager>();
+            _saveManager = SaveManager.Instance;
             
             // Copyright text.
             _tsCopyright.Text =

@@ -12,8 +12,21 @@ using Thundershock.Core.Debugging;
 
 namespace SociallyDistant.Editor
 {
-    public class ContentManager : GlobalComponent
+    public class ContentManager
     {
+        private static ContentManager _instance;
+
+        internal static ContentManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new();
+
+                return _instance;
+            }
+        }
+        
         private List<InstalledContentPack> _installedPacks = new();
         private string _contentPath;
         private string _installPath;
@@ -24,7 +37,7 @@ namespace SociallyDistant.Editor
         public InstalledContentPack CareerPack => _career;
         public IEnumerable<InstalledContentPack> InstalledPacks => _installedPacks;
         
-        protected override void OnLoad()
+        private ContentManager()
         {
             _contentPath = Path.Combine(ThundershockPlatform.LocalDataPath, "editorpacks");
             _installPath = Path.Combine(ThundershockPlatform.LocalDataPath, "packs");
@@ -55,7 +68,7 @@ namespace SociallyDistant.Editor
                 if (File.Exists(path))
                 {
                     _hasCareerMode = true;
-                    _career = InstalledContentPack.FromPak((App as GraphicalAppBase).Graphics, path);
+                    _career = InstalledContentPack.FromPak(GamePlatform.GraphicsProcessor, path);
                 }
                 else
                 {
@@ -64,8 +77,8 @@ namespace SociallyDistant.Editor
             }
             catch (Exception ex)
             {
-                App.Logger.Log("Couldn't  load career mode, falling back into demo mode.", LogLevel.Error);
-                App.Logger.LogException(ex);
+                Logger.Log("Couldn't  load career mode, falling back into demo mode.", LogLevel.Error);
+                Logger.LogException(ex);
                 _hasCareerMode = false;
             }
         }
@@ -75,7 +88,7 @@ namespace SociallyDistant.Editor
             // Locate career mode first.
             LocateCareerMode();
 
-            var graphics = (App as GraphicalAppBase).Graphics;
+            var graphics = GamePlatform.GraphicsProcessor;
             
             foreach (var pakFile in Directory.GetFiles(_installPath))
             {
@@ -85,8 +98,8 @@ namespace SociallyDistant.Editor
                 }
                 catch (Exception ex)
                 {
-                    App.Logger.Log("custom story loading warning: bad file - " + pakFile, LogLevel.Warning);
-                    App.Logger.LogException(ex);
+                    Logger.Log("custom story loading warning: bad file - " + pakFile, LogLevel.Warning);
+                    Logger.LogException(ex);
                 }
             }
         }

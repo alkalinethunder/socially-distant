@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Core.Game;
 using SociallyDistant.Core.SaveData;
 using SociallyDistant.Gui.Elements;
@@ -11,7 +10,6 @@ using Thundershock.Audio;
 using Thundershock.Components;
 using Thundershock.Core;
 using Thundershock.Core.Debugging;
-using Thundershock.Core.Scripting;
 using Thundershock.Gui.Elements;
 
 namespace SociallyDistant.Scenes
@@ -21,7 +19,6 @@ namespace SociallyDistant.Scenes
         #region GLOBAL REFERENCES
 
         private SaveManager _saveManager;
-        private RedConfigManager _redConf;
 
         #endregion
         
@@ -65,9 +62,8 @@ namespace SociallyDistant.Scenes
             MusicPlayer.Stop();
             
             // Grab app references.
-            _saveManager = Game.GetComponent<SaveManager>();
-            _redConf = Game.GetComponent<RedConfigManager>();
-            
+            _saveManager = SaveManager.Instance;
+
             // Add the gui system to the scene.
             var bg = SpawnObject();
             var logo = SpawnObject();
@@ -187,9 +183,9 @@ namespace SociallyDistant.Scenes
                     {
                         var ex = _simulationPreload.Exception;
 
-                        Logger.GetLogger().Log("Simulation preload has failed. Game will return to main menu now.",
+                        Logger.Log("Simulation preload has failed. Game will return to main menu now.",
                             LogLevel.Error);
-                        Logger.GetLogger().LogException(ex);
+                        Logger.LogException(ex);
 
                         SaveErrorScene.SetException(ex);
                         GoToScene<SaveErrorScene>();
@@ -197,7 +193,7 @@ namespace SociallyDistant.Scenes
                     
                     if (_simulationPreload.IsCompleted)
                     {
-                        Logger.GetLogger().Log("Simulation preload has finished. WE. ARE. READY. TO. ROLLLLLLLLLLL!",
+                        Logger.Log("Simulation preload has finished. WE. ARE. READY. TO. ROLLLLLLLLLLL!",
                             LogLevel.Message);
                         _simulationPreload = null;
                         _bootState++;

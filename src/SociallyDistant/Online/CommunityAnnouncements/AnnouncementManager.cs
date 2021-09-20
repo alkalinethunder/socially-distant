@@ -9,8 +9,21 @@ using Thundershock.Core.Debugging;
 
 namespace SociallyDistant.Online.CommunityAnnouncements
 {
-    public class AnnouncementManager : GlobalComponent
+    public class AnnouncementManager
     {
+        private static AnnouncementManager _instance;
+
+        public static AnnouncementManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = new();
+
+                return _instance;
+            }
+        }
+        
         private AnnouncementState _state;
         private WebClient _webClient;
         private AnnouncementObject[] _announcement;
@@ -19,14 +32,14 @@ namespace SociallyDistant.Online.CommunityAnnouncements
         public Announcement Announcement => _shownAnnouncement;
         public bool IsReady => Announcement != null;
         
-        protected override void OnLoad()
+        private AnnouncementManager()
         {
             _state = AnnouncementState.PreInit;
 
             _webClient = new WebClient();
         }
 
-        protected override void OnUpdate(GameTime gameTime)
+        internal void OnUpdate(GameTime gameTime)
         {
             switch (_state)
             {
@@ -40,23 +53,21 @@ namespace SociallyDistant.Online.CommunityAnnouncements
                     break;
                 case AnnouncementState.Done:
                     _shownAnnouncement = new Announcement(_announcement.First());
-                    App.Logger.Log("Retrieved announcement data.");
-                    App.Logger.Log(
+                    Logger.Log("Retrieved announcement data.");
+                    Logger.Log(
                         $"Title: {_shownAnnouncement.Title} ({_shownAnnouncement.Link}, {_shownAnnouncement.Date})");
                     _state = AnnouncementState.Ready;
                     break;
             }
-            
-            base.OnUpdate(gameTime);
         }
 
         private void WebClientOnDownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
             if (e.Error != null)
             {
-                App.Logger.Log("Couldn't fetch community announcement.", LogLevel.Warning);
-                App.Logger.Log("Falling back to the cache.", LogLevel.Warning);
-                App.Logger.LogException(e.Error);
+                Logger.Log("Couldn't fetch community announcement.", LogLevel.Warning);
+                Logger.Log("Falling back to the cache.", LogLevel.Warning);
+                Logger.LogException(e.Error);
 
                 if (TryReadAnnouncementCache(out var ann))
                 {
@@ -65,7 +76,7 @@ namespace SociallyDistant.Online.CommunityAnnouncements
                 }
                 else
                 {
-                    App.Logger.Log("Cache not readable, switching to offline mode.", LogLevel.Warning);
+                    Logger.Log("Cache not readable, switching to offline mode.", LogLevel.Warning);
                     _state = AnnouncementState.Offline;
                 }
 
@@ -74,7 +85,7 @@ namespace SociallyDistant.Online.CommunityAnnouncements
 
             if (e.Cancelled)
             {
-                App.Logger.Log("Announcement download was cancelled somehow. Cosmic rift maybe?");
+                Logger.Log("Announcement download was cancelled somehow. Cosmic rift maybe?");
                 _state = AnnouncementState.Offline;
                 return;
             }
@@ -118,8 +129,8 @@ namespace SociallyDistant.Online.CommunityAnnouncements
             }
             catch (Exception ex)
             {
-                App.Logger.Log("Failed to parse announcement data from server.");
-                App.Logger.LogException(ex);
+                Logger.Log("Failed to parse announcement data from server.");
+                Logger.LogException(ex);
             }
         }
 
@@ -137,8 +148,8 @@ namespace SociallyDistant.Online.CommunityAnnouncements
                 }
                 catch (Exception ex)
                 {
-                    App.Logger.Log("Couldn't read announcement cache:", LogLevel.Warning);
-                    App.Logger.LogException(ex);
+                    Logger.Log("Couldn't read announcement cache:", LogLevel.Warning);
+                    Logger.LogException(ex);
                 }
             }
 
@@ -148,7 +159,7 @@ namespace SociallyDistant.Online.CommunityAnnouncements
         
         private void WebClientOnDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            App.Logger.Log(
+            Logger.Log(
                 $"Downloading {e.ProgressPercentage}%... ({e.BytesReceived} bytes / {e.TotalBytesToReceive} bytes)");
         }
     }

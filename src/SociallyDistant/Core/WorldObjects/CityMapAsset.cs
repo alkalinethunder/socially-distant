@@ -1,5 +1,7 @@
 ﻿using System;
 using SociallyDistant.Editor;
+using SociallyDistant.Editor.Attributes;
+using Thundershock.Tweaker.Attributes;
 
 namespace SociallyDistant.Core.WorldObjects
 {
@@ -8,10 +10,10 @@ namespace SociallyDistant.Core.WorldObjects
     [CustomView("SociallyDistant.Editors.MapEditor")]
     public class CityMapAsset : IAsset
     {
-        [EditorHidden]
+        [TweakHidden]
         public Guid Id { get; set; }
         
-        [EditorHidden]
+        [TweakHidden]
         public string Name { get; set; }
     }
 }

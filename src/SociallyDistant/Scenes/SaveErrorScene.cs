@@ -47,7 +47,7 @@ namespace SociallyDistant.Scenes
         {
             if (_exceptionToHandle == null)
             {
-                SetException(Game.GetComponent<SaveManager>().PreloadException);
+                SetException(SaveManager.Instance.PreloadException);
             }
 
             _exceptionMessageScroller.Children.Add(_exceptionText);
@@ -118,7 +118,7 @@ namespace SociallyDistant.Scenes
         {
             if (e.Button == MouseButton.Primary)
             {
-                var sm = Game.GetComponent<SaveManager>();
+                var sm = SaveManager.Instance;
                 
                 sm.DisarmPreloaderCrash();
 

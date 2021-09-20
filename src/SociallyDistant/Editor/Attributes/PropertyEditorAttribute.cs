@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace SociallyDistant.Editor
+namespace SociallyDistant.Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class EditorTypeAttribute : Attribute
+    public sealed class PropertyEditorAttribute : Attribute
     {
         public Type Type { get; }
 
-        public EditorTypeAttribute(Type type)
+        public PropertyEditorAttribute(Type type)
         {
             Type = type;
         }

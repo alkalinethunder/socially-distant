@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Numerics;
 using SociallyDistant.Core;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Core.Game;
 using SociallyDistant.Core.Mail;
 using SociallyDistant.Core.SaveData;
@@ -28,8 +27,7 @@ namespace SociallyDistant.Scenes
 
         private AnnouncementManager _announcement;
         private SaveManager _saveManager;
-        private RedConfigManager _redConf;
-        
+
         #endregion
 
         #region SCENE COMPONENTS
@@ -107,10 +105,9 @@ namespace SociallyDistant.Scenes
             PrimaryCameraSettings.EnableFXAA = false;
             
             // Grab app references.
-            _announcement = Game.GetComponent<AnnouncementManager>();
-            _saveManager = Game.GetComponent<SaveManager>();
-            _redConf = Game.GetComponent<RedConfigManager>();
-            
+            _announcement = AnnouncementManager.Instance;
+            _saveManager = SaveManager.Instance;
+
             // Window manager.
             _windowManager = RegisterSystem<WindowManager>();
 
@@ -128,9 +125,6 @@ namespace SociallyDistant.Scenes
             
             // Refresh dynamic UI elements.
             this.RefreshDynamicGui();
-            
-            // Bind to configuration reloads.
-            _redConf.ConfigUpdated += RedConfOnConfigUpdated;
             
             base.OnLoad();
 
@@ -298,8 +292,6 @@ namespace SociallyDistant.Scenes
 
         private void LoadConfig()
         {
-            // console fonts.
-            _redConf.SetConsoleFonts(_console);
         }
         
         private void StartShell()
@@ -373,27 +365,7 @@ namespace SociallyDistant.Scenes
                 _wallpaperDisplay.Image.Dispose();
                 _wallpaperDisplay.Image = null;
             }
-            
-            // What type of wallpaper should we display?
-            switch (_redConf.ActiveConfig.WallpaperSettings.Type)
-            {
-                case WallpaperType.SolidColor:
-                    _wallpaperDisplay.Visibility = Visibility.Collapsed;
-                    _wallpaperPanel.BackColor =
-                        Color.FromHtml(_redConf.ActiveConfig.WallpaperSettings.Color ?? "#000000");
-                    break;
-                case WallpaperType.Image:
-                    _wallpaperDisplay.Visibility = Visibility.Visible;
-                    _wallpaperPanel.BackColor = Color.Black;
 
-                    if (AssetManager.TryLoadImage(_redConf.ActiveConfig.WallpaperSettings.WallpaperPath, out var tex))
-                    {
-                        _wallpaperDisplay.Image = tex;
-                    }
-                    break;
-            }
-            
-            
             // Set the alignments of the tiles.
             _terminalsPanel.ViewportAlignment = Vector2.Zero;
             _sidePanel.ViewportAlignment = Vector2.Zero;
@@ -524,7 +496,7 @@ namespace SociallyDistant.Scenes
 
         private void CheckForAnnouncement()
         {
-            if (_redConf.ActiveConfig.ShowWhatsNew && _announcement.IsReady)
+            if (_announcement.IsReady)
             {
                 _displayManager.OpenDisplay<AnnouncementDisplay>(_shell.CreatePlayerContext());
             }

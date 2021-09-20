@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using SociallyDistant.Core.WorldObjects;
 using Thundershock.Content;
 using Thundershock.Core;
+using Thundershock.Core.Debugging;
 using Thundershock.Core.Rendering;
 using Thundershock.IO;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -88,8 +89,8 @@ namespace SociallyDistant.Editor
             }
             catch (Exception ex)
             {
-                EntryPoint.CurrentApp.Logger.Log("Cannot load career mode data.");
-                EntryPoint.CurrentApp.Logger.LogException(ex);
+                Logger.Log("Cannot load career mode data.");
+                Logger.LogException(ex);
             }
             
             pack = null;

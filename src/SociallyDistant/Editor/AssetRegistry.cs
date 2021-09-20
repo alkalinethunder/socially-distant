@@ -180,7 +180,7 @@ namespace SociallyDistant.Editor
                 // Check if they match - if not, log it to the thundershock console and skip the asset.
                 if (!mapHash.SequenceEqual(infoHash))
                 {
-                    Logger.GetLogger()
+                    Logger
                         .Log(
                             "ASSET INFO VERIFICATION FAILURE on asset " + id +
                             ". Possibly tampered asset.map. Skipping the asset.", LogLevel.Error);
@@ -190,7 +190,7 @@ namespace SociallyDistant.Editor
                 // Next we're going to check the asset path to see if it exists.
                 if (!fs.FileExists(path))
                 {
-                    Logger.GetLogger().Log("Asset " + id + " is missing from the world.pak - skipping the asset.",
+                    Logger.Log("Asset " + id + " is missing from the world.pak - skipping the asset.",
                         LogLevel.Error);
                     continue;
                 }
@@ -206,7 +206,7 @@ namespace SociallyDistant.Editor
 
                 if (!jsonHash.SequenceEqual(mapJsonHash))
                 {
-                    Logger.GetLogger()
+                    Logger
                         .Log(
                             "ASSET CONTENTS VERIFICATION FAILED for asset " + id +
                             ". The asset file has been tampered with. Skipping the asset.", LogLevel.Error);
@@ -219,7 +219,7 @@ namespace SociallyDistant.Editor
                 // Null-check it.
                 if (type == null)
                 {
-                    Logger.GetLogger().Log("Missing necessary C# assembly for loading world asset " + id +
+                    Logger.Log("Missing necessary C# assembly for loading world asset " + id +
                                            " of type " + typeName, LogLevel.Error);
                     continue;
                 }

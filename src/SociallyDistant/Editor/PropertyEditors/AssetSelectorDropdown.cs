@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using SociallyDistant.Core.WorldObjects;
+using SociallyDistant.Editor.Attributes;
 using Thundershock.Core;
 using Thundershock.Core.Input;
 using Thundershock.Gui;

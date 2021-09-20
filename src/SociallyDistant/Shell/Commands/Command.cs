@@ -59,7 +59,7 @@ namespace SociallyDistant.Shell.Commands
             catch (Exception ex)
             {
                 console.WriteLine("{0}: error: {1}", Name, ex.Message);
-                EntryPoint.CurrentApp.Logger.LogException(ex, LogLevel.Warning);
+                Logger.LogException(ex, LogLevel.Warning);
                 Complete();
             }
         }
@@ -104,12 +104,12 @@ namespace SociallyDistant.Shell.Commands
                     }
                     else
                     {
-                        EntryPoint.CurrentApp.Logger.Log(
+                        Logger.Log(
                             "Could not log command error to the user's screen because the game killed the console instance before we got here.",
                             LogLevel.Error);
                     }
 
-                    EntryPoint.CurrentApp.Logger.LogException(ex, LogLevel.Warning);
+                    Logger.LogException(ex, LogLevel.Warning);
                     Complete();
                 }
             }

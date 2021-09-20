@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Gui;
 using SociallyDistant.Gui.Elements;
 using SociallyDistant.Gui.Windowing;
@@ -15,8 +14,6 @@ namespace SociallyDistant.Shell.Windows
 {
     public class SettingsWindow : Window
     {
-        private RedConfigManager _redConfig;
-        
         private BasicSettingsCategory _currentCategory;
 
         private Stacker _masterStacker = new();
@@ -59,8 +56,6 @@ namespace SociallyDistant.Shell.Windows
         
         protected override void OnOpened()
         {
-            _redConfig = Scene.Game.GetComponent<RedConfigManager>();
-            
             FixedWidth = 720;
             FixedHeight = 500;
             
@@ -207,15 +202,13 @@ namespace SociallyDistant.Shell.Windows
             _consoleFontSize.AddItem("Normal");
             _consoleFontSize.AddItem("Medium");
             _consoleFontSize.AddItem("Large");
-            _consoleFontSize.SelectedIndex = _redConfig.ActiveConfig.ConsoleFontSize;
-            
+
             // Bind resolution change event.
             _resolution.SelectedIndexChanged += ResolutionOnSelectedIndexChanged;
             _windowMode.CheckStateChanged += WindowModeOnCheckStateChanged;
             _bloom.CheckStateChanged += BloomOnCheckStateChanged;
             _shadowmask.CheckStateChanged += ShadowmaskOnCheckStateChanged;
             _vsync.CheckStateChanged += VsyncOnCheckStateChanged;
-            _consoleFontSize.SelectedIndexChanged += ConsoleFontSizeOnSelectedIndexChanged;
         }
 
         private void BuildAboutScreen()
@@ -281,22 +274,8 @@ namespace SociallyDistant.Shell.Windows
                     ThundershockPlatform.OpenFile("https://github.com/redteam-os");
                 }
             };
-
-            _enableWhatsNew.IsChecked = _redConfig.ActiveConfig.ShowWhatsNew;
-            
-            _enableWhatsNew.CheckStateChanged += (_, _) =>
-            {
-                _redConfig.ActiveConfig.ShowWhatsNew = _enableWhatsNew.IsChecked;
-                _redConfig.ApplyChanges();
-            };
         }
         
-        private void ConsoleFontSizeOnSelectedIndexChanged(Object sender, EventArgs e)
-        {
-            _redConfig.ActiveConfig.ConsoleFontSize = _consoleFontSize.SelectedIndex;
-            _redConfig.ApplyChanges();
-        }
-
         private void VsyncOnCheckStateChanged(object sender, EventArgs e)
         {
             ConfigurationManager.ActiveConfig.VSync = _vsync.IsChecked;

@@ -1,4 +1,5 @@
 ﻿using System;
+using SociallyDistant.Editor.Attributes;
 using Thundershock.Gui.Elements;
 
 namespace SociallyDistant.Editor.PropertyEditors

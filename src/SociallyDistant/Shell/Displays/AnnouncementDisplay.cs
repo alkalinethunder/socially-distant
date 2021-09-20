@@ -1,5 +1,4 @@
 ﻿using System;
-using SociallyDistant.Core.Config;
 using SociallyDistant.Gui;
 using SociallyDistant.Online.CommunityAnnouncements;
 using Thundershock;
@@ -22,15 +21,13 @@ namespace SociallyDistant.Shell.Displays
         private CheckBox _showOnStartup = new();
         private Stacker _buttonStacker = new();
         private TextBlock _startupLabel = new();
-        private RedConfigManager _redConfig;
         private AnnouncementManager _announcement;
         
         protected override void Main()
         {
             Window.TitleText = "Welcome - What's new";
-            
-            _redConfig = Window.WindowManager.Scene.Game.GetComponent<RedConfigManager>();
-            _announcement = Window.WindowManager.Scene.Game.GetComponent<AnnouncementManager>();
+
+            _announcement = AnnouncementManager.Instance;
 
             _view.Text = "Read more";
             _close.Text = "Close";
@@ -60,11 +57,7 @@ namespace SociallyDistant.Shell.Displays
             
             _view.MouseUp += ViewOnMouseUp;
             _close.MouseUp += CloseOnMouseUp;
-
-            _showOnStartup.CheckState =
-                _redConfig.ActiveConfig.ShowWhatsNew ? CheckState.Checked : CheckState.Unchecked;
-            _showOnStartup.CheckStateChanged += ShowOnStartupOnCheckStateChanged;
-
+            
             _sociallyDistant.HorizontalAlignment = HorizontalAlignment.Left;
             _sociallyDistant.MaximumWidth = 480;
             _announcementExcerpt.MaximumWidth = _sociallyDistant.MaximumWidth * 4;
@@ -86,13 +79,7 @@ namespace SociallyDistant.Shell.Displays
                 stream.Close();
             }
         }
-
-        private void ShowOnStartupOnCheckStateChanged(object? sender, EventArgs e)
-        {
-            _redConfig.ActiveConfig.ShowWhatsNew = _showOnStartup.IsChecked;
-            _redConfig.ApplyChanges();
-        }
-
+        
         private void CloseOnMouseUp(object? sender, MouseButtonEventArgs e)
         {
             Window.RemoveFromParent();

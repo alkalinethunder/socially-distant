@@ -27,7 +27,7 @@ namespace SociallyDistant.Core.Game
         public void Init(Scene scene)
         {
             _scene = scene;
-            _saveManager = scene.Game.GetComponent<SaveManager>();
+            _saveManager = SaveManager.Instance;
 
             var assetRegistry = _saveManager.GetAssetRegistry();
 
@@ -110,7 +110,7 @@ namespace SociallyDistant.Core.Game
 
                 save.PlayerAgent = playerAgent;
                 
-                saveManager.App.EnqueueAction(() =>
+                EntryPoint.CurrentApp.EnqueueAction(() =>
                 {
                     saveManager.Save();
                 });

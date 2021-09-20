@@ -127,7 +127,7 @@ namespace SociallyDistant.Core.Mail
         
         private void SaveEmail(string from, EmailRequest message)
         {
-            var saveManager = _scene.Game.GetComponent<SaveManager>();
+            var saveManager = SaveManager.Instance;
             
             var savedEmail = new SavedEmail();
             savedEmail.Id = message.Email.Id;
@@ -209,7 +209,7 @@ namespace SociallyDistant.Core.Mail
 
         private void RestoreMailFromSave()
         {
-            var saveManager = _scene.Game.GetComponent<SaveManager>();
+            var saveManager = SaveManager.Instance;
             var save = saveManager.CurrentGame;
 
             foreach (var mailboxEntity in _scene.Registry.View<Mailbox>())

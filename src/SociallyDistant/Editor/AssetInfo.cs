@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SociallyDistant.Editor.AssetViews;
+using SociallyDistant.Editor.Attributes;
 using Thundershock;
+using Thundershock.Tweaker.Attributes;
 
 namespace SociallyDistant.Editor
 {
@@ -76,7 +78,7 @@ namespace SociallyDistant.Editor
             
             foreach (var prop in AssetType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                if (prop.GetCustomAttributes(true).OfType<EditorHiddenAttribute>().Any())
+                if (prop.GetCustomAttributes(true).OfType<TweakHiddenAttribute>().Any())
                     continue;
                 
                 _props.Add(new AssetProperty(prop));

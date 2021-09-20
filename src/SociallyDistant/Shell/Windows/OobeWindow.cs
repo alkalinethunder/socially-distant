@@ -73,7 +73,7 @@ namespace SociallyDistant.Shell.Windows
         {
             _boot = boot;
 
-            _saveManager = _boot.Game.GetComponent<SaveManager>();
+            _saveManager = SaveManager.Instance;
             
             BuildGui();
             UpdateGui();

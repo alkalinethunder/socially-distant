@@ -4,16 +4,12 @@ using Thundershock;
 
 namespace SociallyDistant.Editor
 {
-    public class ContentEditorApp : NewGameAppBase
+    public class ContentEditorApp : GameApplication
     {
         protected override void OnPreInit()
         {
             // module manager stuff
             ModuleManager.Initialize();
-
-            // register the editor console
-            var econsole = RegisterComponent<EditorConsole>();
-            Logger.AddOutput(econsole);
 
             base.OnPreInit();
         }
@@ -22,8 +18,6 @@ namespace SociallyDistant.Editor
         {
             Window.Title = "Socially Distant Editor";
 
-            RegisterComponent<ContentManager>();
-            
             base.OnInit();
         }
 

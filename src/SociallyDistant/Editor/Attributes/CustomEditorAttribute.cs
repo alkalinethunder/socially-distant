@@ -1,7 +1,7 @@
 ﻿using System;
 using Thundershock.Gui.Elements;
 
-namespace SociallyDistant.Editor
+namespace SociallyDistant.Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class CustomEditorAttribute : Attribute

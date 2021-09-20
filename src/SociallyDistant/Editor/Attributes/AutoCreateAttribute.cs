@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SociallyDistant.Editor
+namespace SociallyDistant.Editor.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class AutoCreateAttribute : Attribute
